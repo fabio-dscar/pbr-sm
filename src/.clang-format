@@ -10,3 +10,4 @@ BreakBeforeConceptDeclarations: true
 ColumnLimit: 100
 AllowShortFunctionsOnASingleLine: Inline
 IncludeBlocks: Preserve
+SortIncludes: Never
