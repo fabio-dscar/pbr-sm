@@ -7,7 +7,7 @@ AlwaysBreakTemplateDeclarations: Yes
 SpaceAfterTemplateKeyword: false
 AccessModifierOffset: -4
 BreakBeforeConceptDeclarations: true
-ColumnLimit: 100
+ColumnLimit: 90
 AllowShortFunctionsOnASingleLine: Inline
 IncludeBlocks: Preserve
 SortIncludes: Never
