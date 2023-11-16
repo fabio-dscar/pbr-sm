@@ -31,6 +31,8 @@ public:
     float tMin() const;
     float tMax() const;
 
+    bool inRange(float t) const;
+
 private:
     Vec3 _origin;
     Vec3 _dir;

@@ -176,6 +176,28 @@ bool BSphere::isBounded() const {
            (_radius != -FLOAT_INFINITY || _radius != FLOAT_INFINITY);
 }
 
+bool BSphere::intersectRay(const Ray& ray, float* t) const {
+    const Vec3 cdir = ray.origin() - _center;
+
+    // Solve quadratic
+    float B = dot(cdir, ray.direction());
+    float C = cdir.lengthSqr() - _radius * _radius;
+    float detSq = B * B - C;
+    if (detSq >= 0.0) {
+        float det = std::sqrt(detSq);
+
+        *t = -B - det;
+        if (ray.inRange(*t))
+            return true;
+
+        *t = -B + det;
+        if (ray.inRange(*t))
+            return true;
+    }
+
+    return false;
+}
+
 BSphere math::transform(const Matrix4x4& mat, const BSphere& bSphere) {
     return BSphere(mat * Vec4(bSphere.center(), 1.0f), bSphere.radius());
 }

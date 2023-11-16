@@ -31,3 +31,7 @@ float Ray::tMin() const {
 float Ray::tMax() const {
     return _tMax;
 }
+
+bool Ray::inRange(float t) const {
+    return t > _tMin && t < _tMax;
+}

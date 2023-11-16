@@ -64,12 +64,15 @@ public:
     bool contains(const Vec3& pos) const;
     bool isBounded() const;
 
+    bool intersectRay(const Ray& ray, float* t) const;
+
 private:
     Vec3 _center;
     float _radius;
 };
 
 PBR_SHARED BSphere transform(const Matrix4x4& mat, const BSphere& bSphere);
+
 } // namespace math
 } // namespace pbr
 

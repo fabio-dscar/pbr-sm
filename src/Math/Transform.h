@@ -21,6 +21,7 @@ PBR_SHARED Matrix4x4 rotationAxis(float rads, const Vector3& axis);
 PBR_SHARED Matrix4x4 orthographic(float l, float r, float b, float t, float n, float f);
 PBR_SHARED Matrix4x4 perspective(float fov, float aspect, float n, float f);
 PBR_SHARED Matrix4x4 lookAt(const Vector3& eye, const Vector3& center, const Vector3& up);
+
 } // namespace math
 } // namespace pbr
 
