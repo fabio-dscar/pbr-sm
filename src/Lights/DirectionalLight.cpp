@@ -2,8 +2,6 @@
 
 using namespace pbr;
 
-DirectionalLight::DirectionalLight() : Light() {}
-
 DirectionalLight::DirectionalLight(const Color& emission, float intensity)
     : Light(emission, intensity) {}
 

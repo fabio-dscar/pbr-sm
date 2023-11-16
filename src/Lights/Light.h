@@ -29,10 +29,11 @@ struct LightData {
 
 class PBR_SHARED Light : public SceneObject {
 public:
-    Light();
+    Light() = default;
     Light(const Color& emission, float intensity);
     Light(const Vec3& position, const Color& emission, float intensity);
     Light(const Mat4& lightToWorld, const Color& emission, float intensity);
+    virtual ~Light() = default;
 
     bool isOn() const;
     bool castShadows() const;
@@ -43,10 +44,10 @@ public:
     virtual sref<Shape> shape() const;
 
 protected:
-    bool _on;
-    bool _shadows;
-    float _intensity;
-    Color _emission; // Normalized emission
+    Color _emission { 1.0f }; // Normalized emission
+    float _intensity = 1.0f;
+    bool _on = true;
+    bool _shadows = true;
 };
 
 } // namespace pbr

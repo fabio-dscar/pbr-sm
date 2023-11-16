@@ -9,7 +9,7 @@ int g_AttribLocationTex, g_AttribLocationProjMtx, g_VertHandle, g_FragHandle;
 int g_AttribLocationPosition, g_AttribLocationUV, g_AttribLocationColor;
 unsigned int g_VaoHandle, g_VboHandle, g_ElementsHandle, g_FontTexture;
 
-static float f = 1.0f;
+//static float f = 1.0f;
 
 void SetupImGuiStyle2();
 
@@ -335,6 +335,6 @@ void SetupImGuiStyle2() {
     static ImVec3 color_for_area = ImVec3(60.f / 255.f, 60.f / 255.f, 60.f / 255.f);
     static ImVec3 color_for_body = ImVec3(48.f / 255.f, 48.f / 255.f, 48.f / 255.f);
     static ImVec3 color_for_pops = ImVec3(33.f / 255.f, 46.f / 255.f, 60.f / 255.f);
-    static ImVec3 color_for_slider_button = ImVec3(255.f / 255.f, 144.f / 255.f, 37.f / 255.f);
+    //static ImVec3 color_for_slider_button = ImVec3(255.f / 255.f, 144.f / 255.f, 37.f / 255.f);
     imgui_easy_theming(color_for_text, color_for_head, color_for_area, color_for_body, color_for_pops);
 }

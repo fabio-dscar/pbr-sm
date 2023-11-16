@@ -6,8 +6,8 @@ using namespace pbr;
 using namespace pbr::math;
 
 Quat::Quat() : x(0), y(0), z(0), w(1) {}
-Quat::Quat(float w, const Vector3& v) : w(w), x(v.x), y(v.y), z(v.z) {}
-Quat::Quat(float w, float x, float y, float z) : w(w), x(x), y(y), z(z) {}
+Quat::Quat(float w, const Vector3& v) : x(v.x), y(v.y), z(v.z), w(w) {}
+Quat::Quat(float w, float x, float y, float z) : x(x), y(y), z(z), w(w) {}
 
 Quat::Quat(const Matrix4x4& mat) {
     const Matrix3x3 m = Matrix3x3(mat);
@@ -21,7 +21,7 @@ Quat::Quat(const Matrix4x4& mat) {
         y = s * (m.m13 - m.m31);
         z = s * (m.m21 - m.m12);
     } else {
-        // Compute largest of $x$, $y$, or $z$, then remaining components
+        // Compute largest of x, y, or z, then remaining components
         const int nxt[3] = {1, 2, 0};
         float q[3];
         int i = 0;

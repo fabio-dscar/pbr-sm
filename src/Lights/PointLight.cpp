@@ -2,8 +2,6 @@
 
 using namespace pbr;
 
-PointLight::PointLight() : Light() {}
-
 PointLight::PointLight(const Color& emission, float intensity)
     : Light(emission, intensity) {}
 

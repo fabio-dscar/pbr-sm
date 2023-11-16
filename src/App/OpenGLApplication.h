@@ -8,6 +8,7 @@ namespace pbr {
 class OpenGLApplication {
 public:
     OpenGLApplication(const std::string& title, int width, int height);
+    virtual ~OpenGLApplication() = default;
 
     void init(int argc, char* argv[]);
     void setTitle(const std::string& title);
@@ -42,6 +43,8 @@ public:
     virtual void update(float dt);
 
 protected:
+    std::string _title;
+
     int _width;
     int _height;
 
@@ -61,14 +64,13 @@ protected:
     bool _mouseBtns[3];
 
 private:
-    int _frameCount;
-    int _windowHandle;
-    std::string _title;
+    int _frameCount = 0;
+    int _windowHandle = -1;
 
     int _oldTimeSinceStart;
     float _accumTime;
 
-    const float FIXED_DELTA_TIME = 0.01f;
+    static constexpr float FIXED_DELTA_TIME = 0.01f;
 };
 
 } // namespace pbr

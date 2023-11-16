@@ -6,17 +6,10 @@
 using namespace pbr;
 using namespace pbr::math;
 
-Matrix3x3::Matrix3x3() {
-    m11 = 1;
-    m12 = 0;
-    m13 = 0;
-    m21 = 0;
-    m22 = 1;
-    m23 = 0;
-    m31 = 0;
-    m32 = 0;
-    m33 = 1;
-}
+Matrix3x3::Matrix3x3()
+    : m11(1), m12(0), m13(0), 
+      m21(0), m22(1), m23(0),
+      m31(0), m32(0), m33(1) {}
 
 Matrix3x3::Matrix3x3(float s) : m{s, s, s, s, s, s, s, s, s} {}
 
@@ -52,8 +45,7 @@ Matrix3x3& Matrix3x3::operator*=(float scalar) {
 }
 
 Vector3 Matrix3x3::operator*(const Vector3& v) const {
-    return Vector3(m11 * v.x + m12 * v.y + m13 * v.z, 
-                   m21 * v.x + m22 * v.y + m23 * v.z,
+    return Vector3(m11 * v.x + m12 * v.y + m13 * v.z, m21 * v.x + m22 * v.y + m23 * v.z,
                    m31 * v.x + m32 * v.y + m33 * v.z);
 }
 
@@ -66,9 +58,9 @@ Matrix3x3 Matrix3x3::operator*(const Matrix3x3& mat) const {
 }
 
 Matrix3x3 Matrix3x3::operator+(const Matrix3x3& mat) const {
-    return Matrix3x3(m11 + mat.m11, m12 + mat.m12, m13 + mat.m13, 
-                     m21 + mat.m21, m22 + mat.m22, m23 + mat.m23, 
-                     m31 + mat.m31, m32 + mat.m32, m33 + mat.m33);
+    return Matrix3x3(m11 + mat.m11, m12 + mat.m12, m13 + mat.m13, m21 + mat.m21,
+                     m22 + mat.m22, m23 + mat.m23, m31 + mat.m31, m32 + mat.m32,
+                     m33 + mat.m33);
 }
 
 Matrix3x3& Matrix3x3::operator+=(const Matrix3x3& mat) {
@@ -85,9 +77,9 @@ Matrix3x3& Matrix3x3::operator+=(const Matrix3x3& mat) {
 }
 
 Matrix3x3 Matrix3x3::operator-(const Matrix3x3& mat) const {
-    return Matrix3x3(m11 - mat.m11, m12 - mat.m12, m13 - mat.m13, 
-                     m21 - mat.m21, m22 - mat.m22, m23 - mat.m23, 
-                     m31 - mat.m31, m32 - mat.m32, m33 - mat.m33);
+    return Matrix3x3(m11 - mat.m11, m12 - mat.m12, m13 - mat.m13, m21 - mat.m21,
+                     m22 - mat.m22, m23 - mat.m23, m31 - mat.m31, m32 - mat.m32,
+                     m33 - mat.m33);
 }
 
 Matrix3x3& Matrix3x3::operator-=(const Matrix3x3& mat) {
@@ -178,9 +170,8 @@ Matrix3x3 math::operator*(float scalar, const Matrix3x3& mat) {
 }
 
 Matrix3x3 math::transpose(const Matrix3x3& mat) {
-    return Matrix3x3(mat.m11, mat.m21, mat.m31, 
-                     mat.m12, mat.m22, mat.m32, 
-                     mat.m13, mat.m23, mat.m33);
+    return Matrix3x3(mat.m11, mat.m21, mat.m31, mat.m12, mat.m22, mat.m32, mat.m13,
+                     mat.m23, mat.m33);
 }
 
 Matrix3x3 math::inverse(const Matrix3x3& mat) {

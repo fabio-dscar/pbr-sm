@@ -32,34 +32,28 @@ private:
     void changeSkybox(int id);
     void takeSnapshot();
 
-    Ray pixelToRay(int x, int y);
-
     Scene _scene;
     Renderer _renderer;
+    std::vector<Skybox> _skyboxes;
+
+    Color _f0;
+    Color _diffuse;
 
     sref<Camera> _camera;
-
-    float _rotAngleX;
-    float _rotAngleY;
+    PBRMaterial* _selMat = nullptr;
+    Shape* _selectedShape = nullptr;
 
     float _gamma;
     float _exposure;
     float _toneParams[7];
-
-    PBRMaterial* _selMat;
     float _metallic;
     float _roughness;
-    Color _f0;
-    Color _diffuse;
 
-    bool _showGUI;
-    bool _skyToggle;
-    bool _perturbNormals;
+    int _skybox = 1;
 
-    Shape* _selectedShape;
-
-    int _skybox;
-    std::vector<Skybox> _skyboxes;
+    bool _showGUI = true;
+    bool _skyToggle = true;
+    bool _perturbNormals = true;
 };
 
 } // namespace pbr

@@ -11,7 +11,7 @@ class Matrix4x4;
 
 class PBR_SHARED Quat {
 public:
-    float w, x, y, z;
+    float x, y, z, w;
 
     Quat();
     Quat(float w, const Vector3& v);
@@ -59,6 +59,7 @@ PBR_SHARED Quat normalize(const Quat& q);
 PBR_SHARED Quat slerp(float t, const Quat& q1, const Quat& q2);
 
 PBR_SHARED Vector3 rotate(const Quat& q, const Vector3& v);
+
 } // namespace math
 } // namespace pbr
 

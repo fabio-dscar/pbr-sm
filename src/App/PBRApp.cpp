@@ -34,8 +34,7 @@ void initializeEngine() {
 }
 
 PBRApp::PBRApp(const std::string& title, int width, int height)
-    : OpenGLApplication(title, width, height), _skyToggle(true), _selectedShape(nullptr),
-      _showGUI(true), _skybox(1), _f0(0.04f) {}
+    : OpenGLApplication(title, width, height) {}
 
 void PBRApp::reshape(int w, int h) {
     OpenGLApplication::reshape(w, h);
@@ -75,11 +74,11 @@ void PBRApp::prepare() {
     // Load meshes
     std::cout << "[INFO] Loading meshes and materials..." << std::endl;
 
-    sref<Shape> obj = Utils::loadSceneObject("sphere");
+    /*sref<Shape> obj = Utils::loadSceneObject("sphere");
     obj->setPosition(Vec3(-20.0f, 0.0f, 0.0f));
     obj->_prog = -1;
     obj->updateMatrix();
-    _scene.addShape(obj);
+    _scene.addShape(obj);*/
 
     sref<Shape> gun = Utils::loadSceneObject("gun");
     gun->setScale(5.5f, 5.5f, 5.5f);
@@ -107,6 +106,16 @@ void PBRApp::prepare() {
     rough->updateMatrix();
     rough->_prog = -1;
     _scene.addShape(rough);
+
+    /*sref<Shape> obj = std::make_shared<Sphere>(Vec3(-20.0f, 0.0f, 0.0f), 1.0f);
+    sref<PBRMaterial> m = std::make_shared<PBRMaterial>(Color(1.0, 0.0, 0.0), 0.0f,
+    0.20f); m->setNormal(static_cast<PBRMaterial*>(rough->material().get())->normalTex());
+    obj->setMaterial(m);
+    obj->prepare();
+    obj->setPosition(Vec3(-20.0f, 0.0f, 0.0f));
+    obj->updateMatrix();
+    obj->_prog = -1;
+    _scene.addShape(obj);*/
 
     changeSkybox(_skybox);
 
@@ -139,15 +148,15 @@ void PBRApp::update(float dt) {
     }
 
     Vector3 moveDir(0);
-    if (_keys['w']) {
+    if (_keys[static_cast<int>('w')]) {
         moveDir += -_camera->front();
-    } else if (_keys['s']) {
+    } else if (_keys[static_cast<int>('s')]) {
         moveDir += _camera->front();
     }
 
-    if (_keys['d']) {
+    if (_keys[static_cast<int>('d')]) {
         moveDir += _camera->right();
-    } else if (_keys['a']) {
+    } else if (_keys[static_cast<int>('a')]) {
         moveDir += -_camera->right();
     }
 
@@ -176,30 +185,12 @@ void PBRApp::processKeyPress(unsigned char key, int x, int y) {
         takeSnapshot();
 }
 
-Ray PBRApp::pixelToRay(int x, int y) {
-    Vec2 pixel = Vec2(x, y);
-
-    // Create ray from pixel
-    Vec3 rayNDS =
-        Vec3((2.0f * pixel.x) / _width - 1.0f, 1.0f - (2.0f * pixel.y) / _height, 1.0f);
-
-    Vec4 rayClip = Vec4(rayNDS.x, rayNDS.y, -1.0, 1.0);
-
-    Vec4 rayEye = inverse(_camera->projMatrix()) * rayClip;
-    rayEye = Vec4(rayEye.x, rayEye.y, -1.0, 0.0);
-
-    Vec3 rayWorld = (inverse(_camera->viewMatrix()) * rayEye);
-    rayWorld = normalize(rayWorld);
-
-    return {_camera->position(), rayWorld};
-}
-
 void PBRApp::processMouseClick(int button, int state, int x, int y) {
     OpenGLApplication::processMouseClick(button, state, x, y);
 
     // Middle button press
     if (_mouseBtns[1]) {
-        Ray ray = pixelToRay(x, y);
+        Ray ray = _camera->traceRay(Vec2(x, y));
 
         if (auto shape = _scene.intersect(ray)) {
             _selectedShape = shape.value();
@@ -221,7 +212,7 @@ void PBRApp::drawInterface() {
     // Environment window
     ImGui::Begin("Environment");
     ImGui::Checkbox("Draw Skybox", &_skyToggle);
-    // ImGui::Checkbox("Perturb Normals", &_perturbNormals);
+    ImGui::Checkbox("Perturb Normals", &_perturbNormals);
     if (ImGui::Combo("Current Environment", &_skybox,
                      "Pinetree\0Ruins\0Walk of Fame\0Winter Forest\0"))
         changeSkybox(_skybox);
@@ -270,20 +261,22 @@ void PBRApp::drawInterface() {
 
     // Selected object window
     if (_selectedShape != nullptr) {
+        RRID nullTex = Resource.getTexture("null")->rrid();
+
         ImGui::Begin("Selected Object");
 
-        if (_selMat->diffuseTex() < 0)
+        if (_selMat->diffuseTex() == nullTex)
             if (ImGui::ColorEdit3("Diffuse", (float*)&_diffuse))
                 _selMat->setDiffuse(_diffuse);
 
         if (ImGui::ColorEdit3("Specular", (float*)&_f0))
             _selMat->setSpecular(_f0);
 
-        if (_selMat->metallicTex() < 0)
+        if (_selMat->metallicTex() == nullTex)
             if (ImGui::SliderFloat("Metallic", &_metallic, 0.0f, 1.0f))
                 _selMat->setMetallic(_metallic);
 
-        if (_selMat->roughTex() < 0)
+        if (_selMat->roughTex() == nullTex)
             if (ImGui::SliderFloat("Roughness", &_roughness, 0.0f, 1.0f))
                 _selMat->setRoughness(_roughness);
 

@@ -11,9 +11,7 @@ class BSphere;
 
 class PBR_SHARED BBox3 {
 public:
-    static const BBox3 UNBOUNDED;
-
-    BBox3();
+    BBox3() = default;
     BBox3(const Vec3& pt);
     BBox3(const Vec3& min, const Vec3& max);
 
@@ -39,8 +37,8 @@ public:
     bool intersectRay(const Ray& ray, float* t) const;
 
 private:
-    Vec3 _min;
-    Vec3 _max;
+    Vec3 _min{-FLOAT_INFINITY};
+    Vec3 _max{FLOAT_INFINITY};
 };
 
 PBR_SHARED BBox3 expand(const BBox3& box, const Vec3& pt);
@@ -52,9 +50,6 @@ PBR_SHARED BBox3 transform(const Matrix4x4& mat, const BBox3& box);
 
 class PBR_SHARED BSphere {
 public:
-    static const BSphere UNBOUNDED;
-
-    BSphere();
     BSphere(const Vec3& center, float radius);
 
     const Vec3& center() const;
@@ -67,8 +62,8 @@ public:
     bool intersectRay(const Ray& ray, float* t) const;
 
 private:
-    Vec3 _center;
-    float _radius;
+    Vec3 _center{0, 0, 0};
+    float _radius = FLOAT_INFINITY;
 };
 
 PBR_SHARED BSphere transform(const Matrix4x4& mat, const BSphere& bSphere);

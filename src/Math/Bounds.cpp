@@ -5,9 +5,6 @@
 using namespace pbr;
 using namespace pbr::math;
 
-const BBox3 BBox3::UNBOUNDED = BBox3();
-
-BBox3::BBox3() : _min(-FLOAT_INFINITY), _max(FLOAT_INFINITY) {}
 BBox3::BBox3(const Vec3& pt) : _min(pt), _max(pt) {}
 BBox3::BBox3(const Vec3& min, const Vec3& max) : _min(min), _max(max) {}
 
@@ -149,9 +146,6 @@ BBox3 math::transform(const Matrix4x4& mat, const BBox3& box) {
     return ret;
 }
 
-const BSphere BSphere::UNBOUNDED = BSphere();
-
-BSphere::BSphere() : _center(0, 0, 0), _radius(FLOAT_INFINITY) {}
 BSphere::BSphere(const Vec3& center, float radius) : _center(center), _radius(radius) {}
 
 const Vec3& BSphere::center() const {

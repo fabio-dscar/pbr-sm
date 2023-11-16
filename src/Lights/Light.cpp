@@ -2,8 +2,6 @@
 
 using namespace pbr;
 
-Light::Light() : SceneObject(), _on(true), _intensity(1.0f), _emission(1.0f) {}
-
 Light::Light(const Color& emission, float intensity)
     : SceneObject(), _emission(emission), _intensity(intensity) {}
 

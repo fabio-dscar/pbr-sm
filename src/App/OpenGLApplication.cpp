@@ -10,12 +10,14 @@
 using namespace pbr;
 
 OpenGLApplication::OpenGLApplication(const std::string& title, int width, int height)
-    : _title(title), _width(width), _height(height), _frameCount(0), _windowHandle(-1) {}
+    : _title(title), _width(width), _height(height) {}
 
 void OpenGLApplication::init(int argc, char* argv[]) {
+    putenv((char*)"__GL_SYNC_TO_VBLANK=0");
+
     // Setup glut
     glutInit(&argc, argv);
-    glutInitContextVersion(4, 4);
+    glutInitContextVersion(4, 5);
     glutInitContextProfile(GLUT_CORE_PROFILE);
     glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
     glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
@@ -61,12 +63,15 @@ void OpenGLApplication::init(int argc, char* argv[]) {
 }
 
 void OpenGLApplication::updateFPS() {
-    std::ostringstream oss;
+    std::cout << _frameCount / 2 << "\n";
+    _frameCount = 0;
+
+    /*std::ostringstream oss;
     oss << _title << ": " << _frameCount << " FPS @ (" << _width << "x" << _height << ")";
     std::string s = oss.str();
     glutSetWindow(_windowHandle);
     glutSetWindowTitle(s.c_str());
-    _frameCount = 0;
+    _frameCount = 0;*/
 }
 
 void OpenGLApplication::setTitle(const std::string& title) {

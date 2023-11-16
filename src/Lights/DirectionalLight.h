@@ -7,7 +7,6 @@ namespace pbr {
 
 class PBR_SHARED DirectionalLight : public Light {
 public:
-    DirectionalLight();
     DirectionalLight(const Color& emission, float intensity);
 
     Vec3 direction() const;
