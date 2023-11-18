@@ -44,7 +44,6 @@ namespace pbr {
     };
 
     PBR_SHARED void genSphereGeometry(Geometry& geo, float radius, uint32 widthSegments, uint32 heightSegments);
-    PBR_SHARED void genBoxGeometry(Geometry& geo, uint32 widthSegments, uint32 heightSegments, uint32 depthSegments);
     PBR_SHARED void genUnitCubeGeometry(Geometry& geo);
 
     // Obj file

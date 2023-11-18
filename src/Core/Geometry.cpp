@@ -1,24 +1,15 @@
 #include <Geometry.h>
-
-#include <unordered_map>
+#include <Hash.hpp>
+#include <PBRMath.h>
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
-// #include <path.h>
-#include <Hash.hpp>
 
-#include <PBRMath.h>
-
+#include <unordered_map>
 #include <filesystem>
-
-#undef min
-#undef max
-
-// using namespace filesystem;
 
 using namespace pbr;
 using namespace pbr::math;
-
 using namespace std::filesystem;
 
 namespace std {
@@ -29,6 +20,7 @@ struct hash<ObjVertex> {
                (hash<Vec2>()(vertex.texCoord) << 1);
     }
 };
+
 } // namespace std
 
 RRID Geometry::rrid() const {
@@ -184,9 +176,6 @@ void pbr::genSphereGeometry(Geometry& geo, float radius, uint32 widthSegments,
     }
 }
 
-void pbr::genBoxGeometry(Geometry& geo, uint32 widthSegments, uint32 heightSegments,
-                         uint32 depthSegments) {}
-
 bool pbr::loadObj(const std::string& filePath, ObjFile& obj) {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
@@ -231,29 +220,6 @@ bool pbr::loadObj(const std::string& filePath, ObjFile& obj) {
             }
 
             obj.indices.push_back(uniqueVertices[vertex]);
-
-            /*
-                        ObjVertex vertex = {};
-
-                        vertex.pos = {attrib.vertices[3 * index.vertex_index + 0],
-                                      attrib.vertices[3 * index.vertex_index + 1],
-                                      attrib.vertices[3 * index.vertex_index + 2]};
-
-                        if (attrib.normals.size() > 0) {
-                            vertex.normal = {attrib.normals[3 * index.normal_index + 0],
-                                             attrib.normals[3 * index.normal_index + 1],
-                                             attrib.normals[3 * index.normal_index + 2]};
-                        }
-
-                        if (attrib.texcoords.size() > 0) {
-                            vertex.texCoord = {attrib.texcoords[2 * index.texcoord_index +
-               0], 1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
-                        }
-
-                        obj.vertices.push_back(vertex);
-
-                        obj.indices.push_back(count);
-                        count++;*/
         }
     }
 
@@ -270,54 +236,18 @@ void pbr::fromObjFile(Geometry& geo, const ObjFile& objFile) {
 }
 
 void pbr::genUnitCubeGeometry(Geometry& geo) {
-    float vertices[] = {
-        // back face
-        -1.0f, -1.0f, -1.0f, // bottom-left
-        1.0f, 1.0f, -1.0f,   // top-right
-        1.0f, -1.0f, -1.0f,  // bottom-right
-        1.0f, 1.0f, -1.0f,   // top-right
-        -1.0f, -1.0f, -1.0f, // bottom-left
-        -1.0f, 1.0f, -1.0f,  // top-left
-                             // front face
-        -1.0f, -1.0f, 1.0f,  // bottom-left
-        1.0f, -1.0f, 1.0f,   // bottom-right
-        1.0f, 1.0f, 1.0f,    // top-right
-        1.0f, 1.0f, 1.0f,    // top-right
-        -1.0f, 1.0f, 1.0f,   // top-left
-        -1.0f, -1.0f, 1.0f,  // bottom-left
-                             // left face
-        -1.0f, 1.0f, 1.0f,   // top-right
-        -1.0f, 1.0f, -1.0f,  // top-left
-        -1.0f, -1.0f, -1.0f, // bottom-left
-        -1.0f, -1.0f, -1.0f, // bottom-left
-        -1.0f, -1.0f, 1.0f,  // bottom-right
-        -1.0f, 1.0f, 1.0f,   // top-right
-                             // right face
-        1.0f, 1.0f, 1.0f,    // top-left
-        1.0f, -1.0f, -1.0f,  // bottom-right
-        1.0f, 1.0f, -1.0f,   // top-right
-        1.0f, -1.0f, -1.0f,  // bottom-right
-        1.0f, 1.0f, 1.0f,    // top-left
-        1.0f, -1.0f, 1.0f,   // bottom-left
-                             // bottom face
-        -1.0f, -1.0f, -1.0f, // top-right
-        1.0f, -1.0f, -1.0f,  // top-left
-        1.0f, -1.0f, 1.0f,   // bottom-left
-        1.0f, -1.0f, 1.0f,   // bottom-left
-        -1.0f, -1.0f, 1.0f,  // bottom-right
-        -1.0f, -1.0f, -1.0f, // top-right
-                             // top face
-        -1.0f, 1.0f, -1.0f,  // top-left
-        1.0f, 1.0f, 1.0f,    // bottom-right
-        1.0f, 1.0f, -1.0f,   // top-right
-        1.0f, 1.0f, 1.0f,    // bottom-right
-        -1.0f, 1.0f, -1.0f,  // top-left
-        -1.0f, 1.0f, 1.0f    // bottom-left
-    };
+    float vertices[] = {-1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f, -1.0f,
+                        -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, 1.0f, 1.0f,
+                        -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  1.0f, 1.0f};
 
-    for (uint32 i = 0; i < 36; i++) {
-        Vertex vert;
-        vert.position = -Vec3(vertices[3 * i], vertices[3 * i + 1], vertices[3 * i + 2]);
-        geo.addVertex(vert);
+    uint32 indices[] = {0, 1, 2, 1, 0, 3, 4, 5, 7, 7, 6, 4, 6, 3, 0, 0, 4, 6,
+                        7, 2, 1, 2, 7, 5, 0, 2, 5, 5, 4, 0, 3, 7, 1, 7, 3, 6};
+
+    for (uint32 i = 0; i < 8; i++) {
+        geo.addVertex({.position = Vec3(vertices[3 * i], vertices[3 * i + 1],
+                                        vertices[3 * i + 2])});
     }
+
+    for (uint32 i = 0; i < 36; i++)
+        geo.addIndex(indices[i]);
 }
