@@ -7,10 +7,8 @@ using namespace pbr;
 
 const std::string SHADER_PATH = "Shaders/";
 
-ShaderSource::ShaderSource(ShaderType type, const std::string& filePath) {
-    _id = 0;
-    _type = type;
-    _name = filePath;
+ShaderSource::ShaderSource(ShaderType type, const std::string& filePath)
+    : _name(filePath), _type(type) {
 
     std::string path = SHADER_PATH + filePath;
     if (!Utils::readFile(path, std::ios_base::in, _source))
@@ -49,20 +47,18 @@ bool ShaderSource::compile() {
     return _id != 0;
 }
 
-Shader::Shader(const std::string& name) : _id(0), _name(name) {}
+Shader::Shader(const std::string& name) : _name(name) {}
 
 uint32 Shader::id() const {
     return _id;
 }
 
-bool Shader::addShader(const ShaderSource& source) {
+void Shader::addShader(const ShaderSource& source) {
     _shaders.push_back(source.id());
-    return true;
 }
 
-bool Shader::link() {
+void Shader::link() {
     _id = RHI.linkProgram(*this);
-    return true;
 }
 
 const std::string& Shader::name() const {

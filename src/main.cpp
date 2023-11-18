@@ -18,7 +18,7 @@ void idle() {
 }
 
 void timer(int value) {
-    app->updateFPS();
+    app->tickPerSecond();
     app->setTimerCallback(timer, 1000, value);
 }
 

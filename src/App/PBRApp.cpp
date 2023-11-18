@@ -1,5 +1,8 @@
 #include <PBRApp.h>
 
+#include <chrono>
+#include <format>
+
 #include <Resources.h>
 #include <RenderInterface.h>
 
@@ -39,6 +42,11 @@ PBRApp::PBRApp(const std::string& title, int width, int height)
 void PBRApp::reshape(int w, int h) {
     OpenGLApplication::reshape(w, h);
     _camera->updateDimensions(w, h);
+}
+
+void PBRApp::tickPerSecond() {
+    _fps = _frameCount;
+    _frameCount = 0;
 }
 
 void PBRApp::prepare() {
@@ -211,6 +219,7 @@ void PBRApp::drawInterface() {
 
     // Environment window
     ImGui::Begin("Environment");
+    ImGui::Text("%d fps", _fps);
     ImGui::Checkbox("Draw Skybox", &_skyToggle);
     ImGui::Checkbox("Perturb Normals", &_perturbNormals);
     if (ImGui::Combo("Current Environment", &_skybox,
@@ -288,7 +297,7 @@ void PBRApp::drawInterface() {
     ImGui::TextWrapped(
         "Press right click and move the mouse to orient the camera. WASD for movement.");
     ImGui::TextWrapped("Press 'H' to toggle GUI visibility.");
-    ImGui::TextWrapped("Press 'P' to take a snapshot! Do not forget to hide the GUI by "
+    ImGui::TextWrapped("Press 'P' to take a snapshot. Do not forget to hide the GUI by "
                        "pressing 'H' first, if desired.");
     ImGui::TextWrapped("By clicking the middle mouse button, it is possible to pick "
                        "objects and change some of their parameters.");
@@ -302,7 +311,11 @@ void PBRApp::changeSkybox(int id) {
 }
 
 void PBRApp::takeSnapshot() {
+    using namespace std::chrono;
+    auto now = system_clock::now();
+    auto timestamp = duration_cast<seconds>(now.time_since_epoch()).count();
+
     sref<Image> img = RHI.getImage(0, 0, _width, _height);
     img->flipY();
-    img->saveImage("snapshot.png");
+    img->saveImage(std::format("snapshot_{}.png", timestamp));
 }

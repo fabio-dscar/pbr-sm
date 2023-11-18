@@ -25,6 +25,7 @@ public:
     void processKeyPress(unsigned char key, int x, int y) override;
     void processMouseClick(int button, int state, int x, int y) override;
     void reshape(int w, int h) override;
+    void tickPerSecond() override;
 
 private:
     void drawInterface();
@@ -50,6 +51,7 @@ private:
     float _roughness;
 
     int _skybox = 1;
+    int _fps = 0;
 
     bool _showGUI = true;
     bool _skyToggle = true;

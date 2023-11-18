@@ -18,7 +18,6 @@ PBRMaterial::PBRMaterial()
       _roughness(NOT_SET) {
 
     _prog = Resource.getShader("unreal")->id();
-
     _brdfTex = Resource.getTexture("brdf")->rrid();
 
     RRID nullTex = Resource.getTexture("null")->rrid();
@@ -34,7 +33,6 @@ PBRMaterial::PBRMaterial(const Color& diff, float metallic, float roughness)
       _roughness(roughness) {
 
     _prog = Resource.getShader("unreal")->id();
-
     _brdfTex = Resource.getTexture("brdf")->rrid();
 
     RRID nullTex = Resource.getTexture("null")->rrid();

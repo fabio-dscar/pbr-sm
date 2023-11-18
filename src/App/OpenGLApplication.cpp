@@ -62,18 +62,6 @@ void OpenGLApplication::init(int argc, char* argv[]) {
     prepare();
 }
 
-void OpenGLApplication::updateFPS() {
-    std::cout << _frameCount / 2 << "\n";
-    _frameCount = 0;
-
-    /*std::ostringstream oss;
-    oss << _title << ": " << _frameCount << " FPS @ (" << _width << "x" << _height << ")";
-    std::string s = oss.str();
-    glutSetWindow(_windowHandle);
-    glutSetWindowTitle(s.c_str());
-    _frameCount = 0;*/
-}
-
 void OpenGLApplication::setTitle(const std::string& title) {
     _title = title;
 }
@@ -105,10 +93,10 @@ void OpenGLApplication::render() {
     // --------------------------------------
     //   Render step
     // --------------------------------------
-    ++_frameCount;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     drawScene();
     glutSwapBuffers();
+    ++_frameCount;
 
     _mouseDx = 0;
     _mouseDy = 0;

@@ -52,15 +52,15 @@ void Scene::setEnvironment(const Skybox& skybox) {
         shape->updateMaterial(skybox);
 }
 
-const vec<sref<Camera>>& Scene::cameras() const {
+const std::vector<sref<Camera>>& Scene::cameras() const {
     return _cameras;
 }
 
-const vec<sref<Shape>>& Scene::shapes() const {
+const std::vector<sref<Shape>>& Scene::shapes() const {
     return _shapes;
 }
 
-const vec<sref<Light>>& Scene::lights() const {
+const std::vector<sref<Light>>& Scene::lights() const {
     return _lights;
 }
 

@@ -50,7 +50,10 @@ void Skybox::draw() const {
     glActiveTexture(GL_TEXTURE5);
     RHI.bindTexture(_cubeTex);
 
+    glCullFace(GL_FRONT);
     RHI.drawGeometry(_geoId);
+    glCullFace(GL_BACK);
+    
     RHI.useProgram(0);
 }
 

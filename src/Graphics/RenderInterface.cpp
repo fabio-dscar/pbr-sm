@@ -182,10 +182,6 @@ const GLenum OGLTexWrapping[] = {GL_REPEAT, GL_MIRRORED_REPEAT, GL_CLAMP_TO_EDGE
 
 using namespace pbr;
 
-RenderInterface::RenderInterface() {}
-
-RenderInterface::~RenderInterface() {}
-
 RenderInterface& RenderInterface::get() {
     static RenderInterface _inst;
     return _inst;
@@ -274,9 +270,6 @@ RRID RenderInterface::uploadGeometry(const sref<Geometry>& geo) {
     RRID vboIds[2] = {0, 0};
     vboIds[0] = createBufferImmutable(BUFFER_VERTEX, BufferUsage::STATIC,
                                       sizeof(Vertex) * verts.size(), &verts[0]);
-    // glVertexArrayVertexBuffer(vertArray.id, _buffers[vboIds[0]].id, );
-
-    // glBindBuffer(_buffers[vboIds[0]].target, _buffers[vboIds[0]].id);
 
     BufferLayoutEntry entries[] = {
         {0, 3, ATTRIB_FLOAT, sizeof(Vertex), offsetof(Vertex, position)},
@@ -291,8 +284,6 @@ RRID RenderInterface::uploadGeometry(const sref<Geometry>& geo) {
         vboIds[1] = createBufferImmutable(BUFFER_INDEX, BufferUsage::STATIC,
                                           sizeof(uint32) * indices.size(), &indices[0]);
         glVertexArrayElementBuffer(vertArray.id, _buffers[vboIds[1]].id);
-
-        // glBindBuffer(_buffers[vboIds[1]].target, _buffers[vboIds[1]].id);
     }
 
     // Associate created VBOs with the VAO
@@ -684,7 +675,7 @@ void RenderInterface::checkOpenGLError(const std::string& error) {
 bool RenderInterface::isOpenGLError() {
     bool isError = false;
     GLenum errCode;
-    //const GLubyte* errString;
+    // const GLubyte* errString;
     while ((errCode = glGetError()) != GL_NO_ERROR) {
         isError = true;
         // errString = gluErrorString(errCode);
@@ -701,8 +692,8 @@ RRID RenderInterface::createTextureImmutable(const Image& img,
 
     RRID resId = _textures.size();
 
-    //std::cout << static_cast<uint32>(img.type()) << "\n";
-    //checkOpenGLError("Error Texture.");
+    // std::cout << static_cast<uint32>(img.type()) << "\n";
+    // checkOpenGLError("Error Texture.");
 
     glGenTextures(1, &id);
     glBindTexture(target, id);

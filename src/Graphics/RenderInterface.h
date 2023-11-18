@@ -25,9 +25,7 @@ class ShaderSource;
 template<class T>
 using vec = std::vector<T>;
 
-enum SkyboxUniform {
-    ENV_MAP = 1
-};
+enum SkyboxUniform { ENV_MAP = 1 };
 
 struct RHIGeometry {
     RRID buffer;
@@ -85,8 +83,6 @@ struct BufferLayout {
 
 class RenderInterface {
 public:
-    ~RenderInterface();
-
     static RenderInterface& get();
 
     void initialize();
@@ -144,7 +140,7 @@ public:
     void setBufferBlock(const std::string& name, uint32 binding);
 
     int32 uniformLocation(RRID id, const std::string& name);
-    //int32 uniformLocation(RRID id, const std::string_view name);
+    // int32 uniformLocation(RRID id, const std::string_view name);
     uint32 uniformBlockLocation(RRID id, const std::string& name);
 
     /* ===================================================================================
@@ -159,7 +155,8 @@ public:
     RRID createVertexArray();
     bool deleteVertexArray(RRID id);
 
-    RRID createBufferImmutable(BufferType type, BufferUsage usage, size_t size, void* data);
+    RRID createBufferImmutable(BufferType type, BufferUsage usage, size_t size,
+                               void* data);
 
     RRID createBuffer(BufferType type, BufferUsage usage, size_t size, void* data);
     void bindBufferBase(RRID buffer, uint32 index);
@@ -175,7 +172,7 @@ public:
     sref<Image> getImage(int32 x, int32 y, int32 w, int32 h) const;
 
 private:
-    RenderInterface();
+    RenderInterface() {}
 
     RRID _currProgram;
 

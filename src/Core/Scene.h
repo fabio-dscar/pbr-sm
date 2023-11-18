@@ -19,9 +19,6 @@ class Shape;
 class Light;
 class Skybox;
 
-template<class T>
-using vec = std::vector<T>;
-
 class Scene {
 public:
     std::optional<Shape*> intersect(const Ray& ray);
@@ -32,19 +29,19 @@ public:
 
     void setEnvironment(const Skybox& skybox);
 
-    const vec<sref<Camera>>& cameras() const;
-    const vec<sref<Shape>>& shapes() const;
-    const vec<sref<Light>>& lights() const;
+    const std::vector<sref<Camera>>& cameras() const;
+    const std::vector<sref<Shape>>& shapes() const;
+    const std::vector<sref<Light>>& lights() const;
 
     bool hasSkybox() const;
     const Skybox& skybox() const;
 
 private:
-    BBox3 _bbox { Vec3(0) };
+    BBox3 _bbox{Vec3(0)};
 
-    vec<sref<Camera>> _cameras;
-    vec<sref<Shape>> _shapes;
-    vec<sref<Light>> _lights;
+    std::vector<sref<Camera>> _cameras;
+    std::vector<sref<Shape>> _shapes;
+    std::vector<sref<Light>> _lights;
 
     const Skybox* _skybox = nullptr;
 };

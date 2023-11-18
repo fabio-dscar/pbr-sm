@@ -12,7 +12,6 @@ public:
 
     void init(int argc, char* argv[]);
     void setTitle(const std::string& title);
-    void updateFPS();
     void render();
     void loop() const;
     void refresh() const;
@@ -40,10 +39,13 @@ public:
     virtual void processKeyUp(unsigned char key, int x, int y);
     virtual void prepare() = 0;
     virtual void drawScene() = 0;
+    virtual void tickPerSecond() = 0;
     virtual void update(float dt);
 
 protected:
     std::string _title;
+
+    int _frameCount = 0;
 
     int _width;
     int _height;
@@ -64,7 +66,6 @@ protected:
     bool _mouseBtns[3];
 
 private:
-    int _frameCount = 0;
     int _windowHandle = -1;
 
     int _oldTimeSinceStart;
