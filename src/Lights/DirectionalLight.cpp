@@ -12,8 +12,7 @@ Vec3 DirectionalLight::direction() const {
 }
 
 void DirectionalLight::toData(LightData& data) const {
-    data.state = _on;
-    data.type = LightType::LIGHTYPE_DIR;
+    data.type = _on? LightType::LIGHT_DIR : LightType::LIGHT_NONE;
     data.emission = _intensity * _emission;
     data.position = direction();
 }

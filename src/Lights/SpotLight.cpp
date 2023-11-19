@@ -26,11 +26,10 @@ Vec3 SpotLight::direction() const {
 }
 
 void SpotLight::toData(LightData& data) const {
-    data.state = _on;
-    data.type = LightType::LIGHTYPE_SPOT;
+    data.type = _on ? LightType::LIGHT_SPOT : LightType::LIGHT_NONE;
     data.emission = _intensity * _emission;
     data.position = position();
     data.auxA = _cutoff;
-    /*data.auxB     = _outerCutoff;
-    data.sideU    = direction();*/
+    data.auxC = _outerCutoff;
+    data.auxB = direction();
 }

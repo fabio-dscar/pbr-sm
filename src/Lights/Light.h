@@ -10,21 +10,22 @@ class Shape;
 
 // Used to pass the type id to shaders
 enum LightType : uint8 {
-    LIGHTYPE_POINT = 0,
-    LIGHTYPE_SPOT = 1,
-    LIGHTYPE_DIR = 2,
-    LIGHTYPE_QUAD = 3,
-    LIGHTYPE_SPHERE = 4
+    LIGHT_NONE = 0,
+    LIGHT_POINT = 1,
+    LIGHT_SPOT = 2,
+    LIGHT_DIR = 3,
+    LIGHT_SPHERE = 4
 };
 
 // Light data for shader blocks
 // CARE: data is properly aligned, do not change
-struct LightData {
-    Vec3 position; // Light position / direction for dir lights
+struct alignas(16) LightData {
+    Vec3 position;
     float auxA;
-    Color emission; // Non normalized emission (already multiplied by intensity)
+    Color emission;
     int type;
-    bool state; // On/off flag
+    Vec3 auxB;
+    float auxC;
 };
 
 class PBR_SHARED Light : public SceneObject {
@@ -44,7 +45,7 @@ public:
     virtual sref<Shape> shape() const;
 
 protected:
-    Color _emission { 1.0f }; // Normalized emission
+    Color _emission{1.0f}; // Normalized emission
     float _intensity = 1.0f;
     bool _on = true;
     bool _shadows = true;
