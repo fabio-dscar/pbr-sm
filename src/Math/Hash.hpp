@@ -5,10 +5,6 @@
 
 using namespace pbr::math;
 
-/* ===========================================================================
-        Definition of hash functions for some of the math library classes.
- =============================================================================*/
-
 namespace std {
     template<>
     struct hash<Vec2> {
@@ -31,7 +27,6 @@ namespace std {
     };
 }
 
-// Implementation
 namespace pbr {
     namespace math {
         inline void hashCombine(size_t& seed, size_t hash) {

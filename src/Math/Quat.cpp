@@ -6,8 +6,8 @@ using namespace pbr;
 using namespace pbr::math;
 
 Quat::Quat() : x(0), y(0), z(0), w(1) {}
-Quat::Quat(float w, const Vector3& v) : x(v.x), y(v.y), z(v.z), w(w) {}
-Quat::Quat(float w, float x, float y, float z) : x(x), y(y), z(z), w(w) {}
+Quat::Quat(const Vector3& v, float w) : x(v.x), y(v.y), z(v.z), w(w) {}
+Quat::Quat(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 
 Quat::Quat(const Matrix4x4& mat) {
     const Matrix3x3 m = Matrix3x3(mat);
@@ -47,7 +47,7 @@ Quat::Quat(const Matrix4x4& mat) {
 }
 
 Quat Quat::operator+(const Quat& q) const {
-    return Quat(w + q.w, x + q.x, y + q.y, z + q.z);
+    return {x + q.x, y + q.y, z + q.z, w + q.w};
 }
 
 Quat& Quat::operator+=(const Quat& q) {
@@ -60,7 +60,7 @@ Quat& Quat::operator+=(const Quat& q) {
 }
 
 Quat Quat::operator-(const Quat& q) const {
-    return Quat(w - q.w, x - q.x, y - q.y, z - q.z);
+    return {x - q.x, y - q.y, z - q.z, w - q.w};
 }
 
 Quat& Quat::operator-=(const Quat& q) {
@@ -73,7 +73,7 @@ Quat& Quat::operator-=(const Quat& q) {
 }
 
 Quat Quat::operator*(float scalar) const {
-    return Quat(w * scalar, x * scalar, y * scalar, z * scalar);
+    return {x * scalar, y * scalar, z * scalar, w * scalar};
 }
 
 Quat& Quat::operator*=(float scalar) {
@@ -103,7 +103,7 @@ Quat& Quat::operator*=(const Quat& q) {
 }
 
 Quat Quat::operator/(float scalar) const {
-    return Quat(w / scalar, x / scalar, y / scalar, z / scalar);
+    return {x / scalar, y / scalar, z / scalar, w / scalar};
 }
 
 Quat& Quat::operator/=(float scalar) {
@@ -142,7 +142,7 @@ float& Quat::operator[](uint32 idx) {
 }
 
 Quat Quat::conj() const {
-    return Quat(-x, -y, -z, w);
+    return {-x, -y, -z, w};
 }
 
 float Quat::lengthSqr() const {
@@ -205,7 +205,7 @@ Quat math::normalize(const Quat& q) {
     float lenSqr = q.lengthSqr();
     if (lenSqr > 0)
         return q / std::sqrt(lenSqr);
-    return Quat(0, Vector3(0));
+    return Quat(Vector3(0), 0);
 }
 
 Quat math::slerp(float t, const Quat& q1, const Quat& q2) {

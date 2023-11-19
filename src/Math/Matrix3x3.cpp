@@ -7,9 +7,7 @@ using namespace pbr;
 using namespace pbr::math;
 
 Matrix3x3::Matrix3x3()
-    : m11(1), m12(0), m13(0), 
-      m21(0), m22(1), m23(0),
-      m31(0), m32(0), m33(1) {}
+    : m11(1), m12(0), m13(0), m21(0), m22(1), m23(0), m31(0), m32(0), m33(1) {}
 
 Matrix3x3::Matrix3x3(float s) : m{s, s, s, s, s, s, s, s, s} {}
 
@@ -26,9 +24,10 @@ Matrix3x3::Matrix3x3(const Matrix4x4& mat)
     : m11(mat.m11), m12(mat.m12), m13(mat.m13), m21(mat.m21), m22(mat.m22), m23(mat.m23),
       m31(mat.m31), m32(mat.m32), m33(mat.m33) {}
 
-Matrix3x3 Matrix3x3::operator*(float scalar) const {
-    return Matrix3x3(scalar * m11, scalar * m12, scalar * m13, scalar * m21, scalar * m22,
-                     scalar * m23, scalar * m31, scalar * m32, scalar * m33);
+Matrix3x3 Matrix3x3::operator*(float s) const {
+    return {s * m11, s * m12, s * m13, 
+            s * m21, s * m22, s * m23, 
+            s * m31, s * m32, s * m33};
 }
 
 Matrix3x3& Matrix3x3::operator*=(float scalar) {
@@ -45,8 +44,9 @@ Matrix3x3& Matrix3x3::operator*=(float scalar) {
 }
 
 Vector3 Matrix3x3::operator*(const Vector3& v) const {
-    return Vector3(m11 * v.x + m12 * v.y + m13 * v.z, m21 * v.x + m22 * v.y + m23 * v.z,
-                   m31 * v.x + m32 * v.y + m33 * v.z);
+    return {m11 * v.x + m12 * v.y + m13 * v.z, 
+            m21 * v.x + m22 * v.y + m23 * v.z,
+            m31 * v.x + m32 * v.y + m33 * v.z};
 }
 
 Matrix3x3 Matrix3x3::operator*(const Matrix3x3& mat) const {
@@ -58,9 +58,9 @@ Matrix3x3 Matrix3x3::operator*(const Matrix3x3& mat) const {
 }
 
 Matrix3x3 Matrix3x3::operator+(const Matrix3x3& mat) const {
-    return Matrix3x3(m11 + mat.m11, m12 + mat.m12, m13 + mat.m13, m21 + mat.m21,
-                     m22 + mat.m22, m23 + mat.m23, m31 + mat.m31, m32 + mat.m32,
-                     m33 + mat.m33);
+    return {m11 + mat.m11, m12 + mat.m12, m13 + mat.m13, 
+            m21 + mat.m21, m22 + mat.m22, m23 + mat.m23, 
+            m31 + mat.m31, m32 + mat.m32, m33 + mat.m33};
 }
 
 Matrix3x3& Matrix3x3::operator+=(const Matrix3x3& mat) {
@@ -77,9 +77,9 @@ Matrix3x3& Matrix3x3::operator+=(const Matrix3x3& mat) {
 }
 
 Matrix3x3 Matrix3x3::operator-(const Matrix3x3& mat) const {
-    return Matrix3x3(m11 - mat.m11, m12 - mat.m12, m13 - mat.m13, m21 - mat.m21,
-                     m22 - mat.m22, m23 - mat.m23, m31 - mat.m31, m32 - mat.m32,
-                     m33 - mat.m33);
+    return {m11 - mat.m11, m12 - mat.m12, m13 - mat.m13, 
+            m21 - mat.m21, m22 - mat.m22, m23 - mat.m23, 
+            m31 - mat.m31, m32 - mat.m32, m33 - mat.m33};
 }
 
 Matrix3x3& Matrix3x3::operator-=(const Matrix3x3& mat) {
@@ -96,7 +96,7 @@ Matrix3x3& Matrix3x3::operator-=(const Matrix3x3& mat) {
 }
 
 Matrix3x3 Matrix3x3::operator-() const {
-    return Matrix3x3(-m11, -m12, -m13, -m21, -m22, -m23, -m31, -m32, -m33);
+    return {-m11, -m12, -m13, -m21, -m22, -m23, -m31, -m32, -m33};
 }
 
 bool Matrix3x3::operator==(const Matrix3x3& mat) const {
@@ -160,9 +160,9 @@ float Matrix3x3::det() const {
 
 // Non-member functions
 Vector3 math::operator*(const Vector3& v, const Matrix3x3& mat) {
-    return Vector3(mat.m11 * v.x + mat.m21 * v.y + mat.m31 * v.z,
-                   mat.m12 * v.x + mat.m22 * v.y + mat.m32 * v.z,
-                   mat.m13 * v.x + mat.m23 * v.y + mat.m33 * v.z);
+    return {mat.m11 * v.x + mat.m21 * v.y + mat.m31 * v.z,
+            mat.m12 * v.x + mat.m22 * v.y + mat.m32 * v.z,
+            mat.m13 * v.x + mat.m23 * v.y + mat.m33 * v.z};
 }
 
 Matrix3x3 math::operator*(float scalar, const Matrix3x3& mat) {
@@ -170,8 +170,9 @@ Matrix3x3 math::operator*(float scalar, const Matrix3x3& mat) {
 }
 
 Matrix3x3 math::transpose(const Matrix3x3& mat) {
-    return Matrix3x3(mat.m11, mat.m21, mat.m31, mat.m12, mat.m22, mat.m32, mat.m13,
-                     mat.m23, mat.m33);
+    return {mat.m11, mat.m21, mat.m31, 
+            mat.m12, mat.m22, mat.m32, 
+            mat.m13, mat.m23, mat.m33};
 }
 
 Matrix3x3 math::inverse(const Matrix3x3& mat) {

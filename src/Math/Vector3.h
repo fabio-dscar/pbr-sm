@@ -17,7 +17,6 @@ public:
     Vector3(float x, float y, float z);
     Vector3(const Vector4& v);
 
-    // Vector math operators
     Vector3 operator*(float scalar) const;
     Vector3& operator*=(float scalar);
 
@@ -35,11 +34,9 @@ public:
     bool operator==(const Vector3& v) const;
     bool operator!=(const Vector3& v) const;
 
-    // Array-like access
     float operator[](uint32 idx) const;
     float& operator[](uint32 idx);
 
-    // Vector member methods
     float lengthSqr() const;
     float length() const;
 
@@ -53,7 +50,6 @@ public:
     bool isInfinite() const;
 };
 
-// Standard input/ouput
 PBR_SHARED std::istream& operator>>(std::istream& is, Vector3& v);
 PBR_SHARED std::ostream& operator<<(std::ostream& os, const Vector3& v);
 

@@ -50,7 +50,7 @@ BSphere BBox3::sphere() const {
     const Vec3 pos = center();
     const Float radius = distance(_max, pos);
 
-    return BSphere(pos, radius + FLOAT_EPSILON);
+    return {pos, radius + FLOAT_EPSILON};
 }
 
 bool BBox3::overlaps(const BBox3& box) const {
@@ -114,15 +114,15 @@ bool BBox3::intersectRay(const Ray& ray, float* t) const {
 }
 
 BBox3 math::expand(const BBox3& box, const Vec3& pt) {
-    return BBox3(min(box.min(), pt), max(box.max(), pt));
+    return {min(box.min(), pt), max(box.max(), pt)};
 }
 
 BBox3 math::expand(const BBox3& box1, const BBox3& box2) {
-    return BBox3(min(box1.min(), box2.min()), max(box1.max(), box2.max()));
+    return {min(box1.min(), box2.min()), max(box1.max(), box2.max())};
 }
 
 BBox3 math::intersection(const BBox3& box1, const BBox3& box2) {
-    return BBox3(max(box1.min(), box2.min()), min(box1.max(), box2.max()));
+    return {max(box1.min(), box2.min()), min(box1.max(), box2.max())};
 }
 
 bool math::overlaps(const BBox3& box1, const BBox3& box2) {
@@ -193,5 +193,5 @@ bool BSphere::intersectRay(const Ray& ray, float* t) const {
 }
 
 BSphere math::transform(const Matrix4x4& mat, const BSphere& bSphere) {
-    return BSphere(mat * Vec4(bSphere.center(), 1.0f), bSphere.radius());
+    return {mat * Vec4(bSphere.center(), 1.0f), bSphere.radius()};
 }

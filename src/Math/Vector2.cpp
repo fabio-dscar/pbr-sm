@@ -8,19 +8,13 @@
 using namespace pbr;
 using namespace pbr::math;
 
-/* ============================================================================
-        Vector2 Constructors
- ==============================================================================*/
 Vector2::Vector2() : x(0), y(0) {}
 Vector2::Vector2(float scalar) : x(scalar), y(scalar) {}
 Vector2::Vector2(float x, float y) : x(x), y(y) {}
 Vector2::Vector2(const Vector3& v) : x(v.x), y(v.y) {}
 
-/* ============================================================================
-        Vector2 Math Operators
- ==============================================================================*/
 Vector2 Vector2::operator+(const Vector2& v) const {
-    return Vector2(x + v.x, y + v.y);
+    return {x + v.x, y + v.y};
 }
 
 Vector2& Vector2::operator+=(const Vector2& v) {
@@ -30,7 +24,7 @@ Vector2& Vector2::operator+=(const Vector2& v) {
 }
 
 Vector2 Vector2::operator-(const Vector2& v) const {
-    return Vector2(x - v.x, y - v.y);
+    return {x - v.x, y - v.y};
 }
 
 Vector2& Vector2::operator-=(const Vector2& v) {
@@ -40,7 +34,7 @@ Vector2& Vector2::operator-=(const Vector2& v) {
 }
 
 Vector2 Vector2::operator*(float scalar) const {
-    return Vector2(scalar * x, scalar * y);
+    return {scalar * x, scalar * y};
 }
 
 Vector2& Vector2::operator*=(float scalar) {
@@ -50,7 +44,7 @@ Vector2& Vector2::operator*=(float scalar) {
 }
 
 Vector2 Vector2::operator/(float scalar) const {
-    return Vector2(x / scalar, y / scalar);
+    return {x / scalar, y / scalar};
 }
 
 Vector2& Vector2::operator/=(float scalar) {
@@ -60,7 +54,7 @@ Vector2& Vector2::operator/=(float scalar) {
 }
 
 Vector2 Vector2::operator-() const {
-    return Vector2(-x, -y);
+    return {-x, -y};
 }
 
 bool Vector2::operator==(const Vector2& v) const {
@@ -71,9 +65,6 @@ bool Vector2::operator!=(const Vector2& v) const {
     return !(*this == v);
 }
 
-/* ============================================================================
-        Vector2 Access Methods
- ==============================================================================*/
 float Vector2::operator[](uint32 idx) const {
     if (idx == 0)
         return x;
@@ -88,9 +79,6 @@ float& Vector2::operator[](uint32 idx) {
     return y;
 }
 
-/* ============================================================================
-        Vector2 Member Methods
- ==============================================================================*/
 float Vector2::lengthSqr() const {
     return x * x + y * y;
 }
@@ -138,30 +126,27 @@ std::ostream& math::operator<<(std::ostream& os, const Vector2& v) {
     return os;
 }
 
-/* ============================================================================
-        Vector2 Non-Member Methods
- ==============================================================================*/
 Vector2 math::operator*(float scalar, const Vector2& v) {
     return v * scalar;
 }
 
 Vector2 math::abs(const Vector2& v) {
-    return Vector2(std::abs(v.x), std::abs(v.y));
+    return {std::abs(v.x), std::abs(v.y)};
 }
 
 Vector2 math::normalize(const Vector2& v) {
     float lenSqr = v.lengthSqr();
     if (lenSqr > 0)
         return v / std::sqrt(lenSqr);
-    return Vector2(0);
+    return {0};
 }
 
 Vector2 math::min(const Vector2& v1, const Vector2& v2) {
-    return Vector2(std::min(v1.x, v2.x), std::min(v1.y, v2.y));
+    return {std::min(v1.x, v2.x), std::min(v1.y, v2.y)};
 }
 
 Vector2 math::max(const Vector2& v1, const Vector2& v2) {
-    return Vector2(std::max(v1.x, v2.x), std::max(v1.y, v2.y));
+    return {std::max(v1.x, v2.x), std::max(v1.y, v2.y)};
 }
 
 float math::dot(const Vector2& v1, const Vector2& v2) {
@@ -178,5 +163,5 @@ float math::distance(const Vector2& v1, const Vector2& v2) {
 }
 
 Vector2 math::pow(const Vector2& v, float exp) {
-    return Vector2(std::pow(v.x, exp), std::pow(v.y, exp));
+    return {std::pow(v.x, exp), std::pow(v.y, exp)};
 }

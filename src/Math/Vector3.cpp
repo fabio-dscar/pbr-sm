@@ -8,9 +8,6 @@
 using namespace pbr;
 using namespace pbr::math;
 
-/* ============================================================================
-        Vector3 Constructors
- ==============================================================================*/
 Vector3::Vector3() : x(0), y(0), z(0) {}
 Vector3::Vector3(float scalar) : x(scalar), y(scalar), z(scalar) {}
 Vector3::Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
@@ -22,11 +19,8 @@ Vector3::Vector3(const Vector4& v) : x(v.x), y(v.y), z(v.z) {
     }
 }
 
-/* ============================================================================
-        Vector3 Math Operators
- ==============================================================================*/
 Vector3 Vector3::operator+(const Vector3& v) const {
-    return Vector3(x + v.x, y + v.y, z + v.z);
+    return {x + v.x, y + v.y, z + v.z};
 }
 
 Vector3& Vector3::operator+=(const Vector3& v) {
@@ -48,7 +42,7 @@ Vector3& Vector3::operator-=(const Vector3& v) {
 }
 
 Vector3 Vector3::operator*(float scalar) const {
-    return Vector3(scalar * x, scalar * y, scalar * z);
+    return {scalar * x, scalar * y, scalar * z};
 }
 
 Vector3& Vector3::operator*=(float scalar) {
@@ -59,7 +53,7 @@ Vector3& Vector3::operator*=(float scalar) {
 }
 
 Vector3 Vector3::operator/(float scalar) const {
-    return Vector3(x / scalar, y / scalar, z / scalar);
+    return {x / scalar, y / scalar, z / scalar};
 }
 
 Vector3& Vector3::operator/=(float scalar) {
@@ -70,7 +64,7 @@ Vector3& Vector3::operator/=(float scalar) {
 }
 
 Vector3 Vector3::operator-() const {
-    return Vector3(-x, -y, -z);
+    return {-x, -y, -z};
 }
 
 bool Vector3::operator==(const Vector3& v) const {
@@ -81,9 +75,6 @@ bool Vector3::operator!=(const Vector3& v) const {
     return !(*this == v);
 }
 
-/* ============================================================================
-        Vector3 Access Methods
- ==============================================================================*/
 float Vector3::operator[](uint32 idx) const {
     if (idx == 0)
         return x;
@@ -104,9 +95,6 @@ float& Vector3::operator[](uint32 idx) {
     return z;
 }
 
-/* ============================================================================
-        Vector3 Member Methods
- ==============================================================================*/
 float Vector3::lengthSqr() const {
     return x * x + y * y + z * z;
 }
@@ -174,30 +162,27 @@ std::ostream& math::operator<<(std::ostream& os, const Vector3& v) {
     return os;
 }
 
-/* ============================================================================
-        Vector3 Non-Member Functions
- ==============================================================================*/
 Vector3 math::operator*(float scalar, const Vector3& v) {
     return v * scalar;
 }
 
 Vector3 math::abs(const Vector3& v) {
-    return Vector3(std::abs(v.x), std::abs(v.y), std::abs(v.z));
+    return {std::abs(v.x), std::abs(v.y), std::abs(v.z)};
 }
 
 Vector3 math::normalize(const Vector3& v) {
     float lenSqr = v.lengthSqr();
     if (lenSqr > 0)
         return v / std::sqrt(lenSqr);
-    return Vector3(0);
+    return {0};
 }
 
 Vector3 math::min(const Vector3& v1, const Vector3& v2) {
-    return Vector3(std::min(v1.x, v2.x), std::min(v1.y, v2.y), std::min(v1.z, v2.z));
+    return {std::min(v1.x, v2.x), std::min(v1.y, v2.y), std::min(v1.z, v2.z)};
 }
 
 Vector3 math::max(const Vector3& v1, const Vector3& v2) {
-    return Vector3(std::max(v1.x, v2.x), std::max(v1.y, v2.y), std::max(v1.z, v2.z));
+    return {std::max(v1.x, v2.x), std::max(v1.y, v2.y), std::max(v1.z, v2.z)};
 }
 
 float math::dot(const Vector3& v1, const Vector3& v2) {
@@ -209,8 +194,8 @@ float math::absDot(const Vector3& v1, const Vector3& v2) {
 }
 
 Vector3 math::cross(const Vector3& v1, const Vector3& v2) {
-    return Vector3((v1.y * v2.z) - (v1.z * v2.y), (v1.z * v2.x) - (v1.x * v2.z),
-                   (v1.x * v2.y) - (v1.y * v2.x));
+    return {(v1.y * v2.z) - (v1.z * v2.y), (v1.z * v2.x) - (v1.x * v2.z),
+            (v1.x * v2.y) - (v1.y * v2.x)};
 }
 
 float math::distance(const Vector3& v1, const Vector3& v2) {
@@ -219,7 +204,7 @@ float math::distance(const Vector3& v1, const Vector3& v2) {
 }
 
 Vector3 math::pow(const Vector3& v, float exp) {
-    return Vector3(std::pow(v.x, exp), std::pow(v.y, exp), std::pow(v.z, exp));
+    return {std::pow(v.x, exp), std::pow(v.y, exp), std::pow(v.z, exp)};
 }
 
 void math::basisFromVector(const Vector3& v1, Vector3* v2, Vector3* v3) {

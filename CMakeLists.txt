@@ -55,7 +55,6 @@ set(RT_PBR_SOURCES
   src/Math/Matrix2x2.cpp
   src/Math/Matrix3x3.cpp
   src/Math/Matrix4x4.cpp
-  src/Math/PBRMath.cpp
   src/Math/Quat.cpp
   src/Math/Ray.cpp
   src/Math/Transform.cpp
@@ -97,4 +96,7 @@ target_link_libraries(pbr-sm PRIVATE
   glad
   freeglut_static
   ${ZLIB_LIBRARIES}
-) 
+)
+set(RELEASE_FLAGS "-Wall")
+target_compile_options(pbr-sm PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_FLAGS}>")
+target_compile_options(pbr-sm PUBLIC )

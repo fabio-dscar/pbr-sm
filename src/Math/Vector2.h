@@ -16,12 +16,8 @@ public:
     Vector2();
     Vector2(float scalar);
     Vector2(float x, float y);
-
-    // Vector3 projection - drop z coordinate
-    // Make it explicit so as to avoid unintentional use
     explicit Vector2(const Vector3& v);
 
-    // Vector math operators
     Vector2 operator*(float scalar) const;
     Vector2& operator*=(float scalar);
 
@@ -39,11 +35,9 @@ public:
     bool operator==(const Vector2& v) const;
     bool operator!=(const Vector2& v) const;
 
-    // Array-like access
     float operator[](uint32 idx) const;
     float& operator[](uint32 idx);
 
-    // Vector member methods
     float lengthSqr() const;
     float length() const;
 
@@ -55,7 +49,6 @@ public:
     unsigned int minDim() const;
 };
 
-// Standard input/ouput
 PBR_SHARED std::istream& operator>>(std::istream& is, Vector2& v);
 PBR_SHARED std::ostream& operator<<(std::ostream& os, const Vector2& v);
 

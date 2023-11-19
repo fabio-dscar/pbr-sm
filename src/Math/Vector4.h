@@ -17,7 +17,6 @@ public:
     Vector4(float x, float y, float z, float w);
     Vector4(const Vector3& v, float w);
 
-    // Vector math operators
     Vector4 operator*(float scalar) const;
     Vector4& operator*=(float scalar);
 
@@ -35,11 +34,9 @@ public:
     bool operator==(const Vector4& v) const;
     bool operator!=(const Vector4& v) const;
 
-    // Array-like access
     float operator[](uint32 idx) const;
     float& operator[](uint32 idx);
 
-    // Vector member methods
     float lengthSqr() const;
     float length() const;
 
@@ -49,7 +46,6 @@ public:
     float max() const;
 };
 
-// Standard input/ouput
 PBR_SHARED std::istream& operator>>(std::istream& is, Vector4& v);
 PBR_SHARED std::ostream& operator<<(std::ostream& os, const Vector4& v);
 

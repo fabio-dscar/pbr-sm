@@ -14,8 +14,8 @@ public:
     float x, y, z, w;
 
     Quat();
-    Quat(float w, const Vector3& v);
-    Quat(float w, float x, float y, float z);
+    Quat(const Vector3& v, float w);
+    Quat(float x, float y, float z, float w);
     explicit Quat(const Matrix4x4& mat);
 
     Quat operator+(const Quat& q) const;
@@ -33,7 +33,6 @@ public:
     Quat operator/(float scalar) const;
     Quat& operator/=(float scalar);
 
-    // Array-like access
     float operator[](uint32 idx) const;
     float& operator[](uint32 idx);
 
@@ -47,7 +46,6 @@ public:
     Matrix4x4 toMatrix() const;
 };
 
-// Standard input/ouput
 PBR_SHARED std::istream& operator>>(std::istream& is, Quat& q);
 PBR_SHARED std::ostream& operator<<(std::ostream& os, const Quat& q);
 

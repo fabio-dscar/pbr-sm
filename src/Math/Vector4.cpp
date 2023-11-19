@@ -8,19 +8,13 @@
 using namespace pbr;
 using namespace pbr::math;
 
-/* ============================================================================
-        Vector4 Constructors
-==============================================================================*/
 Vector4::Vector4() : x(0), y(0), z(0), w(0) {}
 Vector4::Vector4(float scalar) : x(scalar), y(scalar), z(scalar), w(scalar) {}
 Vector4::Vector4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 Vector4::Vector4(const Vector3& v, float w) : x(v.x), y(v.y), z(v.z), w(w) {}
 
-/* ============================================================================
-        Vector4 Math Operators
-==============================================================================*/
 Vector4 Vector4::operator+(const Vector4& v) const {
-    return Vector4(x + v.x, y + v.y, z + v.z, w + v.w);
+    return {x + v.x, y + v.y, z + v.z, w + v.w};
 }
 
 Vector4& Vector4::operator+=(const Vector4& v) {
@@ -32,7 +26,7 @@ Vector4& Vector4::operator+=(const Vector4& v) {
 }
 
 Vector4 Vector4::operator-(const Vector4& v) const {
-    return Vector4(x - v.x, y - v.y, z - v.z, w - v.w);
+    return {x - v.x, y - v.y, z - v.z, w - v.w};
 }
 
 Vector4& Vector4::operator-=(const Vector4& v) {
@@ -44,7 +38,7 @@ Vector4& Vector4::operator-=(const Vector4& v) {
 }
 
 Vector4 Vector4::operator*(float scalar) const {
-    return Vector4(scalar * x, scalar * y, scalar * z, scalar * w);
+    return {scalar * x, scalar * y, scalar * z, scalar * w};
 }
 
 Vector4& Vector4::operator*=(float scalar) {
@@ -56,7 +50,7 @@ Vector4& Vector4::operator*=(float scalar) {
 }
 
 Vector4 Vector4::operator/(float scalar) const {
-    return Vector4(x / scalar, y / scalar, z / scalar, w / scalar);
+    return {x / scalar, y / scalar, z / scalar, w / scalar};
 }
 
 Vector4& Vector4::operator/=(float scalar) {
@@ -68,7 +62,7 @@ Vector4& Vector4::operator/=(float scalar) {
 }
 
 Vector4 Vector4::operator-() const {
-    return Vector4(-x, -y, -z, -w);
+    return {-x, -y, -z, -w};
 }
 
 bool Vector4::operator==(const Vector4& v) const {
@@ -79,9 +73,6 @@ bool Vector4::operator!=(const Vector4& v) const {
     return !(*this == v);
 }
 
-/* ============================================================================
-        Vector4 Access Methods
-==============================================================================*/
 float Vector4::operator[](uint32 idx) const {
     if (idx == 0)
         return x;
@@ -108,9 +99,6 @@ float& Vector4::operator[](uint32 idx) {
     return w;
 }
 
-/* ============================================================================
-        Vector4 Member Methods
-==============================================================================*/
 float Vector4::lengthSqr() const {
     return x * x + y * y + z * z + w * w;
 }
@@ -146,22 +134,19 @@ std::ostream& math::operator<<(std::ostream& os, const Vector4& v) {
     return os;
 }
 
-/* ============================================================================
-        Vector4 Non-Member Functions
-==============================================================================*/
 Vector4 math::operator*(float scalar, const Vector4& v) {
     return v * scalar;
 }
 
 Vector4 math::abs(const Vector4& v) {
-    return Vector4(std::abs(v.x), std::abs(v.y), std::abs(v.z), std::abs(v.w));
+    return {std::abs(v.x), std::abs(v.y), std::abs(v.z), std::abs(v.w)};
 }
 
 Vector4 math::normalize(const Vector4& v) {
     float lenSqr = v.lengthSqr();
     if (lenSqr > 0)
         return v / std::sqrt(lenSqr);
-    return Vector4(0);
+    return {0};
 }
 
 float math::dot(const Vector4& v1, const Vector4& v2) {

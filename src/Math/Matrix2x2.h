@@ -50,7 +50,6 @@ public:
     float det() const;
 };
 
-// Standard input/ouput
 PBR_SHARED std::istream& operator>>(std::istream& is, Matrix2x2& mat);
 PBR_SHARED std::ostream& operator<<(std::ostream& os, const Matrix2x2& mat);
 

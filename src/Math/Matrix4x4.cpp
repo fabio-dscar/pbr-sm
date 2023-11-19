@@ -10,10 +10,8 @@ using namespace pbr;
 using namespace pbr::math;
 
 Matrix4x4::Matrix4x4()
-    : m11(1), m12(0), m13(0), m14(0), 
-      m21(0), m22(1), m23(0), m24(0), 
-      m31(0), m32(0), m33(1), m34(0), 
-      m41(0), m42(0), m43(0), m44(1) {}
+    : m11(1), m12(0), m13(0), m14(0), m21(0), m22(1), m23(0), m24(0), m31(0), m32(0),
+      m33(1), m34(0), m41(0), m42(0), m43(0), m44(1) {}
 
 Matrix4x4::Matrix4x4(float s) : m{s, s, s, s, s, s, s, s, s, s, s, s, s, s, s, s} {}
 
@@ -38,11 +36,11 @@ Matrix4x4::Matrix4x4(const Quat& quat) {
     *this = quat.toMatrix();
 }
 
-Matrix4x4 Matrix4x4::operator*(float scalar) const {
-    return Matrix4x4(scalar * m11, scalar * m12, scalar * m13, scalar * m14, scalar * m21,
-                     scalar * m22, scalar * m23, scalar * m24, scalar * m31, scalar * m32,
-                     scalar * m33, scalar * m34, scalar * m41, scalar * m42, scalar * m43,
-                     scalar * m44);
+Matrix4x4 Matrix4x4::operator*(float s) const {
+    return {s * m11, s * m12, s * m13, s * m14,
+            s * m21, s * m22, s * m23, s * m24,
+            s * m31, s * m32, s * m33, s * m34,
+            s * m41, s * m42, s * m43, s * m44};
 }
 
 Matrix4x4& Matrix4x4::operator*=(float scalar) {
@@ -66,15 +64,16 @@ Matrix4x4& Matrix4x4::operator*=(float scalar) {
 }
 
 Vector3 Matrix4x4::operator*(const Vector3& v) const {
-    return Vector3(m11 * v.x + m12 * v.y + m13 * v.z, m21 * v.x + m22 * v.y + m23 * v.z,
-                   m31 * v.x + m32 * v.y + m33 * v.z);
+    return {m11 * v.x + m12 * v.y + m13 * v.z, 
+            m21 * v.x + m22 * v.y + m23 * v.z,
+            m31 * v.x + m32 * v.y + m33 * v.z};
 }
 
 Vector4 Matrix4x4::operator*(const Vector4& v) const {
-    return Vector4(m11 * v.x + m12 * v.y + m13 * v.z + m14 * v.w,
-                   m21 * v.x + m22 * v.y + m23 * v.z + m24 * v.w,
-                   m31 * v.x + m32 * v.y + m33 * v.z + m34 * v.w,
-                   m41 * v.x + m42 * v.y + m43 * v.z + m44 * v.w);
+    return {m11 * v.x + m12 * v.y + m13 * v.z + m14 * v.w,
+            m21 * v.x + m22 * v.y + m23 * v.z + m24 * v.w,
+            m31 * v.x + m32 * v.y + m33 * v.z + m34 * v.w,
+            m41 * v.x + m42 * v.y + m43 * v.z + m44 * v.w};
 }
 
 Matrix4x4 Matrix4x4::operator*(const Matrix4x4& mat) const {
@@ -87,10 +86,10 @@ Matrix4x4 Matrix4x4::operator*(const Matrix4x4& mat) const {
 }
 
 Matrix4x4 Matrix4x4::operator+(const Matrix4x4& mat) const {
-    return Matrix4x4(m11 + mat.m11, m12 + mat.m12, m13 + mat.m13, m14 + mat.m14,
-                     m21 + mat.m21, m22 + mat.m22, m23 + mat.m23, m24 + mat.m24,
-                     m31 + mat.m31, m32 + mat.m32, m33 + mat.m33, m34 + mat.m34,
-                     m41 + mat.m41, m42 + mat.m42, m43 + mat.m43, m44 + mat.m44);
+    return {m11 + mat.m11, m12 + mat.m12, m13 + mat.m13, m14 + mat.m14,
+            m21 + mat.m21, m22 + mat.m22, m23 + mat.m23, m24 + mat.m24,
+            m31 + mat.m31, m32 + mat.m32, m33 + mat.m33, m34 + mat.m34,
+            m41 + mat.m41, m42 + mat.m42, m43 + mat.m43, m44 + mat.m44};
 }
 
 Matrix4x4& Matrix4x4::operator+=(const Matrix4x4& mat) {
@@ -114,10 +113,10 @@ Matrix4x4& Matrix4x4::operator+=(const Matrix4x4& mat) {
 }
 
 Matrix4x4 Matrix4x4::operator-(const Matrix4x4& mat) const {
-    return Matrix4x4(m11 - mat.m11, m12 - mat.m12, m13 - mat.m13, m14 - mat.m14,
-                     m21 - mat.m21, m22 - mat.m22, m23 - mat.m23, m24 - mat.m24,
-                     m31 - mat.m31, m32 - mat.m32, m33 - mat.m33, m34 - mat.m34,
-                     m41 - mat.m41, m42 - mat.m42, m43 - mat.m43, m44 - mat.m44);
+    return {m11 - mat.m11, m12 - mat.m12, m13 - mat.m13, m14 - mat.m14,
+            m21 - mat.m21, m22 - mat.m22, m23 - mat.m23, m24 - mat.m24,
+            m31 - mat.m31, m32 - mat.m32, m33 - mat.m33, m34 - mat.m34,
+            m41 - mat.m41, m42 - mat.m42, m43 - mat.m43, m44 - mat.m44};
 }
 
 Matrix4x4& Matrix4x4::operator-=(const Matrix4x4& mat) {
@@ -141,8 +140,8 @@ Matrix4x4& Matrix4x4::operator-=(const Matrix4x4& mat) {
 }
 
 Matrix4x4 Matrix4x4::operator-() const {
-    return Matrix4x4(-m11, -m12, -m13, -m14, -m21, -m22, -m23, -m24, -m31, -m32, -m33,
-                     -m34, -m41, -m42, -m43, -m44);
+    return {-m11, -m12, -m13, -m14, -m21, -m22, -m23, -m24,
+            -m31, -m32, -m33, -m34, -m41, -m42, -m43, -m44};
 }
 
 bool Matrix4x4::operator==(const Matrix4x4& mat) const {
@@ -219,9 +218,9 @@ float Matrix4x4::det() const {
 
 // Non-member functions
 Vector3 math::operator*(const Vector3& v, const Matrix4x4& mat) {
-    return Vector3(mat.m11 * v.x + mat.m21 * v.y + mat.m31 * v.z,
-                   mat.m12 * v.x + mat.m22 * v.y + mat.m32 * v.z,
-                   mat.m13 * v.x + mat.m23 * v.y + mat.m33 * v.z);
+    return {mat.m11 * v.x + mat.m21 * v.y + mat.m31 * v.z,
+            mat.m12 * v.x + mat.m22 * v.y + mat.m32 * v.z,
+            mat.m13 * v.x + mat.m23 * v.y + mat.m33 * v.z};
 }
 
 Matrix4x4 math::operator*(float scalar, const Matrix4x4& mat) {
@@ -229,9 +228,10 @@ Matrix4x4 math::operator*(float scalar, const Matrix4x4& mat) {
 }
 
 Matrix4x4 math::transpose(const Matrix4x4& mat) {
-    return Matrix4x4(mat.m11, mat.m21, mat.m31, mat.m41, mat.m12, mat.m22, mat.m32,
-                     mat.m42, mat.m13, mat.m23, mat.m33, mat.m43, mat.m14, mat.m24,
-                     mat.m34, mat.m44);
+    return {mat.m11, mat.m21, mat.m31, mat.m41, 
+            mat.m12, mat.m22, mat.m32, mat.m42,
+            mat.m13, mat.m23, mat.m33, mat.m43, 
+            mat.m14, mat.m24, mat.m34, mat.m44};
 }
 
 Matrix4x4 math::inverse(const Matrix4x4& mat) {
