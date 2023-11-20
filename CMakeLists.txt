@@ -46,6 +46,7 @@ set(RT_PBR_SOURCES
   src/Lights/Light.cpp
   src/Lights/PointLight.cpp
   src/Lights/SpotLight.cpp
+  src/Lights/SphereLight.cpp
 
   src/Materials/Material.cpp
   src/Materials/PBRMaterial.cpp
