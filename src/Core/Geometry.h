@@ -43,8 +43,8 @@ namespace pbr {
         std::vector<Vertex> _vertices;
     };
 
-    PBR_SHARED void genSphereGeometry(Geometry& geo, float radius, uint32 widthSegments, uint32 heightSegments);
-    PBR_SHARED void genUnitCubeGeometry(Geometry& geo);
+    PBR_SHARED std::unique_ptr<Geometry> genUnitSphere(uint32 widthSegments, uint32 heightSegments);
+    PBR_SHARED std::unique_ptr<Geometry> genUnitCube();
 
     // Obj file
     struct ObjVertex {

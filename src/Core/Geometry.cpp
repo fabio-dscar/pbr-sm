@@ -120,8 +120,10 @@ void Geometry::computeTangents() {
     }
 }
 
-void pbr::genSphereGeometry(Geometry& geo, float radius, uint32 widthSegments,
-                            uint32 heightSegments) {
+std::unique_ptr<Geometry> pbr::genUnitSphere(uint32 widthSegments,
+                                             uint32 heightSegments) {
+    auto geo = std::make_unique<Geometry>();
+
     uint32 index = 0;
     Vertex vert;
 
@@ -134,9 +136,9 @@ void pbr::genSphereGeometry(Geometry& geo, float radius, uint32 widthSegments,
             float u = ix / widthSegments;
 
             // Position
-            vert.position.x = radius * std::cos(u * 2.0f * PI) * std::sin(v * PI);
-            vert.position.y = radius * std::cos(v * PI);
-            vert.position.z = radius * std::sin(u * 2.0f * PI) * std::sin(v * PI);
+            vert.position.x = std::cos(u * 2.0f * PI) * std::sin(v * PI);
+            vert.position.y = std::cos(v * PI);
+            vert.position.z = std::sin(u * 2.0f * PI) * std::sin(v * PI);
 
             // Normal
             vert.normal =
@@ -147,7 +149,7 @@ void pbr::genSphereGeometry(Geometry& geo, float radius, uint32 widthSegments,
 
             auxIdx.push_back(index++);
 
-            geo.addVertex(vert);
+            geo->addVertex(vert);
         }
 
         grid.push_back(auxIdx);
@@ -162,18 +164,20 @@ void pbr::genSphereGeometry(Geometry& geo, float radius, uint32 widthSegments,
             uint32 d = grid[iy + 1][ix + 1];
 
             if (iy != 0) {
-                geo.addIndex(a);
-                geo.addIndex(b);
-                geo.addIndex(d);
+                geo->addIndex(a);
+                geo->addIndex(b);
+                geo->addIndex(d);
             }
 
             if (iy != heightSegments - 1) {
-                geo.addIndex(b);
-                geo.addIndex(c);
-                geo.addIndex(d);
+                geo->addIndex(b);
+                geo->addIndex(c);
+                geo->addIndex(d);
             }
         }
     }
+
+    return geo;
 }
 
 bool pbr::loadObj(const std::string& filePath, ObjFile& obj) {
@@ -193,6 +197,8 @@ bool pbr::loadObj(const std::string& filePath, ObjFile& obj) {
     if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, filePath.c_str())) {
         throw std::runtime_error(err);
     }
+
+    uint32 count = 0;
 
     std::unordered_map<ObjVertex, uint32_t> uniqueVertices = {};
     for (const auto& shape : shapes) {
@@ -220,6 +226,28 @@ bool pbr::loadObj(const std::string& filePath, ObjFile& obj) {
             }
 
             obj.indices.push_back(uniqueVertices[vertex]);
+
+            /*ObjVertex vertex = {};
+
+            vertex.pos = {attrib.vertices[3 * index.vertex_index + 0],
+                          attrib.vertices[3 * index.vertex_index + 1],
+                          attrib.vertices[3 * index.vertex_index + 2]};
+
+            if (attrib.normals.size() > 0) {
+                vertex.normal = {attrib.normals[3 * index.normal_index + 0],
+                                 attrib.normals[3 * index.normal_index + 1],
+                                 attrib.normals[3 * index.normal_index + 2]};
+            }
+
+            if (attrib.texcoords.size() > 0) {
+                vertex.texCoord = {attrib.texcoords[2 * index.texcoord_index + 0],
+                                   1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
+            }
+
+            obj.vertices.push_back(vertex);
+
+            obj.indices.push_back(count);
+            count++;*/
         }
     }
 
@@ -235,7 +263,9 @@ void pbr::fromObjFile(Geometry& geo, const ObjFile& objFile) {
     geo.computeTangents();
 }
 
-void pbr::genUnitCubeGeometry(Geometry& geo) {
+std::unique_ptr<Geometry> pbr::genUnitCube() {
+    auto geo = std::make_unique<Geometry>();
+
     float vertices[] = {-1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f, -1.0f,
                         -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, 1.0f, 1.0f,
                         -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  1.0f, 1.0f};
@@ -244,10 +274,12 @@ void pbr::genUnitCubeGeometry(Geometry& geo) {
                         7, 2, 1, 2, 7, 5, 0, 2, 5, 5, 4, 0, 3, 7, 1, 7, 3, 6};
 
     for (uint32 i = 0; i < 8; i++) {
-        geo.addVertex({.position = Vec3(vertices[3 * i], vertices[3 * i + 1],
-                                        vertices[3 * i + 2])});
+        geo->addVertex({.position = Vec3(vertices[3 * i], vertices[3 * i + 1],
+                                         vertices[3 * i + 2])});
     }
 
     for (uint32 i = 0; i < 36; i++)
-        geo.addIndex(indices[i]);
+        geo->addIndex(indices[i]);
+
+    return geo;
 }

@@ -18,6 +18,11 @@ class Material;
 class Geometry;
 class Skybox;
 
+enum ShapeUniform : uint32 {
+    MODEL_MATRIX = 10,
+    NORMAL_MATRIX = 11
+};
+
 class Shape : public SceneObject {
 public:
     Shape() = default;

@@ -8,7 +8,8 @@
 
 using namespace pbr;
 
-Skybox::Skybox(RRID cubeProg, RRID cubeTex) : _cubeProg(cubeProg), _geoId(-1), _cubeTex(cubeTex) { }
+Skybox::Skybox(RRID cubeProg, RRID cubeTex)
+    : _cubeProg(cubeProg), _geoId(-1), _cubeTex(cubeTex) {}
 
 Skybox::Skybox(const std::string& folder) {
     _cubeProg = Resource.getShader("skybox")->id();
@@ -39,9 +40,7 @@ Skybox::Skybox(const std::string& folder) {
 }
 
 void Skybox::initialize() {
-    _geo = std::make_shared<Geometry>();
-    genUnitCubeGeometry(*_geo);
-    _geoId = RHI.uploadGeometry(_geo);
+    _geoId = Resource.getGeometry("unitCube")->rrid();
 }
 
 void Skybox::draw() const {
@@ -53,7 +52,7 @@ void Skybox::draw() const {
     glCullFace(GL_FRONT);
     RHI.drawGeometry(_geoId);
     glCullFace(GL_BACK);
-    
+
     RHI.useProgram(0);
 }
 

@@ -9,7 +9,7 @@ class Geometry;
 
 class Skybox {
 public:
-    Skybox(const std::string& folder);
+    explicit Skybox(const std::string& folder);
     Skybox(RRID cubeProg, RRID cubeTex);
 
     void initialize();
@@ -23,12 +23,9 @@ private:
     RRID _cubeProg;
     RRID _geoId;
 
-    // Textures
     RRID _cubeTex;
     RRID _irradianceTex;
     RRID _ggxTex;
-
-    sref<Geometry> _geo;
 };
 
 } // namespace pbr

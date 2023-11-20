@@ -12,6 +12,7 @@
 #include <PBRMaterial.h>
 
 #include <cstring>
+#include <cassert>
 
 #include <ranges>
 
@@ -187,39 +188,22 @@ RenderInterface& RenderInterface::get() {
     return _inst;
 }
 
-void RenderInterface::initialize() {
+void RenderInterface::initMainShaders() {
     _programs.push_back({0});
     _currProgram = 0;
 
-    // Craete 2x2 null texture
-    Image null;
-    uint8 nullTex[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    null.loadImage(ImageFormat::IMGFMT_RGB8, 2, 2, 1, nullTex);
-    TexSampler nullSampler;
-    RRID nullId = createTextureImmutable(null, nullSampler);
-    Resource.addTexture("null", RHI.getTexture(nullId));
-
-    // Load BRDF precomputation
-    TexSampler brdfSampler;
-    Image brdf;
-    brdf.loadImage("PBR/brdf.img");
-    RRID brdfId = createTextureImmutable(brdf, brdfSampler);
-    Resource.addTexture("brdf", RHI.getTexture(brdfId));
-
-    // Load standard engine shaders
+    // PBR shader
     ShaderSource fsCommon(FRAGMENT_SHADER, "common.fs");
-
-    // Load unreal shader
     ShaderSource vsUnreal(VERTEX_SHADER, "unreal.vs");
     ShaderSource fsUnreal(FRAGMENT_SHADER, "unreal.fs");
 
-    sref<Shader> unrealProg = std::make_shared<Shader>("unreal");
+    auto unrealProg = std::make_unique<Shader>("unreal");
     unrealProg->addShader(vsUnreal);
     unrealProg->addShader(fsUnreal);
     unrealProg->addShader(fsCommon);
     unrealProg->link();
-    Resource.addShader("unreal", unrealProg);
 
+    // Set fixed uniforms
     RHI.useProgram(unrealProg->id());
     using pbr::PBRUniform;
     RHI.setSampler(DIFFUSE_MAP, 1);
@@ -229,38 +213,63 @@ void RenderInterface::initialize() {
     RHI.setSampler(ENV_IRRADIANCE_MAP, 6);
     RHI.setSampler(ENV_GGX_MAP, 7);
     RHI.setSampler(ENV_BRDF_MAP, 8);
-    RHI.setBufferBlock("cameraBlock", CAMERA_BUFFER_IDX);
-    RHI.setBufferBlock("rendererBlock", RENDERER_BUFFER_IDX);
-    RHI.setBufferBlock("lightBlock", LIGHTS_BUFFER_IDX);
     RHI.useProgram(0);
 
-    // Load environment shader
+    Resource.addShader("unreal", std::move(unrealProg));
+
+    // Set BRDF precomputation
+    glActiveTexture(GL_TEXTURE8);
+    RHI.bindTexture(Resource.getTexture("brdf")->rrid());
+
+    // Environment shader
     ShaderSource vsSkybox(VERTEX_SHADER, "skybox.vs");
     ShaderSource fsSkybox(FRAGMENT_SHADER, "skybox.fs");
-    sref<Shader> skyProg = std::make_shared<Shader>("skybox");
+
+    auto skyProg = std::make_unique<Shader>("skybox");
     skyProg->addShader(vsSkybox);
     skyProg->addShader(fsSkybox);
     skyProg->addShader(fsCommon);
     skyProg->link();
 
-    Resource.addShader("skybox", skyProg);
-
     RHI.useProgram(skyProg->id());
     RHI.setSampler(ENV_MAP, 5);
-    RHI.setBufferBlock("rendererBlock", RENDERER_BUFFER_IDX);
-    RHI.setBufferBlock("cameraBlock", CAMERA_BUFFER_IDX);
     RHI.useProgram(0);
 
-    // Set BRDF precomputation
-    glActiveTexture(GL_TEXTURE8);
-    RHI.bindTexture(brdfId);
+    Resource.addShader("skybox", std::move(skyProg));
 }
 
-RRID RenderInterface::uploadGeometry(const sref<Geometry>& geo) {
-    auto verts = geo->vertices();
-    auto indices = geo->indices();
+void RenderInterface::initCommonMeshes() {
+    auto cube = genUnitCube();
+    uploadGeometry(*cube);
+    Resource.addGeometry("unitCube", std::move(cube));
 
-    // Create vertex array for the geometry
+    auto sphere = genUnitSphere(36, 16);
+    uploadGeometry(*sphere);
+    Resource.addGeometry("unitSphere", std::move(sphere));
+}
+
+void RenderInterface::initialize() {
+    // Craete null texture
+    Image null;
+    uint8 nullTex[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    null.loadImage(ImageFormat::IMGFMT_RGB8, 2, 2, 1, nullTex);
+    RRID nullId = createTextureImmutable(null, {});
+    Resource.addTexture("null", RHI.getTexture(nullId));
+
+    // Load BRDF precomputation
+    Image brdf;
+    brdf.loadImage("PBR/brdf.img");
+    RRID brdfId = createTextureImmutable(brdf, {});
+    Resource.addTexture("brdf", RHI.getTexture(brdfId));
+
+    initMainShaders();
+    initCommonMeshes();
+}
+
+RRID RenderInterface::uploadGeometry(Geometry& geo) {
+    auto verts = geo.vertices();
+    auto indices = geo.indices();
+
     RRID resId = createVertexArray();
 
     RHIVertArray& vertArray = _vertArrays[resId];
@@ -296,7 +305,7 @@ RRID RenderInterface::uploadGeometry(const sref<Geometry>& geo) {
     glBindVertexArray(0);
 
     // Associate RRID of the VAO with the geometry
-    geo->setRRID(resId);
+    geo.setRRID(resId);
 
     return resId;
 }
@@ -359,9 +368,6 @@ RRID RenderInterface::createBufferImmutable(BufferType type, BufferUsage usage,
     glCreateBuffers(1, &buffer.id);
     glNamedBufferStorage(buffer.id, size, data, flags);
 
-    // glBindBuffer(buffer.target, buffer.id);
-    // glBufferData(buffer.target, size, data, OGLBufferUsage[usage]);
-
     RRID resId = _buffers.size();
     _buffers.push_back(buffer);
 
@@ -392,6 +398,15 @@ void RenderInterface::bindBufferBase(RRID id, uint32 index) {
 
     glBindBuffer(buffer.target, buffer.id);
     glBindBufferBase(buffer.target, index, buffer.id);
+    glBindBuffer(buffer.target, 0);
+}
+
+void RenderInterface::bindBufferRange(RRID id, uint32 index, std::size_t offset,
+                                      std::size_t size) {
+    RHIBuffer buffer = _buffers[id];
+
+    glBindBuffer(buffer.target, buffer.id);
+    glBindBufferRange(buffer.target, index, buffer.id, offset, size);
     glBindBuffer(buffer.target, 0);
 }
 
@@ -652,6 +667,7 @@ void RenderInterface::setBufferBlock(const std::string& name, uint32 binding) {
     GLuint id = _programs[_currProgram].id;
     GLint idx = glGetUniformBlockIndex(id, name.c_str());
     glUniformBlockBinding(id, idx, binding);
+    std::cout << "index: " << idx << " binding: " << binding << "\n";
 }
 
 int32 RenderInterface::uniformLocation(RRID id, const std::string& name) {
@@ -697,11 +713,6 @@ RRID RenderInterface::createTextureImmutable(const Image& img,
 
     glGenTextures(1, &id);
     glBindTexture(target, id);
-    glTexParameteri(target, GL_TEXTURE_WRAP_S, OGLTexWrapping[sampler.sWrap()]);
-    glTexParameteri(target, GL_TEXTURE_WRAP_T, OGLTexWrapping[sampler.tWrap()]);
-    glTexParameteri(target, GL_TEXTURE_WRAP_R, OGLTexWrapping[sampler.rWrap()]);
-    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, OGLTexFilters[sampler.minFilter()]);
-    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, OGLTexFilters[sampler.magFilter()]);
 
     GLenum pType = OGLTexPixelTypes[static_cast<uint32>(img.compType())];
     GLenum oglSizedFmt = OGLTexSizedPixelFormats[static_cast<uint32>(img.format())];
@@ -714,9 +725,9 @@ RRID RenderInterface::createTextureImmutable(const Image& img,
 
     // Create immutable texture storage
     using enum ImageType;
-    if (type == IMGTYPE_2D)
+    if (type == IMGTYPE_2D) {
         glTexStorage2D(target, levels, oglSizedFmt, width, height);
-    else if (type == IMGTYPE_1D)
+    } else if (type == IMGTYPE_1D)
         glTexStorage1D(target, levels, oglSizedFmt, width);
     else if (type == IMGTYPE_3D)
         glTexStorage3D(target, levels, oglSizedFmt, width, height, depth);
@@ -736,6 +747,12 @@ RRID RenderInterface::createTextureImmutable(const Image& img,
             glTexSubImage3D(target, lvl, 0, 0, 0, w, h, d, oglFmt, pType, img.data(lvl));
     }
 
+    glTexParameteri(target, GL_TEXTURE_WRAP_S, OGLTexWrapping[sampler.sWrap()]);
+    glTexParameteri(target, GL_TEXTURE_WRAP_T, OGLTexWrapping[sampler.tWrap()]);
+    glTexParameteri(target, GL_TEXTURE_WRAP_R, OGLTexWrapping[sampler.rWrap()]);
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, OGLTexFilters[sampler.minFilter()]);
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, OGLTexFilters[sampler.magFilter()]);
+
     // Unbind texture
     glBindTexture(target, 0);
 
@@ -745,8 +762,8 @@ RRID RenderInterface::createTextureImmutable(const Image& img,
     fmt.levels  = img.numLevels();
     fmt.pType   = img.compType();*/
 
-    sref<Texture> tex = std::make_shared<GPUTexture>(resId, img.width(), img.height(),
-                                                     img.depth(), sampler, fmt);
+    auto tex = std::make_shared<Texture>(resId, img.width(), img.height(), img.depth(),
+                                         sampler, fmt);
 
     _textures.push_back({id, target, oglFmt, oglFmt, pType, tex});
 
@@ -796,8 +813,8 @@ RRID RenderInterface::createTexture(const Image& img, const TexSampler& sampler)
     fmt.levels  = img.numLevels();
     fmt.pType   = img.compType();*/
 
-    sref<Texture> tex = std::make_shared<GPUTexture>(resId, img.width(), img.height(),
-                                                     img.depth(), sampler, fmt);
+    auto tex = std::make_shared<Texture>(resId, img.width(), img.height(), img.depth(),
+                                         sampler, fmt);
 
     _textures.push_back({id, target, oglFmt, oglFmt, pType, tex});
 
@@ -848,8 +865,7 @@ RRID RenderInterface::createTexture(ImageType type, ImageFormat fmt, uint32 widt
     texFmt.pType = formatToImgComp(fmt);
     texFmt.levels = 1;
 
-    sref<Texture> tex =
-        std::make_shared<GPUTexture>(resId, width, height, depth, sampler, texFmt);
+    auto tex = std::make_shared<Texture>(resId, width, height, depth, sampler, texFmt);
 
     _textures.push_back({id, target, intFormat,
                          OGLTexPixelFormats[static_cast<uint32>(fmt)],
@@ -906,8 +922,8 @@ RRID RenderInterface::createCubemap(const Cubemap& cube, const TexSampler& sampl
     fmt.levels = cube.numLevels();
     fmt.pType = cube.compType();
 
-    sref<Texture> tex =
-        std::make_shared<GPUTexture>(resId, cube.width(), cube.height(), 1, sampler, fmt);
+    auto tex =
+        std::make_shared<Texture>(resId, cube.width(), cube.height(), 1, sampler, fmt);
 
     _textures.push_back({id, target, oglFmt, oglFmt, pType, tex});
 
@@ -915,19 +931,17 @@ RRID RenderInterface::createCubemap(const Cubemap& cube, const TexSampler& sampl
 }
 
 sref<Texture> RenderInterface::getTexture(RRID id) {
-    if (id < 0 || id >= _textures.size())
-        return nullptr; // Error
+    assert(id > 0 && id >= _textures.size());
 
     RHITexture tex = _textures[id];
-    if (tex.id == 0 || tex.tex == nullptr)
-        return nullptr; // Error
+
+    assert(tex.id != 0);
 
     return tex.tex;
 }
 
 bool RenderInterface::readTexture(RRID id, Image& img) {
-    if (id < 0 || id >= _textures.size())
-        return false; // Error
+    assert(id > 0 && id >= _textures.size());
 
     RHITexture tex = _textures[id];
     if (tex.id == 0)
@@ -973,12 +987,10 @@ bool RenderInterface::readCubemap(RRID id, Cubemap& cube) {
 }
 
 void RenderInterface::generateMipmaps(RRID id) {
-    if (id < 0 || id >= _textures.size())
-        return; // Error
+    assert(id > 0 && id < _textures.size());
 
     RHITexture ogltex = _textures[id];
-    if (ogltex.id == 0)
-        return; // Error
+    assert(ogltex.id != 0);
 
     glBindTexture(ogltex.target, ogltex.id);
     glGenerateMipmap(ogltex.target);
@@ -986,12 +998,10 @@ void RenderInterface::generateMipmaps(RRID id) {
 }
 
 void RenderInterface::setTextureData(RRID id, uint32 level, const void* pixels) {
-    if (id < 0 || id >= _textures.size())
-        return; // Error
+    assert(id > 0 && id < _textures.size());
 
     RHITexture ogltex = _textures[id];
-    if (ogltex.id == 0)
-        return; // Error
+    assert(ogltex.id != 0);
 
     glBindTexture(ogltex.target, ogltex.id);
 
@@ -1016,26 +1026,19 @@ void RenderInterface::setTextureData(RRID id, uint32 level, const void* pixels) 
     glBindTexture(ogltex.target, 0);
 }
 
-bool RenderInterface::deleteTexture(RRID id) {
-    if (id < (int64)_textures.size() && id != -1) {
-        GLuint oglId = _textures[id].id;
-        if (oglId != 0) {
-            glDeleteTextures(1, &oglId);
-            _textures[id].id = 0;
-            return true;
-        }
-    }
+void RenderInterface::deleteTexture(RRID id) {
+    assert(id != -1);
+    assert(id < _textures.size());
 
-    return false;
+    GLuint oglId = _textures[id].id;
+    if (oglId != 0) {
+        glDeleteTextures(1, &oglId);
+        _textures[id].id = 0;
+    }
 }
 
 void RenderInterface::bindTexture(RRID id) {
-    /*if (id < 0 || id >= _textures.size())
-        return; // Error
-
-    RHITexture ogltex = _textures[id];
-    if (ogltex.id == 0)
-        return; // Error*/
+    assert(id > 0 && id < _textures.size());
 
     const RHITexture& ogltex = _textures[id];
     glBindTexture(ogltex.target, ogltex.id);
@@ -1051,8 +1054,9 @@ void RenderInterface::bindTextures(uint32 first, uint32 size,
     glBindTextures(first, size, texs.data());
 }
 
-sref<Image> RenderInterface::getImage(int32 x, int32 y, int32 w, int32 h) const {
-    sref<Image> img = std::make_shared<Image>();
+std::unique_ptr<Image> RenderInterface::getImage(int32 x, int32 y, int32 w,
+                                                 int32 h) const {
+    auto img = std::make_unique<Image>();
     img->init(ImageFormat::IMGFMT_RGB8, w, h, 1, 1);
     glReadPixels(x, y, w, h, GL_RGB, GL_UNSIGNED_BYTE, img->data());
     return img;

@@ -6,10 +6,10 @@
 #include <PBR.h>
 #include <PBRMath.h>
 #include <Image.h>
+#include <Buffer.h>
 
 #include <span>
 
-// Macro to syntax sugar the singleton getter
 #define RHI RenderInterface::get()
 
 using namespace pbr::math;
@@ -72,8 +72,8 @@ struct BufferLayoutEntry {
     uint32 index;
     uint32 numElems;
     AttribType type;
-    size_t stride;
-    size_t offset;
+    std::size_t stride;
+    std::size_t offset;
 };
 
 struct BufferLayout {
@@ -104,7 +104,7 @@ public:
 
     void generateMipmaps(RRID id);
     void setTextureData(RRID id, uint32 level, const void* pixels);
-    bool deleteTexture(RRID id);
+    void deleteTexture(RRID id);
 
     void bindTexture(RRID id);
     void bindTexture(uint32 slot, RRID id);
@@ -140,14 +140,13 @@ public:
     void setBufferBlock(const std::string& name, uint32 binding);
 
     int32 uniformLocation(RRID id, const std::string& name);
-    // int32 uniformLocation(RRID id, const std::string_view name);
     uint32 uniformBlockLocation(RRID id, const std::string& name);
 
     /* ===================================================================================
             Geometry
     =====================================================================================*/
     void drawGeometry(RRID id);
-    RRID uploadGeometry(const sref<Geometry>& geo);
+    RRID uploadGeometry(Geometry& geo);
 
     /* ===================================================================================
              Buffers
@@ -155,24 +154,29 @@ public:
     RRID createVertexArray();
     bool deleteVertexArray(RRID id);
 
-    RRID createBufferImmutable(BufferType type, BufferUsage usage, size_t size,
+    RRID createBufferImmutable(BufferType type, BufferUsage usage, std::size_t size,
                                void* data);
 
-    RRID createBuffer(BufferType type, BufferUsage usage, size_t size, void* data);
-    void bindBufferBase(RRID buffer, uint32 index);
+    RRID createBuffer(BufferType type, BufferUsage usage, std::size_t size, void* data);
+    void bindBufferBase(RRID id, uint32 index);
+    void bindBufferRange(RRID id, uint32 index, std::size_t offset, std::size_t size);
     void setBufferLayout(RRID id, uint32 idx, AttribType type, uint32 numElems,
-                         uint32 stride, size_t offset);
+                         uint32 stride, std::size_t offset);
     void setBufferLayout(RRID id, const BufferLayout& layout);
-    bool updateBuffer(RRID id, size_t size, void* data);
+    bool updateBuffer(RRID id, std::size_t size, void* data);
     bool deleteBuffer(RRID id);
+
 
     bool isOpenGLError();
     void checkOpenGLError(const std::string& error);
 
-    sref<Image> getImage(int32 x, int32 y, int32 w, int32 h) const;
+    std::unique_ptr<Image> getImage(int32 x, int32 y, int32 w, int32 h) const;
 
 private:
-    RenderInterface() {}
+    RenderInterface() = default;
+
+    void initMainShaders();
+    void initCommonMeshes();
 
     RRID _currProgram;
 
