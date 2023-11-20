@@ -4,17 +4,16 @@ using namespace pbr;
 
 TexSampler::TexSampler()
     : _wrapS(WRAP_REPEAT), _wrapT(WRAP_REPEAT), _wrapR(WRAP_REPEAT), _min(FILTER_NEAREST),
-      _mag(FILTER_NEAREST), _numSamples(1) {}
+      _mag(FILTER_NEAREST) {}
 
 TexSampler::TexSampler(TexWrapMode sWrap, TexWrapMode tWrap, TexFilterMode minFilter,
                        TexFilterMode magFilter)
-    : _wrapS(sWrap), _wrapT(tWrap), _wrapR(WRAP_REPEAT), _min(minFilter), _mag(magFilter),
-      _numSamples(1) {}
+    : _wrapS(sWrap), _wrapT(tWrap), _wrapR(WRAP_REPEAT), _min(minFilter),
+      _mag(magFilter) {}
 
 TexSampler::TexSampler(TexWrapMode sWrap, TexWrapMode tWrap, TexWrapMode rWrap,
                        TexFilterMode minFilter, TexFilterMode magFilter)
-    : _wrapS(sWrap), _wrapT(tWrap), _wrapR(rWrap), _min(minFilter), _mag(magFilter),
-      _numSamples(1) {}
+    : _wrapS(sWrap), _wrapT(tWrap), _wrapR(rWrap), _min(minFilter), _mag(magFilter) {}
 
 TexWrapMode TexSampler::sWrap() const {
     return _wrapS;
@@ -59,10 +58,13 @@ uint32 TexSampler::numSamples() const {
     return _numSamples;
 }
 
-Texture::Texture() : _sampler(), _width(1), _height(1), _depth(1) {}
 Texture::Texture(int32 w, int32 h, int32 d, const TexSampler& sampler,
                  const TexFormat& fmt)
     : _format(fmt), _sampler(sampler), _width(w), _height(h), _depth(d) {}
+
+Texture::Texture(RRID resId, int32 w, int32 h, int32 d, const TexSampler& sampler,
+                 const TexFormat& fmt)
+    : _format(fmt), _sampler(sampler), _width(w), _height(h), _depth(d), _id(resId) {}
 
 int32 Texture::width() const {
     return _width;

@@ -90,7 +90,6 @@ void Camera::updateViewMatrix() {
     Matrix4x4 orientation = rotX * rotY;
 
     _objToWorld = orientation * translation(-_position);
-
     //_objToWorld = translation(-_position) * _orientation.toMatrix();
 }
 

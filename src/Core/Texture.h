@@ -56,7 +56,7 @@ private:
     TexFilterMode _min;
     TexFilterMode _mag;
 
-    uint32 _numSamples;
+    uint32 _numSamples = 0;
 };
 
 enum PixelType {
@@ -78,8 +78,9 @@ struct TexFormat {
 
 class PBR_SHARED Texture {
 public:
-    Texture();
     Texture(int32 w, int32 h, int32 d, const TexSampler& sampler, const TexFormat& fmt);
+    Texture(RRID resId, int32 w, int32 h, int32 d, const TexSampler& sampler,
+            const TexFormat& fmt);
 
     void setFormat(const TexFormat& format);
 
@@ -90,7 +91,7 @@ public:
     const TexFormat& format() const;
     const TexSampler& sampler() const;
 
-    virtual RRID rrid() const = 0;
+    RRID rrid() const { return _id; }
 
 private:
     TexFormat _format;
@@ -98,34 +99,7 @@ private:
     int32 _width;
     int32 _height;
     int32 _depth;
-};
-
-class PBR_SHARED CPUTexture : public Texture {
-public:
-    CPUTexture() : Texture() {}
-
-    RRID rrid() const override {
-        // CPUTexture is not a GPU bound resource
-        return -1;
-    }
-
-private:
-    sref<Image> _img;
-};
-
-class PBR_SHARED GPUTexture : public Texture {
-public:
-    GPUTexture(RRID rrid) : Texture(), _id(rrid) {}
-    GPUTexture(RRID rrid, int32 w, int32 h, int32 d, const TexSampler& sampler,
-               const TexFormat& fmt)
-        : Texture(w, h, d, sampler, fmt), _id(rrid) {}
-
-    void setId(RRID id) { _id = id; }
-
-    RRID rrid() const override { return _id; }
-
-private:
-    RRID _id;
+    RRID _id = -1;
 };
 
 } // namespace pbr

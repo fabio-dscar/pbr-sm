@@ -6,13 +6,13 @@ using namespace pbr;
 
 const RGBSpectrum RGBSpectrum::BLACK = RGBSpectrum(0);
 
-RGBSpectrum::RGBSpectrum() : r(0), g(0), b(0) { }
-RGBSpectrum::RGBSpectrum(float r, float g, float b) : r(r), g(g), b(b) { }
-RGBSpectrum::RGBSpectrum(float s) : r(s), g(s), b(s) { }
-RGBSpectrum::RGBSpectrum(const Vec3& v) : r(v.x), g(v.y), b(v.z) { }
+RGBSpectrum::RGBSpectrum() : r(0), g(0), b(0) {}
+RGBSpectrum::RGBSpectrum(float r, float g, float b) : r(r), g(g), b(b) {}
+RGBSpectrum::RGBSpectrum(float s) : r(s), g(s), b(s) {}
+RGBSpectrum::RGBSpectrum(const Vec3& v) : r(v.x), g(v.y), b(v.z) {}
 
-RGBSpectrum  RGBSpectrum::operator+ (const RGBSpectrum& rgb) const {
-    return RGBSpectrum(r + rgb.r, g + rgb.g, b + rgb.b);
+RGBSpectrum RGBSpectrum::operator+(const RGBSpectrum& rgb) const {
+    return {r + rgb.r, g + rgb.g, b + rgb.b};
 }
 
 RGBSpectrum& RGBSpectrum::operator+=(const RGBSpectrum& rgb) {
@@ -22,8 +22,8 @@ RGBSpectrum& RGBSpectrum::operator+=(const RGBSpectrum& rgb) {
     return *this;
 }
 
-RGBSpectrum  RGBSpectrum::operator- (const RGBSpectrum& rgb) const {
-    return RGBSpectrum(r - rgb.r, g - rgb.g, b - rgb.b);
+RGBSpectrum RGBSpectrum::operator-(const RGBSpectrum& rgb) const {
+    return {r - rgb.r, g - rgb.g, b - rgb.b};
 }
 
 RGBSpectrum& RGBSpectrum::operator-=(const RGBSpectrum& rgb) {
@@ -33,8 +33,8 @@ RGBSpectrum& RGBSpectrum::operator-=(const RGBSpectrum& rgb) {
     return *this;
 }
 
-RGBSpectrum  RGBSpectrum::operator* (float scalar) const {
-    return RGBSpectrum(r * scalar, g * scalar, b * scalar);
+RGBSpectrum RGBSpectrum::operator*(float scalar) const {
+    return {r * scalar, g * scalar, b * scalar};
 }
 
 RGBSpectrum& RGBSpectrum::operator*=(float scalar) {
@@ -44,8 +44,8 @@ RGBSpectrum& RGBSpectrum::operator*=(float scalar) {
     return *this;
 }
 
-RGBSpectrum  RGBSpectrum::operator* (const RGBSpectrum& rgb) const {
-    return RGBSpectrum(r * rgb.r, g * rgb.g, b * rgb.b);
+RGBSpectrum RGBSpectrum::operator*(const RGBSpectrum& rgb) const {
+    return {r * rgb.r, g * rgb.g, b * rgb.b};
 }
 
 RGBSpectrum& RGBSpectrum::operator*=(const RGBSpectrum& rgb) {
@@ -55,7 +55,7 @@ RGBSpectrum& RGBSpectrum::operator*=(const RGBSpectrum& rgb) {
     return *this;
 }
 
-RGBSpectrum  RGBSpectrum::operator/ (float scalar) const {
+RGBSpectrum RGBSpectrum::operator/(float scalar) const {
     return RGBSpectrum(r / scalar, g / scalar, b / scalar);
 }
 
@@ -66,8 +66,8 @@ RGBSpectrum& RGBSpectrum::operator/=(float scalar) {
     return *this;
 }
 
-RGBSpectrum  RGBSpectrum::operator/ (const RGBSpectrum& rgb) const {
-    return RGBSpectrum(r / rgb.r, g / rgb.g, b / rgb.b);
+RGBSpectrum RGBSpectrum::operator/(const RGBSpectrum& rgb) const {
+    return {r / rgb.r, g / rgb.g, b / rgb.b};
 }
 
 RGBSpectrum& RGBSpectrum::operator/=(const RGBSpectrum& rgb) {
@@ -106,9 +106,9 @@ float RGBSpectrum::min() const {
 }
 
 void RGBSpectrum::clamp(float low, float high) {
-    r = math::clamp<Float>(r, low, high);
-    g = math::clamp<Float>(g, low, high);
-    b = math::clamp<Float>(b, low, high);
+    r = math::clamp(r, low, high);
+    g = math::clamp(g, low, high);
+    b = math::clamp(b, low, high);
 }
 
 bool RGBSpectrum::isBlack() const {
@@ -137,17 +137,17 @@ RGBSpectrum pbr::operator*(float scalar, const RGBSpectrum& rgb) {
 }
 
 RGBSpectrum pbr::clamp(const RGBSpectrum& rgb, float low, float high) {
-    float r = math::clamp<float>(rgb.r, low, high);
-    float g = math::clamp<float>(rgb.g, low, high);
-    float b = math::clamp<float>(rgb.b, low, high);
-    return RGBSpectrum(r, g, b);
+    float r = math::clamp(rgb.r, low, high);
+    float g = math::clamp(rgb.g, low, high);
+    float b = math::clamp(rgb.b, low, high);
+    return {r, g, b};
 }
 
 RGBSpectrum pbr::exp(const RGBSpectrum& rgb) {
     float r = std::exp(rgb.r);
     float g = std::exp(rgb.g);
     float b = std::exp(rgb.b);
-    return RGBSpectrum(r, g, b);
+    return {r, g, b};
 }
 
 RGBSpectrum pbr::lerp(const RGBSpectrum& rgb1, const RGBSpectrum& rgb2, float t) {
