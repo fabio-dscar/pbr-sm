@@ -12,9 +12,6 @@ std::optional<Shape*> Scene::intersect(const Ray& ray) {
     info.dist = FLOAT_INFINITY;
     info.obj = nullptr;
 
-    std::cout << "o: " << ray.origin() << "\n";
-    std::cout << "d: " << ray.direction() << "\n";
-
     for (const auto& shape : _shapes) {
         BBox3 bbox = shape->bbox();
         std::cout << bbox.sizes() << "\n";
@@ -30,6 +27,16 @@ std::optional<Shape*> Scene::intersect(const Ray& ray) {
         return {};
 
     return static_cast<Shape*>(info.obj);
+}
+
+void Scene::sortShapes(const Vec3& pos) {
+    std::sort(_shapes.begin(), _shapes.end(),
+              [&pos](const sref<Shape>& a, const sref<Shape>& b) -> bool {
+                  float distA = (a->position() - pos).lengthSqr();
+                  float distB = (b->position() - pos).lengthSqr();
+
+                  return distA < distB;
+              });
 }
 
 void Scene::addCamera(const sref<Camera>& camera) {

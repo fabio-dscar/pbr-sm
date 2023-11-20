@@ -36,6 +36,8 @@ public:
     bool hasSkybox() const;
     const Skybox& skybox() const;
 
+    void sortShapes(const Vec3& pos);
+
 private:
     BBox3 _bbox{Vec3(0)};
 
