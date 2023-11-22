@@ -37,11 +37,11 @@ void LoadXML::populateRgbMap(const pugi::xml_node root) {
         std::string name = rgbElems.attribute("name").as_string();
         std::string value = rgbElems.attribute("value").as_string();
 
-        Vec3 vec(0);
+        Color rgb;
         std::stringstream ss(value);
-        ss >> vec;
+        ss >> rgb;
 
-        _map.setRGB(name, vec);
+        _map.setRGB(name, rgb);
     }
 };
 

@@ -79,7 +79,7 @@ void Geometry::computeTangents() {
     std::vector<Vec3> tan_s(_vertices.size(), Vec3(0, 0, 0));
     std::vector<Vec3> tan_t(_vertices.size(), Vec3(0, 0, 0));
 
-    for (int i = 0; i < _indices.size(); i = i + 3) {
+    for (std::size_t i = 0; i < _indices.size(); i = i + 3) {
         Vertex v1 = _vertices[_indices[i]];
         Vertex v2 = _vertices[_indices[i + 1]];
         Vertex v3 = _vertices[_indices[i + 2]];
@@ -109,7 +109,7 @@ void Geometry::computeTangents() {
         tan_t[_indices[i + 2]] += tdir;
     }
 
-    for (int i = 0; i < _vertices.size(); i++) {
+    for (std::size_t i = 0; i < _vertices.size(); i++) {
         Vec3 normal = _vertices[i].normal;
         Vec3 t = tan_s[i];
 
@@ -280,6 +280,36 @@ std::unique_ptr<Geometry> pbr::genUnitCube() {
 
     for (uint32 i = 0; i < 36; i++)
         geo->addIndex(indices[i]);
+
+    return geo;
+}
+
+PBR_SHARED std::unique_ptr<Geometry> pbr::genUnitQuad() {
+    auto geo = std::make_unique<Geometry>();
+
+    geo->addVertex({.position = {-0.5f, 0.0f, -0.5f},
+                    .normal = {0.0f, 1.0f, 0.0f},
+                    .uv = {0.0f, 0.0f},
+                    .tangent = {-1.0f, 0.0f, 0.0f}});
+    geo->addVertex({.position = {0.5f, 0.0f, 0.5f},
+                    .normal = {0.0f, 1.0f, 0.0f},
+                    .uv = {1.0f, 1.0f},
+                    .tangent = {-1.0f, 0.0f, 0.0f}});
+    geo->addVertex({.position = {0.5f, 0.0f, -0.5f},
+                    .normal = {0.0f, 1.0f, 0.0f},
+                    .uv = {1.0f, 0.0f},
+                    .tangent = {-1.0f, 0.0f, 0.0f}});
+    geo->addVertex({.position = {-0.5f, 0.0f, 0.5f},
+                    .normal = {0.0f, 1.0f, 0.0f},
+                    .uv = {1.0f, 1.0f},
+                    .tangent = {-1.0f, 0.0f, 0.0f}});
+
+    geo->addIndex(0);
+    geo->addIndex(1);
+    geo->addIndex(2);
+    geo->addIndex(1);
+    geo->addIndex(0);
+    geo->addIndex(3);
 
     return geo;
 }

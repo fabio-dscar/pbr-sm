@@ -5,7 +5,7 @@
 
 namespace pbr {
 
-    class Skybox;
+class Skybox;
 
 class PBR_SHARED Material {
 public:

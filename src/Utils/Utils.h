@@ -3,6 +3,8 @@
 
 #include <PBR.h>
 
+#include <filesystem>
+
 namespace pbr {
 
 class Shape;
@@ -16,7 +18,7 @@ void throwError(const std::string& error);
 
 RRID loadTexture(const std::string& path);
 std::unique_ptr<Shape> loadSceneObject(const std::string& folder);
-std::unique_ptr<Material> buildMaterial(const std::string& path, const ParameterMap& map);
+std::unique_ptr<Material> buildMaterial(const std::filesystem::path& path, const ParameterMap& map);
 
 } // namespace Utils
 } // namespace pbr

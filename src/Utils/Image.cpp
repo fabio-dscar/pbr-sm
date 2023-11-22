@@ -73,24 +73,8 @@ uint32 pbr::mipDimension(uint32 baseDim, uint32 level) {
     return (dim == 0) ? 1 : dim;
 }
 
-Image::Image() {
-    _format = IMGFMT_UNKNOWN;
-    _width = 0;
-    _height = 0;
-    _depth = 0;
-    _numLevels = 0;
-
-    _data = nullptr;
-}
-
-Image::~Image() {
-    _format = IMGFMT_UNKNOWN;
-    _width = 0;
-    _height = 0;
-    _depth = 0;
-    _numLevels = 0;
-
-    _data.reset();
+Image::Image(const std::string& filePath) {
+    loadImage(filePath);
 }
 
 ImageFormat toFormat(uint32 numChannels, uint32 bytesPerChannel) {
@@ -333,7 +317,6 @@ bool Image::loadImage(ImageFormat format, uint32 width, uint32 height, uint32 de
 
     uint32 size = totalSize();
 
-    _data.reset();
     _data = std::make_unique<uint8[]>(size);
 
     memcpy(_data.get(), data, size);
@@ -624,7 +607,9 @@ ImageType Image::type() const {
     return IMGTYPE_UNKNOWN;
 }
 
-Cubemap::Cubemap() {}
+Cubemap::Cubemap(const std::string& filePath) {
+    loadCubemap(filePath);
+}
 
 void Cubemap::init(ImageFormat format, uint32 width, uint32 height, uint32 numLevels) {
     if (width != 0 && height != 0) {

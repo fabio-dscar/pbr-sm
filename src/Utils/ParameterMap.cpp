@@ -28,7 +28,7 @@ void ParameterMap::setFloat(const string& name, float value) {
     _floats.insert({name, value});
 };
 
-void ParameterMap::setRGB(const string& name, const Vec3& value) {
+void ParameterMap::setRGB(const string& name, const Color& value) {
     _rgb.insert({name, value});
 };
 
@@ -41,29 +41,17 @@ void ParameterMap::setMatInfo(const string& name, const string& value) {
 };
 
 std::optional<float> ParameterMap::getFloat(const string& name) const {
-    auto it = _floats.find(name);
-    if (it == _floats.end())
-        return {};
-    return it->second;
+    return fetchValue(_floats, name);
 }
 
-std::optional<Vec3> ParameterMap::getRGB(const string& name) const {
-    auto it = _rgb.find(name);
-    if (it == _rgb.end())
-        return {};
-    return it->second;
+std::optional<Color> ParameterMap::getRGB(const string& name) const {
+    return fetchValue(_rgb, name);
 }
 
 std::optional<string> ParameterMap::getTexture(const string& name) const {
-    auto it = _textures.find(name);
-    if (it == _textures.end())
-        return {};
-    return it->second;
+    return fetchValue(_textures, name);
 }
 
 std::optional<string> ParameterMap::getMatInfo(const string& name) const {
-    auto it = _matInfo.find(name);
-    if (it == _matInfo.end())
-        return {};
-    return it->second;
+    return fetchValue(_matInfo, name);
 }

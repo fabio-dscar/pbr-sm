@@ -5,68 +5,69 @@
 #include <PBRMath.h>
 #include <Bounds.h>
 
-//#include <Utils.h>
+// #include <Utils.h>
 
 using namespace pbr::math;
 
 namespace pbr {
 
-    struct Vertex {
-        Vec3 position;
-        Vec3 normal;
-        Vec2 uv;
-        Vec3 tangent;
-    };
+struct Vertex {
+    Vec3 position;
+    Vec3 normal;
+    Vec2 uv;
+    Vec3 tangent;
+};
 
-    class PBR_SHARED Geometry {
-    public:
-        RRID rrid() const;
-        void setRRID(RRID id);
+class PBR_SHARED Geometry {
+public:
+    RRID rrid() const;
+    void setRRID(RRID id);
 
-        const std::vector<Vertex>& vertices() const;
-        const std::vector<uint32>& indices()  const;
+    const std::vector<Vertex>& vertices() const;
+    const std::vector<uint32>& indices() const;
 
-        void addVertex(const Vertex& vertex);
-        void addIndex (uint32 idx);
+    void addVertex(const Vertex& vertex);
+    void addIndex(uint32 idx);
 
-        void setVertices(const std::vector<Vertex>& vertices);
-        void setIndices (const std::vector<uint32>& indices);
+    void setVertices(const std::vector<Vertex>& vertices);
+    void setIndices(const std::vector<uint32>& indices);
 
-        BBox3   bbox()    const;
-        BSphere bSphere() const;
+    BBox3 bbox() const;
+    BSphere bSphere() const;
 
-        void computeTangents();
+    void computeTangents();
 
-    private:
-        RRID _id = -1;
-        std::vector<uint32> _indices;
-        std::vector<Vertex> _vertices;
-    };
+private:
+    RRID _id = -1;
+    std::vector<uint32> _indices;
+    std::vector<Vertex> _vertices;
+};
 
-    PBR_SHARED std::unique_ptr<Geometry> genUnitSphere(uint32 widthSegments, uint32 heightSegments);
-    PBR_SHARED std::unique_ptr<Geometry> genUnitCube();
+PBR_SHARED std::unique_ptr<Geometry> genUnitSphere(uint32 widthSegments,
+                                                   uint32 heightSegments);
+PBR_SHARED std::unique_ptr<Geometry> genUnitCube();
+PBR_SHARED std::unique_ptr<Geometry> genUnitQuad();
 
-    // Obj file
-    struct ObjVertex {
-        Vec3 pos;
-        Vec3 normal;
-        Vec2 texCoord;
+// Obj file
+struct ObjVertex {
+    Vec3 pos;
+    Vec3 normal;
+    Vec2 texCoord;
 
-        bool operator==(const ObjVertex& v) const {
-            return pos == v.pos &&
-                   normal == v.normal &&
-                   texCoord == v.texCoord;
-        }
-    };
+    bool operator==(const ObjVertex& v) const {
+        return pos == v.pos && normal == v.normal && texCoord == v.texCoord;
+    }
+};
 
-    struct ObjFile {
-        std::string            objName;
-        std::vector<ObjVertex> vertices;
-        std::vector<uint32>    indices;
-    };
+struct ObjFile {
+    std::string objName;
+    std::vector<ObjVertex> vertices;
+    std::vector<uint32> indices;
+};
 
-    PBR_SHARED bool loadObj(const std::string& filePath, ObjFile& obj);
-    PBR_SHARED void fromObjFile(Geometry& geo, const ObjFile& objFile);
-}
+PBR_SHARED bool loadObj(const std::string& filePath, ObjFile& obj);
+PBR_SHARED void fromObjFile(Geometry& geo, const ObjFile& objFile);
+
+} // namespace pbr
 
 #endif

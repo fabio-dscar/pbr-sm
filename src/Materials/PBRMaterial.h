@@ -60,6 +60,8 @@ public:
     RRID roughTex() const;
 
 private:
+    void init();
+
     std::vector<uint32> _texHandles;
     
     RRID _diffuseTex;

@@ -17,21 +17,17 @@ PBRMaterial::PBRMaterial()
     : Material(), _texHandles(8), _diffuse(NOT_SET), _f0(0.04f), _metallic(NOT_SET),
       _roughness(NOT_SET) {
 
-    _prog = Resource.getShader("unreal")->id();
-    _brdfTex = Resource.getTexture("brdf")->rrid();
-
-    RRID nullTex = Resource.getTexture("null")->rrid();
-
-    _diffuseTex = nullTex;
-    _normalTex = nullTex;
-    _metallicTex = nullTex;
-    _roughTex = nullTex;
+    init();
 }
 
 PBRMaterial::PBRMaterial(const Color& diff, float metallic, float roughness)
     : Material(), _texHandles(8), _diffuse(diff), _f0(0.04f), _metallic(metallic),
       _roughness(roughness) {
 
+    init();
+}
+
+void PBRMaterial::init() {
     _prog = Resource.getShader("unreal")->id();
     _brdfTex = Resource.getTexture("brdf")->rrid();
 

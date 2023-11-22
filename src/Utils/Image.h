@@ -119,8 +119,8 @@ public:
     using enum pbr::ImageComponent;
     using enum pbr::ImageType;
 
-    Image();
-    ~Image();
+    Image() = default;
+    explicit Image(const std::string& filePath);
 
     void init(ImageFormat format, uint32 width, uint32 height, uint32 depth,
               uint32 numLevels = 1);
@@ -166,14 +166,14 @@ private:
     bool saveIMG(const std::string& filePath) const;
     bool savePNG(const std::string& filePath, uint32 lvl = 0) const;
 
-    ImageFormat _format;
-    ImageType _type;
-    int32 _width;
-    int32 _height;
-    int32 _depth;
-    uint32 _numLevels;
+    ImageFormat _format = IMGFMT_UNKNOWN;
+    ImageType _type = IMGTYPE_UNKNOWN;
+    int32 _width = 0;
+    int32 _height = 0;
+    int32 _depth = 0;
+    uint32 _numLevels = 0;
 
-    std::unique_ptr<uint8[]> _data;
+    std::unique_ptr<uint8[]> _data = nullptr;
 };
 
 enum CubemapFace : uint32 {
@@ -187,7 +187,8 @@ enum CubemapFace : uint32 {
 
 class Cubemap {
 public:
-    Cubemap();
+    Cubemap() = default;
+    explicit Cubemap(const std::string& filePath);
 
     void init(ImageFormat format, uint32 width, uint32 height, uint32 numLevels = 1);
 
