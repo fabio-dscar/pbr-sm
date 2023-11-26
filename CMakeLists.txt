@@ -34,10 +34,12 @@ set(RT_PBR_SOURCES
   src/Core/Skybox.cpp
   src/Core/Spectrum.cpp
   src/Core/Sphere.cpp
+  src/Core/Quad.cpp
   src/Core/Texture.cpp
 
   src/Graphics/Renderer.cpp
   src/Graphics/RenderInterface.cpp
+  src/Graphics/Buffer.cpp
   src/Graphics/Shader.cpp
 
   src/GUI/GUI.cpp
@@ -98,6 +100,5 @@ target_link_libraries(pbr-sm PRIVATE
   freeglut_static
   ${ZLIB_LIBRARIES}
 )
-set(RELEASE_FLAGS "-Wall")
+set(RELEASE_FLAGS "-march=native" "-mtune=native") # "-flto")
 target_compile_options(pbr-sm PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_FLAGS}>")
-target_compile_options(pbr-sm PUBLIC )

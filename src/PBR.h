@@ -15,6 +15,7 @@
 #include <limits>
 #include <memory>
 #include <string>
+#include <cstring>
 #include <vector>
 #include <iomanip>
 

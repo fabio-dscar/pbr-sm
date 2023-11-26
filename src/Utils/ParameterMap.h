@@ -29,9 +29,8 @@ public:
     std::optional<std::string> getMatInfo(const std::string& name) const;
 
 private:
-    template<template<class, class> class T, typename V>
-    std::optional<V> fetchValue(const T<std::string, V>& map,
-                                const std::string& name) const {
+    template<template<class...> class T, class K, class V, class... R>
+    std::optional<V> fetchValue(const T<K, V, R...>& map, const std::string& name) const {
         auto it = map.find(name);
         if (it == map.end())
             return {};

@@ -14,7 +14,6 @@ std::optional<Shape*> Scene::intersect(const Ray& ray) {
 
     for (const auto& shape : _shapes) {
         BBox3 bbox = shape->bbox();
-        std::cout << bbox.sizes() << "\n";
         if (bbox.intersectRay(ray, &t)) {
             if (t < info.dist) {
                 info.dist = t;
@@ -34,7 +33,6 @@ void Scene::sortShapes(const Vec3& pos) {
               [&pos](const sref<Shape>& a, const sref<Shape>& b) -> bool {
                   float distA = (a->position() - pos).lengthSqr();
                   float distB = (b->position() - pos).lengthSqr();
-
                   return distA < distB;
               });
 }

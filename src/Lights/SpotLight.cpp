@@ -2,10 +2,10 @@
 
 using namespace pbr;
 
-SpotLight::SpotLight() : Light(), _cutoff(radians(30.0f)), _outerCutoff(radians(40.0f)) {}
+SpotLight::SpotLight() : Light(), _cutoff(radians(36.5f)), _outerCutoff(radians(40.0f)) {}
 
 SpotLight::SpotLight(const Color& emission, float intensity)
-    : Light(emission, intensity), _cutoff(radians(30.0f)), _outerCutoff(radians(40.0f)) {}
+    : Light(emission, intensity), _cutoff(radians(36.5f)), _outerCutoff(radians(40.0f)) {}
 
 SpotLight::SpotLight(const Color& emission, float intensity, float cutoff,
                      float outerCutoff)

@@ -2,7 +2,6 @@
 #define __PBR_SHADER_H__
 
 #include <PBR.h>
-#include <span>
 
 namespace pbr {
 
