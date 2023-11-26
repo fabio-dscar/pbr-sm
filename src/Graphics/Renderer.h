@@ -3,32 +3,44 @@
 
 #include <PBR.h>
 #include <Spectrum.h>
+#include <span>
+#include <Camera.h>
+#include <Light.h>
+
+#include <MultiBuffer.h>
 
 namespace pbr {
 
 class Scene;
 class Camera;
 
-static constexpr uint32 NUM_LIGHTS = 4;
-
 enum BufferIndices : uint32 {
-    CAMERA_BUFFER_IDX = 0,
-    LIGHTS_BUFFER_IDX = 1,
-    RENDERER_BUFFER_IDX = 2
+    RENDERER_BUFFER_IDX = 1,
+    CAMERA_BUFFER_IDX = 2,
+    LIGHTS_BUFFER_IDX = 3
 };
 
 // Buffer for shaders with renderer information
-struct RendererBuffer {
+struct alignas(256) RendererData {
     float gamma;
-    float exp;
+    float exposure;
 
-    // Uncharted tone curve control parameters
+    // Tone curve control parameters
     float A, B, C, D, E, F, W;
 
-    bool perturbNormals;
-    uint8 pad[3];
-    bool envLighting;
+    int perturbNormals;
+    int envLighting;
 };
+
+static constexpr uint32 NumLights = 5;
+
+struct UniformBlockStruct {
+    RendererData rd;
+    CameraData cd;
+    LightData ld[NumLights];
+};
+
+static constexpr uint32 UniformBlockSize = sizeof(UniformBlockStruct);
 
 class PBR_SHARED Renderer {
 public:
@@ -42,28 +54,29 @@ public:
     void setExposure(float exp);
 
     const float* toneParams() const;
-    void setToneParams(float toneParams[7]);
+    void setToneParams(std::span<float, 7> toneParams);
 
     void setSkyboxDraw(bool state);
     void setPerturbNormals(bool state);
+    void setEnvLighting(bool state) { _envLighting = state; }
 
 private:
-    void uploadRendererBuffer();
-    void uploadLightsBuffer(const Scene& scene);
-    void uploadCameraBuffer(const Camera& camera);
+    void bindBufferRanges();
+    void uploadUniformBuffer(const Scene& scene, const Camera& camera);
+
     void drawShapes(const Scene& scene);
-    void drawSkybox(const Scene& scene);
+    void drawSkybox(const Scene& scene) const;
 
     float _gamma = pbr::Gamma;
     float _exposure = 3.0f;
-    float _toneParams[7] = {0.15f, 0.5f, 0.1f, 0.2f, 0.02f, 0.3f, 11.2f};
+    std::array<float, 7> _toneParams = {0.15f, 0.5f, 0.1f, 0.2f, 0.02f, 0.3f, 11.2f};
 
     bool _drawSkybox = true;
     bool _perturbNormals = true;
+    bool _envLighting = true;
 
-    RRID _lightsBuffer;
-    RRID _cameraBuffer;
-    RRID _rendererBuffer;
+    MultiBuffer _uniformBuffer{};
+    int _bufferFrame = 0;
 };
 
 } // namespace pbr
