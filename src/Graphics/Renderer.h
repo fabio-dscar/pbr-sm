@@ -28,6 +28,7 @@ struct alignas(256) RendererData {
     // Tone curve control parameters
     float A, B, C, D, E, F, W;
 
+    float envIntensity;
     int perturbNormals;
     int envLighting;
 };
@@ -59,6 +60,7 @@ public:
     void setSkyboxDraw(bool state);
     void setPerturbNormals(bool state);
     void setEnvLighting(bool state) { _envLighting = state; }
+    void setEnvIntensity(float val) { _envIntensity = val; }
 
 private:
     void bindBufferRanges();
@@ -74,6 +76,7 @@ private:
     bool _drawSkybox = true;
     bool _perturbNormals = true;
     bool _envLighting = true;
+    float _envIntensity = 1.0f;
 
     MultiBuffer _uniformBuffer{};
     int _bufferFrame = 0;

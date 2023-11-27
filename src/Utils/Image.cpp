@@ -77,10 +77,6 @@ Image::Image(const std::string& filePath) {
     loadImage(filePath);
 }
 
-ImageFormat toFormat(uint32 numChannels, uint32 bytesPerChannel) {
-    return ImageFormat::IMGFMT_UNKNOWN;
-}
-
 void Image::init(ImageFormat format, uint32 width, uint32 height, uint32 depth,
                  uint32 levels) {
     _format = format;
@@ -123,7 +119,6 @@ uint32 Image::totalSize() const {
     uint32 sizeBytes = 0;
     for (uint32 i = 0; i < _numLevels; ++i)
         sizeBytes += size(i);
-
     return sizeBytes;
 }
 
@@ -148,7 +143,6 @@ bool Image::loadPNG(const std::string& filePath) {
     _width = width;
     _height = height;
     _depth = 1;
-
     _numLevels = 1;
 
     uint32 bitDepth = state.info_png.color.bitdepth;
@@ -184,7 +178,7 @@ bool Image::loadPNG(const std::string& filePath) {
     uint32 size = totalSize();
     _data = std::make_unique<uint8[]>(size);
 
-    memcpy(_data.get(), &image[0], size);
+    std::memcpy(_data.get(), &image[0], size);
 
     return true;
 }
@@ -193,7 +187,6 @@ bool Image::savePNG(const std::string& filePath, uint32 lvl) const {
     static const LodePNGColorType typeTbl[] = {LCT_GREY, LCT_GREY_ALPHA, LCT_RGB,
                                                LCT_RGBA};
 
-    // Only process integer images
     if (_format >= IMGFMT_R16F && _format <= IMGFMT_RGBA32F)
         return false;
 
@@ -226,11 +219,10 @@ bool Image::savePNG(const std::string& filePath, uint32 lvl) const {
 }
 
 bool Image::loadIMG(const std::string& filePath) {
-    IMGHeader header;
-
     std::ifstream file(filePath, std::ios::in | std::ios::binary);
 
     // Read header
+    IMGHeader header;
     file.read((char*)&header, sizeof(IMGHeader));
 
     if (!(header.id[0] == 'I' && header.id[1] == 'M' && header.id[2] == 'G' &&
@@ -242,10 +234,9 @@ bool Image::loadIMG(const std::string& filePath) {
     init((ImageFormat)header.fmt, header.width, header.height, header.depth,
          header.levels);
 
-    uint8* imgData = new uint8[header.totalSize];
+    auto imgData = std::make_unique<uint8[]>(header.totalSize);
 
-    uint8* ptr = imgData;
-
+    uint8* ptr = imgData.get();
     for (uint32 lvl = 0; lvl < header.levels; ++lvl) {
         uint32 sz = size(lvl);
         file.read((char*)ptr, sz);
@@ -255,12 +246,7 @@ bool Image::loadIMG(const std::string& filePath) {
 
     file.close();
 
-    delete[] imgData;
-
-    if (totalSize() != header.totalSize)
-        return false; // Warn
-
-    return true;
+    return totalSize() == header.totalSize;
 }
 
 bool Image::saveIMG(const std::string& filePath) const {
@@ -278,7 +264,6 @@ bool Image::saveIMG(const std::string& filePath) const {
     header.compSize = totalSize();
 
     std::ofstream file(filePath, std::ios::out | std::ios::binary);
-
     file.write((const char*)&header, sizeof(IMGHeader));
 
     uint32 numlvls = numLevels();
@@ -319,7 +304,7 @@ bool Image::loadImage(ImageFormat format, uint32 width, uint32 height, uint32 de
 
     _data = std::make_unique<uint8[]>(size);
 
-    memcpy(_data.get(), data, size);
+    std::memcpy(_data.get(), data, size);
 
     return true;
 }
@@ -334,7 +319,7 @@ bool Image::loadImage(const uint8* data, uint32 lvl) {
 
     uint32 sizeLvl = size(lvl);
     uint8* start = (uint8*)_data.get() + offset;
-    memcpy((void*)start, data, sizeLvl);
+    std::memcpy((void*)start, data, sizeLvl);
 
     return true;
 }
@@ -388,7 +373,6 @@ bool Image::saveMipMap(const std::string& filePath) const {
 }
 
 bool Image::flipX() {
-    int32 w, h;
     uint32 nChan = numChannels();
     uint32 bytesChan = formatToBytesPerChannel(_format);
 
@@ -398,17 +382,15 @@ bool Image::flipX() {
     uint32 prevSize = 0;
     uint32 offset = bytesChan * nChan;
     for (uint32 lvl = 0; lvl < _numLevels; ++lvl) {
-        w = mipDimension(_width, lvl);
-        h = mipDimension(_height, lvl);
+        int32 w = mipDimension(_width, lvl);
+        int32 h = mipDimension(_height, lvl);
 
         uint8* dst = (uint8*)newImg.get() + prevSize;
-        uint8* src = nullptr;
 
         for (int32 y = 0; y < h; y++) {
-            src = ((uint8*)_data.get() + prevSize) + (y + 1) * w * offset;
+            uint8* src = ((uint8*)_data.get() + prevSize) + (y + 1) * w * offset;
             for (int32 x = 0; x < w; x++) {
-                memcpy(dst, src, offset);
-
+                std::memcpy(dst, src, offset);
                 dst += offset;
                 src -= offset;
             }
@@ -423,7 +405,6 @@ bool Image::flipX() {
 }
 
 bool Image::flipY() {
-    int32 w, h;
     uint32 nChannels = numChannels();
     uint32 bytesChannel = formatToBytesPerChannel(_format);
 
@@ -432,8 +413,8 @@ bool Image::flipY() {
     // Flip each mip map level
     uint32 prevSize = 0;
     for (uint32 lvl = 0; lvl < _numLevels; ++lvl) {
-        w = mipDimension(_width, lvl);
-        h = mipDimension(_height, lvl);
+        int32 w = mipDimension(_width, lvl);
+        int32 h = mipDimension(_height, lvl);
 
         uint32 lineWidth = w * nChannels * bytesChannel;
 
@@ -441,8 +422,7 @@ bool Image::flipY() {
         uint8* src = (_data.get() + prevSize) + (h - 1) * lineWidth;
 
         for (int32 y = 0; y < h; y++) {
-            memcpy(dst, src, lineWidth);
-
+            std::memcpy(dst, src, lineWidth);
             dst += lineWidth;
             src -= lineWidth;
         }
@@ -456,7 +436,6 @@ bool Image::flipY() {
 }
 
 bool Image::toGrayscale() {
-    // Only process 2D images
     if (type() >= IMGTYPE_3D)
         return false;
 
@@ -476,12 +455,11 @@ bool Image::toGrayscale() {
 
     std::unique_ptr<uint8[]> newImg = std::make_unique<uint8[]>(graySize);
 
-    int32 w, h;
     uint32 prevSize = 0;
     uint32 prevSizeGray = 0;
     for (uint32 lvl = 0; lvl < _numLevels; ++lvl) {
-        w = mipDimension(_width, lvl);
-        h = mipDimension(_height, lvl);
+        int32 w = mipDimension(_width, lvl);
+        int32 h = mipDimension(_height, lvl);
 
         uint32 nPixels = w * h;
         if (_format <= IMGFMT_RGBA8) {
@@ -506,10 +484,7 @@ bool Image::toGrayscale() {
         prevSize += size(lvl);
     }
 
-    if (_format <= IMGFMT_RGBA8)
-        _format = IMGFMT_R8;
-    else
-        _format = IMGFMT_R16;
+    _format = _format <= IMGFMT_RGBA8 ? IMGFMT_R8 : IMGFMT_R16;
 
     _data.swap(newImg);
 
@@ -523,17 +498,16 @@ bool Image::toneMap(float exp) {
         mappedSize += 3 * mipDimension(_width, l) * mipDimension(_height, l);
 
     // Only process 32-bit float images
-    if ((_format < IMGFMT_R32F && _format > IMGFMT_RGBA32F) || nChan < 3)
+    if ((_format < IMGFMT_R32F || _format > IMGFMT_RGBA32F) || nChan < 3)
         return false;
 
     std::unique_ptr<uint8[]> newImg = std::make_unique<uint8[]>(mappedSize);
 
-    int32 w, h;
     uint32 prevSize = 0;
     uint32 prevSizeMapped = 0;
     for (uint32 lvl = 0; lvl < _numLevels; ++lvl) {
-        w = mipDimension(_width, lvl);
-        h = mipDimension(_height, lvl);
+        int32 w = mipDimension(_width, lvl);
+        int32 h = mipDimension(_height, lvl);
 
         uint32 nPixels = w * h;
 
@@ -543,13 +517,13 @@ bool Image::toneMap(float exp) {
         float* srcf = (float*)src;
         do {
             float resR = exp * srcf[0] / (exp * srcf[0] + 1.0f);
-            *dst++ = math::clamp<uint8>(uint8(255.0f * resR), 0u, 255u);
+            *dst++ = math::clamp(uint8(255.0f * resR), 0u, 255u);
 
             float resG = exp * srcf[1] / (exp * srcf[1] + 1.0f);
-            *dst++ = math::clamp<uint8>(uint8(255.0f * resG), 0u, 255u);
+            *dst++ = math::clamp(uint8(255.0f * resG), 0u, 255u);
 
             float resB = exp * srcf[2] / (exp * srcf[2] + 1.0f);
-            *dst++ = math::clamp<uint8>(uint8(255.0f * resB), 0u, 255u);
+            *dst++ = math::clamp(uint8(255.0f * resB), 0u, 255u);
 
             srcf += nChan;
         } while (--nPixels);
@@ -598,7 +572,6 @@ uint8* Image::data(uint32 lvl) const {
 ImageType Image::type() const {
     if (_depth > 1)
         return IMGTYPE_3D;
-    // if (_depth == 0) return IMGTYPE_CUBE;
     if (_height > 1)
         return IMGTYPE_2D;
     if (_width > 1)
@@ -727,11 +700,10 @@ Image* Cubemap::face(CubemapFace face) {
 }
 
 bool Cubemap::loadCUBE(const std::string& filePath) {
-    CUBEHeader header;
-
     std::ifstream file(filePath, std::ios::in | std::ios::binary);
 
     // Read header
+    CUBEHeader header;
     file.read((char*)&header, sizeof(CUBEHeader));
 
     // Validate file signature
@@ -741,52 +713,40 @@ bool Cubemap::loadCUBE(const std::string& filePath) {
         return false;
     }
 
-    uint8* imgData = new uint8[header.totalSize];
+    auto imgData = std::make_unique<uint8[]>(header.totalSize);
 
     // Check if file is compressed
     if (header.totalSize != header.compSize) {
-        uint8* srcBuffer = new uint8[header.compSize];
-        file.read((char*)srcBuffer, header.compSize);
+        auto srcBuffer = std::make_unique<uint8[]>(header.compSize);
+        file.read((char*)srcBuffer.get(), header.compSize);
         file.close();
 
         uLong dstLen = header.totalSize;
         uLong srcLen = header.compSize;
-        int result = uncompress(imgData, &dstLen, srcBuffer, srcLen);
+        int result = uncompress(imgData.get(), &dstLen, srcBuffer.get(), srcLen);
 
-        if (result != Z_OK) {
-            delete[] srcBuffer;
-            delete[] imgData;
+        if (result != Z_OK)
             return false;
-        }
 
-        delete[] srcBuffer;
     } else {
         // Else read it directly from the file
-        file.read((char*)imgData, header.totalSize);
+        file.read((char*)imgData.get(), header.totalSize);
         file.close();
     }
 
     // Initialize the image
     init((ImageFormat)header.fmt, header.width, header.height, header.levels);
 
-    uint8* ptr = imgData;
+    uint8* ptr = imgData.get();
     for (uint32 f = 0; f < 6; ++f) {
         for (uint32 lvl = 0; lvl < header.levels; ++lvl) {
             uint32 size = _faces[f].size(lvl);
-            // file.read((char*)ptr, size);
             _faces[f].loadImage(ptr, lvl);
             ptr += size;
         }
     }
 
-    // file.close();
-
-    delete[] imgData;
-
-    if (totalSize() != header.totalSize)
-        return false; // Warn
-
-    return true;
+    return totalSize() == header.totalSize;
 }
 
 bool Cubemap::saveCUBE(const std::string& filePath) const {
@@ -803,26 +763,23 @@ bool Cubemap::saveCUBE(const std::string& filePath) const {
     header.compSize = header.totalSize;
 
     // Copy image data into contiguous buffer
-    uint8* imgData = new uint8[header.totalSize];
-    uint8* auxPtr = imgData;
+    auto imgData = std::make_unique<uint8[]>(header.totalSize);
+    uint8* auxPtr = imgData.get();
     for (uint32 f = 0; f < 6; ++f) {
         for (uint32 lvl = 0; lvl < header.levels; ++lvl) {
             size_t size = _faces[f].size(lvl);
-            memcpy(auxPtr, (const char*)_faces[f].data(lvl), size);
+            std::memcpy(auxPtr, (const char*)_faces[f].data(lvl), size);
             auxPtr += size;
         }
     }
 
     // Compress buffer with zlib
     uLong dstLen = compressBound(header.totalSize);
-    uint8* dstBuffer = new uint8[dstLen];
-    int result = compress(dstBuffer, &dstLen, imgData, header.totalSize);
+    auto dstBuffer = std::make_unique<uint8[]>(dstLen);
+    int result = compress(dstBuffer.get(), &dstLen, imgData.get(), header.totalSize);
 
-    if (result != Z_OK) {
-        delete[] dstBuffer;
-        delete[] imgData;
+    if (result != Z_OK)
         return false;
-    }
 
     // Store the compressed size
     header.compSize = dstLen;
@@ -830,12 +787,8 @@ bool Cubemap::saveCUBE(const std::string& filePath) const {
     // Write to file
     std::ofstream file(filePath, std::ios::out | std::ios::binary);
     file.write((const char*)&header, sizeof(CUBEHeader));
-    file.write((const char*)dstBuffer, dstLen);
+    file.write((const char*)dstBuffer.get(), dstLen);
     file.close();
-
-    // Release memory
-    delete[] imgData;
-    delete[] dstBuffer;
 
     return true;
 }

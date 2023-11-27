@@ -15,7 +15,12 @@ struct Vertex {
     Vec3 position;
     Vec3 normal;
     Vec2 uv;
-    Vec3 tangent;
+    Vec4 tangent;
+
+    bool operator==(const Vertex& v) const {
+        return position == v.position && normal == v.normal && uv == v.uv &&
+               tangent == tangent;
+    }
 };
 
 class PBR_SHARED Geometry {
@@ -32,10 +37,23 @@ public:
     void setVertices(const std::vector<Vertex>& vertices);
     void setIndices(const std::vector<uint32>& indices);
 
+    uint32 getNumFaces() { return _indices.size() / 3; }
+
+    Vertex getVertex(uint32 faceIdx, uint32 vertIdx) {
+        uint32 idx = _indices[faceIdx * 3 + vertIdx];
+        return _vertices[idx];
+    }
+
+    void addTangent(uint32 faceIdx, uint32 vertIdx, const Vec3& tan, float sign = 1.0f) {
+        uint32 idx = _indices[faceIdx * 3 + vertIdx];
+        _vertices[idx].tangent = {tan.x, tan.y, tan.z, sign};
+    }
+
     BBox3 bbox() const;
     BSphere bSphere() const;
 
     void computeTangents();
+    void removeRedundantVerts();
 
 private:
     RRID _id = -1;
@@ -53,9 +71,11 @@ struct ObjVertex {
     Vec3 pos;
     Vec3 normal;
     Vec2 texCoord;
+    Vec4 tangent;
 
     bool operator==(const ObjVertex& v) const {
-        return pos == v.pos && normal == v.normal && texCoord == v.texCoord;
+        return pos == v.pos && normal == v.normal && texCoord == v.texCoord &&
+               tangent == tangent;
     }
 };
 

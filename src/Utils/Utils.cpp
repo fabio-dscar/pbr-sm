@@ -1,5 +1,7 @@
+#include "Resources.h"
 #include <Utils.h>
 
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 
@@ -56,6 +58,12 @@ std::unique_ptr<Shape> Utils::loadSceneObject(const std::string& folder) {
 }
 
 RRID Utils::loadTexture(const std::string& path) {
+    if (!std::filesystem::exists(path)) {
+        std::cout << std::format("[INFO] Couldn't find texture {}\n", path);
+        std::cout << std::format("[INFO] Assigning 'unset' texture...\n", path);
+        return Resource.getTexture("null")->rrid();
+    }
+
     Image image(path);
     return RHI.createTextureImmutable(image, TexSampler{});
 }

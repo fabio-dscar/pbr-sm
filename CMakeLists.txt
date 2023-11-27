@@ -72,6 +72,7 @@ set(RT_PBR_SOURCES
   
   ext/pugixml/pugixml.cpp
   ext/lodepng/lodepng.cpp
+  ext/mikktspace/mikktspace.c
   ${IMGUI_SOURCES}
 )
 
@@ -90,6 +91,7 @@ target_include_directories(pbr-sm PUBLIC
   ext/imgui
   ext/lodepng
   ext/pugixml
+  ext/mikktspace
   ${TINYOBJ_INCLUDE}
   ${ZLIB_INCLUDE_DIRS}
   ${GLAD_INCLUDE}

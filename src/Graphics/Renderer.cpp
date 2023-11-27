@@ -44,7 +44,7 @@ void Renderer::setPerturbNormals(bool state) {
 }
 
 void Renderer::uploadUniformBuffer(const Scene& scene, const Camera& camera) {
-    UniformBlockStruct* ub = _uniformBuffer.get<UniformBlockStruct>();
+    auto ub = _uniformBuffer.get<UniformBlockStruct>();
 
     // Renderer
     ub->rd.gamma = _gamma;
@@ -58,6 +58,7 @@ void Renderer::uploadUniformBuffer(const Scene& scene, const Camera& camera) {
     ub->rd.F = _toneParams[5];
     ub->rd.W = _toneParams[6];
 
+    ub->rd.envIntensity = _envIntensity;
     ub->rd.perturbNormals = _perturbNormals ? 1 : 0;
     ub->rd.envLighting = _envLighting ? 1 : 0;
 
@@ -68,9 +69,8 @@ void Renderer::uploadUniformBuffer(const Scene& scene, const Camera& camera) {
     ub->cd.viewProjMatrix = camera.viewProjMatrix();
 
     // Lights
-    const vec<sref<Light>>& lights = scene.lights();
+    const auto& lights = scene.lights();
 
-    std::memset(ub->ld, 0, sizeof(LightData) * NumLights);
     uint32 numLights = min(NumLights, lights.size());
     for (uint32 l = 0; l < numLights; ++l)
         lights[l]->toData(ub->ld[l]);

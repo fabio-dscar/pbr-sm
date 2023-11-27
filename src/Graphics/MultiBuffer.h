@@ -12,7 +12,7 @@ struct BufferBind {
 };
 
 // Round robin N-buffered buffer
-class MultiBuffer : public Buffer {
+class MultiBuffer : private Buffer {
 public:
     MultiBuffer() = default;
 
@@ -25,6 +25,12 @@ public:
     template<typename T>
     T* get() const {
         return Buffer::get<T>(currIdx * baseSize);
+    }
+
+    template<typename T>
+    T* getBind(uint32 idx) const {
+        std::size_t offset = binds[idx].offset; 
+        return Buffer::get<T>(currIdx * baseSize + offset);
     }
 
     void lock() { lockRange(currIdx * baseSize, baseSize); }

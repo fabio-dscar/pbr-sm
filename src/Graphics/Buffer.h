@@ -40,15 +40,16 @@ public:
     }
 
 protected:
-    std::vector<BufferRangeLock> locks;
-    std::byte* ptr = nullptr;
-    std::size_t size = 0;
     uint32 target = 0;
     uint32 handle = 0;
-    uint32 flags = 0;
 
 private:
     void wait(GLsync* pSync);
+
+    std::vector<BufferRangeLock> locks;
+    std::byte* ptr = nullptr;
+    std::size_t size = 0;
+    uint32 flags = 0;
 };
 
 } // namespace pbr
