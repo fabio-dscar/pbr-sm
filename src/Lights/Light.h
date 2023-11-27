@@ -14,7 +14,8 @@ enum LightType : uint8 {
     LIGHT_POINT = 1,
     LIGHT_SPOT = 2,
     LIGHT_DIR = 3,
-    LIGHT_SPHERE = 4
+    LIGHT_SPHERE = 4,
+    LIGHT_TUBE = 5
 };
 
 // Light data for shader blocks

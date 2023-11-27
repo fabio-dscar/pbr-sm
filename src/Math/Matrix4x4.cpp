@@ -64,9 +64,9 @@ Matrix4x4& Matrix4x4::operator*=(float scalar) {
 }
 
 Vector3 Matrix4x4::operator*(const Vector3& v) const {
-    return {m11 * v.x + m12 * v.y + m13 * v.z, 
-            m21 * v.x + m22 * v.y + m23 * v.z,
-            m31 * v.x + m32 * v.y + m33 * v.z};
+    return {m11 * v.x + m12 * v.y + m13 * v.z + m14, 
+            m21 * v.x + m22 * v.y + m23 * v.z + m24,
+            m31 * v.x + m32 * v.y + m33 * v.z + m34};
 }
 
 Vector4 Matrix4x4::operator*(const Vector4& v) const {
@@ -216,11 +216,10 @@ float Matrix4x4::det() const {
     return m11 * det0 + m12 * det1 + m13 * det2 + m14 * det3;
 }
 
-// Non-member functions
 Vector3 math::operator*(const Vector3& v, const Matrix4x4& mat) {
-    return {mat.m11 * v.x + mat.m21 * v.y + mat.m31 * v.z,
-            mat.m12 * v.x + mat.m22 * v.y + mat.m32 * v.z,
-            mat.m13 * v.x + mat.m23 * v.y + mat.m33 * v.z};
+    return {mat.m11 * v.x + mat.m21 * v.y + mat.m31 * v.z + mat.m41,
+            mat.m12 * v.x + mat.m22 * v.y + mat.m32 * v.z + mat.m42,
+            mat.m13 * v.x + mat.m23 * v.y + mat.m33 * v.z + mat.m43};
 }
 
 Matrix4x4 math::operator*(float scalar, const Matrix4x4& mat) {

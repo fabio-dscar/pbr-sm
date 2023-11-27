@@ -256,11 +256,7 @@ bool pbr::loadObj(const std::string& filePath, ObjFile& obj) {
 void Geometry::removeRedundantVerts() {
     Geometry other;
 
-    std::cout << std::format("Faces: {} Verts: {}\n", _indices.size() / 3,
-                             _vertices.size());
-
     std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-
     for (const auto index : _indices) {
         auto vertex = _vertices[index];
 
@@ -271,9 +267,6 @@ void Geometry::removeRedundantVerts() {
 
         other._indices.push_back(uniqueVertices[vertex]);
     }
-
-    std::cout << std::format("Faces: {} Verts: {}\n\n", other._indices.size() / 3,
-                             other._vertices.size());
 
     *this = std::move(other);
 }
