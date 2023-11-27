@@ -1,12 +1,17 @@
 #include <Geometry.h>
 #include <Hash.hpp>
 #include <PBRMath.h>
+#include <cstdlib>
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
 #include <unordered_map>
 #include <filesystem>
+
+#include <mikktspace.h>
+
+#include <format>
 
 using namespace pbr;
 using namespace pbr::math;
@@ -15,9 +20,18 @@ using namespace std::filesystem;
 namespace std {
 template<>
 struct hash<ObjVertex> {
-    size_t operator()(ObjVertex const& vertex) const {
+    size_t operator()(const ObjVertex& vertex) const {
         return ((hash<Vec3>()(vertex.pos) ^ (hash<Vec3>()(vertex.normal) << 1)) >> 1) ^
                (hash<Vec2>()(vertex.texCoord) << 1);
+    }
+};
+
+template<>
+struct hash<Vertex> {
+    size_t operator()(const Vertex& vertex) const {
+        return ((hash<Vec3>()(vertex.position) ^ (hash<Vec3>()(vertex.normal) << 1)) >>
+                1) ^
+               (hash<Vec2>()(vertex.uv) << 1) ^ (hash<Vec4>()(vertex.tangent) << 1);
     }
 };
 
@@ -75,49 +89,58 @@ BSphere Geometry::bSphere() const {
 }
 
 void Geometry::computeTangents() {
+    auto getNumFaces = [](const SMikkTSpaceContext* pContext) -> int {
+        auto ptr = static_cast<Geometry*>(pContext->m_pUserData);
+        return ptr->getNumFaces();
+    };
 
-    std::vector<Vec3> tan_s(_vertices.size(), Vec3(0, 0, 0));
-    std::vector<Vec3> tan_t(_vertices.size(), Vec3(0, 0, 0));
+    auto getNumVertsFace = [](const SMikkTSpaceContext*, const int) -> int { return 3; };
 
-    for (std::size_t i = 0; i < _indices.size(); i = i + 3) {
-        Vertex v1 = _vertices[_indices[i]];
-        Vertex v2 = _vertices[_indices[i + 1]];
-        Vertex v3 = _vertices[_indices[i + 2]];
+    auto getPosition = [](const SMikkTSpaceContext* pContext, float fvPosOut[],
+                          const int iFace, const int iVert) {
+        auto ptr = static_cast<Geometry*>(pContext->m_pUserData);
+        auto vertex = ptr->getVertex(iFace, iVert);
+        fvPosOut[0] = vertex.position.x;
+        fvPosOut[1] = vertex.position.y;
+        fvPosOut[2] = vertex.position.z;
+    };
 
-        Vec3 xyz1 = v2.position - v1.position;
-        Vec3 xyz2 = v3.position - v1.position;
+    auto getNormal = [](const SMikkTSpaceContext* pContext, float fvNormOut[],
+                        const int iFace, const int iVert) {
+        auto ptr = static_cast<Geometry*>(pContext->m_pUserData);
+        auto vertex = ptr->getVertex(iFace, iVert);
+        fvNormOut[0] = vertex.normal.x;
+        fvNormOut[1] = vertex.normal.y;
+        fvNormOut[2] = vertex.normal.z;
+    };
 
-        Vec2 s = v2.uv - v1.uv;
-        Vec2 t = v3.uv - v1.uv;
+    auto getTexCoord = [](const SMikkTSpaceContext* pContext, float fvTexcOut[],
+                          const int iFace, const int iVert) {
+        auto ptr = static_cast<Geometry*>(pContext->m_pUserData);
+        auto vertex = ptr->getVertex(iFace, iVert);
+        fvTexcOut[0] = vertex.uv.x;
+        fvTexcOut[1] = vertex.uv.y;
+    };
 
-        float r = 1.0f / (s.x * t.y - s.y * t.x);
+    auto setTSpace = [](const SMikkTSpaceContext* pContext, const float fvTangent[],
+                        const float fSign, const int iFace, const int iVert) {
+        auto ptr = static_cast<Geometry*>(pContext->m_pUserData);
+        ptr->addTangent(iFace, iVert, Vec3(fvTangent[0], fvTangent[1], fvTangent[2]),
+                        fSign);
+    };
 
-        Vec3 sdir =
-            Vec3((t.y * xyz1.x - t.x * xyz2.x) * r, (t.y * xyz1.y - t.x * xyz2.y) * r,
-                 (t.y * xyz1.z - t.x * xyz2.z) * r);
+    SMikkTSpaceInterface it{.m_getNumFaces = getNumFaces,
+                            .m_getNumVerticesOfFace = getNumVertsFace,
+                            .m_getPosition = getPosition,
+                            .m_getNormal = getNormal,
+                            .m_getTexCoord = getTexCoord,
+                            .m_setTSpaceBasic = setTSpace};
 
-        Vec3 tdir =
-            Vec3((s.x * xyz2.x - s.y * xyz1.x) * r, (s.x * xyz2.y - s.y * xyz1.y) * r,
-                 (s.x * xyz2.z - s.y * xyz1.z) * r);
+    SMikkTSpaceContext ctx{.m_pInterface = &it, .m_pUserData = this};
 
-        tan_s[_indices[i]] += sdir;
-        tan_s[_indices[i + 1]] += sdir;
-        tan_s[_indices[i + 2]] += sdir;
-
-        tan_t[_indices[i]] += tdir;
-        tan_t[_indices[i + 1]] += tdir;
-        tan_t[_indices[i + 2]] += tdir;
-    }
-
-    for (std::size_t i = 0; i < _vertices.size(); i++) {
-        Vec3 normal = _vertices[i].normal;
-        Vec3 t = tan_s[i];
-
-        Vec3 tangent = normalize(t - normal * (dot(normal, t)));
-
-        _vertices[i].tangent =
-            (dot(cross(normal, t), tan_t[i]) < 0.0f) ? -tangent : tangent;
-    }
+    int res = genTangSpaceDefault(&ctx);
+    if (res == 0)
+        std::cout << "Error computing tangents.\n";
 }
 
 std::unique_ptr<Geometry> pbr::genUnitSphere(uint32 widthSegments,
@@ -220,38 +243,39 @@ bool pbr::loadObj(const std::string& filePath, ObjFile& obj) {
                                    1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
             }
 
-            if (uniqueVertices.count(vertex) == 0) {
-                uniqueVertices[vertex] = static_cast<uint32>(obj.vertices.size());
-                obj.vertices.push_back(vertex);
-            }
-
-            obj.indices.push_back(uniqueVertices[vertex]);
-
-            /*ObjVertex vertex = {};
-
-            vertex.pos = {attrib.vertices[3 * index.vertex_index + 0],
-                          attrib.vertices[3 * index.vertex_index + 1],
-                          attrib.vertices[3 * index.vertex_index + 2]};
-
-            if (attrib.normals.size() > 0) {
-                vertex.normal = {attrib.normals[3 * index.normal_index + 0],
-                                 attrib.normals[3 * index.normal_index + 1],
-                                 attrib.normals[3 * index.normal_index + 2]};
-            }
-
-            if (attrib.texcoords.size() > 0) {
-                vertex.texCoord = {attrib.texcoords[2 * index.texcoord_index + 0],
-                                   1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
-            }
-
             obj.vertices.push_back(vertex);
 
             obj.indices.push_back(count);
-            count++;*/
+            count++;
         }
     }
 
     return true;
+}
+
+void Geometry::removeRedundantVerts() {
+    Geometry other;
+
+    std::cout << std::format("Faces: {} Verts: {}\n", _indices.size() / 3,
+                             _vertices.size());
+
+    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+
+    for (const auto index : _indices) {
+        auto vertex = _vertices[index];
+
+        if (uniqueVertices.count(vertex) == 0) {
+            uniqueVertices[vertex] = static_cast<uint32>(other._vertices.size());
+            other.addVertex(vertex);
+        }
+
+        other._indices.push_back(uniqueVertices[vertex]);
+    }
+
+    std::cout << std::format("Faces: {} Verts: {}\n\n", other._indices.size() / 3,
+                             other._vertices.size());
+
+    *this = std::move(other);
 }
 
 void pbr::fromObjFile(Geometry& geo, const ObjFile& objFile) {
@@ -261,6 +285,7 @@ void pbr::fromObjFile(Geometry& geo, const ObjFile& objFile) {
         geo.addVertex({v.pos, v.normal, v.texCoord});
 
     geo.computeTangents();
+    geo.removeRedundantVerts();
 }
 
 std::unique_ptr<Geometry> pbr::genUnitCube() {
@@ -287,29 +312,32 @@ std::unique_ptr<Geometry> pbr::genUnitCube() {
 PBR_SHARED std::unique_ptr<Geometry> pbr::genUnitQuad() {
     auto geo = std::make_unique<Geometry>();
 
-    geo->addVertex({.position = {-0.5f, 0.0f, -0.5f},
-                    .normal = {0.0f, 1.0f, 0.0f},
-                    .uv = {0.0f, 0.0f},
-                    .tangent = {-1.0f, 0.0f, 0.0f}});
-    geo->addVertex({.position = {0.5f, 0.0f, 0.5f},
-                    .normal = {0.0f, 1.0f, 0.0f},
-                    .uv = {1.0f, 1.0f},
-                    .tangent = {-1.0f, 0.0f, 0.0f}});
-    geo->addVertex({.position = {0.5f, 0.0f, -0.5f},
-                    .normal = {0.0f, 1.0f, 0.0f},
-                    .uv = {1.0f, 0.0f},
-                    .tangent = {-1.0f, 0.0f, 0.0f}});
-    geo->addVertex({.position = {-0.5f, 0.0f, 0.5f},
-                    .normal = {0.0f, 1.0f, 0.0f},
-                    .uv = {1.0f, 1.0f},
-                    .tangent = {-1.0f, 0.0f, 0.0f}});
+    Vec3 normal{0, 1, 0};
+    Vec4 tangent{1, 0, 0, 1};
 
-    geo->addIndex(0);
+    geo->addVertex({.position = {-0.5f, 0.0f, 0.5f},
+                    .normal = normal,
+                    .uv = {0.0f, 0.0f},
+                    .tangent = tangent});
+    geo->addVertex({.position = {0.5f, 0.0f, 0.5f},
+                    .normal = normal,
+                    .uv = {1.0f, 0.0f},
+                    .tangent = tangent});
+    geo->addVertex({.position = {-0.5f, 0.0f, -0.5f},
+                    .normal = normal,
+                    .uv = {0.0f, 1.0f},
+                    .tangent = tangent});
+    geo->addVertex({.position = {0.5f, 0.0f, -0.5f},
+                    .normal = normal,
+                    .uv = {1.0f, 1.0f},
+                    .tangent = tangent});
+
     geo->addIndex(1);
     geo->addIndex(2);
-    geo->addIndex(1);
     geo->addIndex(0);
+    geo->addIndex(1);
     geo->addIndex(3);
+    geo->addIndex(2);
 
     return geo;
 }

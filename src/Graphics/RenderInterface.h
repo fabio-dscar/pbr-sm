@@ -155,15 +155,15 @@ public:
     bool deleteVertexArray(RRID id);
 
     RRID createBufferImmutable(BufferType type, BufferUsage usage, std::size_t size,
-                               void* data);
+                               const void* data);
 
-    RRID createBuffer(BufferType type, BufferUsage usage, std::size_t size, void* data);
+    RRID createBuffer(BufferType type, BufferUsage usage, std::size_t size, const void* data);
     void bindBufferBase(RRID id, uint32 index);
     void bindBufferRange(RRID id, uint32 index, std::size_t offset, std::size_t size);
     void setBufferLayout(RRID id, uint32 idx, AttribType type, uint32 numElems,
                          uint32 stride, std::size_t offset);
     void setBufferLayout(RRID id, const BufferLayout& layout);
-    bool updateBuffer(RRID id, std::size_t size, void* data);
+    bool updateBuffer(RRID id, std::size_t size, const void* data);
     bool deleteBuffer(RRID id);
 
 

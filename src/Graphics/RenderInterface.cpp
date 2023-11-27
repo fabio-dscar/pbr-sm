@@ -246,6 +246,10 @@ void RenderInterface::initCommonMeshes() {
     auto sphere = genUnitSphere(36, 16);
     uploadGeometry(*sphere);
     Resource.addGeometry("unitSphere", std::move(sphere));
+
+    auto quad = genUnitQuad();
+    uploadGeometry(*quad);
+    Resource.addGeometry("unitQuad", std::move(quad));
 }
 
 void RenderInterface::initialize() {
@@ -267,8 +271,8 @@ void RenderInterface::initialize() {
 }
 
 RRID RenderInterface::uploadGeometry(Geometry& geo) {
-    auto verts = geo.vertices();
-    auto indices = geo.indices();
+    auto& verts = geo.vertices();
+    auto& indices = geo.indices();
 
     RRID resId = createVertexArray();
 
@@ -284,7 +288,7 @@ RRID RenderInterface::uploadGeometry(Geometry& geo) {
         {0, 3, ATTRIB_FLOAT, sizeof(Vertex), offsetof(Vertex, position)},
         {1, 3, ATTRIB_FLOAT, sizeof(Vertex), offsetof(Vertex, normal)},
         {2, 2, ATTRIB_FLOAT, sizeof(Vertex), offsetof(Vertex, uv)},
-        {3, 3, ATTRIB_FLOAT, sizeof(Vertex), offsetof(Vertex, tangent)}};
+        {3, 4, ATTRIB_FLOAT, sizeof(Vertex), offsetof(Vertex, tangent)}};
 
     BufferLayout layout = {4, &entries[0]};
     setBufferLayout(vboIds[0], layout);
@@ -357,7 +361,7 @@ bool RenderInterface::deleteVertexArray(RRID id) {
 }
 
 RRID RenderInterface::createBufferImmutable(BufferType type, BufferUsage usage,
-                                            size_t size, void* data) {
+                                            size_t size, const void* data) {
     RHIBuffer buffer;
     buffer.target = OGLBufferTargets[type];
 
@@ -375,7 +379,7 @@ RRID RenderInterface::createBufferImmutable(BufferType type, BufferUsage usage,
 }
 
 RRID RenderInterface::createBuffer(BufferType type, BufferUsage usage, size_t size,
-                                   void* data) {
+                                   const void* data) {
     RHIBuffer buffer;
     buffer.target = OGLBufferTargets[type];
 
@@ -448,7 +452,7 @@ void RenderInterface::setBufferLayout(RRID id, const BufferLayout& layout) {
     glBindBuffer(buffer.target, 0);
 }
 
-bool RenderInterface::updateBuffer(RRID id, size_t size, void* data) {
+bool RenderInterface::updateBuffer(RRID id, size_t size, const void* data) {
     /*if (id < 0 || id >= _buffers.size())
         return false; // Error
 
