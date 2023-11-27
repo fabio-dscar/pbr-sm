@@ -14,8 +14,8 @@ using namespace pbr;
 constexpr int64 NOT_SET = -1;
 
 PBRMaterial::PBRMaterial()
-    : Material(), _texHandles(8), _diffuse(NOT_SET), _f0(0.04f), _metallic(NOT_SET),
-      _roughness(NOT_SET) {
+    : Material(), _texHandles(8), _diffuse(1), _f0(0.04f), _metallic(1),
+      _roughness(1) {
 
     init();
 }
@@ -32,11 +32,12 @@ void PBRMaterial::init() {
     _brdfTex = Resource.getTexture("brdf")->rrid();
 
     RRID nullTex = Resource.getTexture("null")->rrid();
+    RRID whiteTex = Resource.getTexture("white")->rrid();
 
-    _diffuseTex = nullTex;
+    _diffuseTex = whiteTex;
     _normalTex = nullTex;
-    _metallicTex = nullTex;
-    _roughTex = nullTex;
+    _metallicTex = whiteTex;
+    _roughTex = whiteTex;
 }
 
 void PBRMaterial::prepare() {

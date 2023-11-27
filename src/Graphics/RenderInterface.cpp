@@ -15,6 +15,7 @@
 #include <cassert>
 
 #include <ranges>
+#include <format>
 
 using namespace pbr;
 using namespace pbr::math;
@@ -253,12 +254,21 @@ void RenderInterface::initCommonMeshes() {
 }
 
 void RenderInterface::initialize() {
+    TexSampler samp{WRAP_REPEAT, WRAP_REPEAT, WRAP_REPEAT, FILTER_NEAREST,
+                    FILTER_NEAREST};
+
     // Craete null texture
     Image null;
-    uint8 nullTex[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    null.loadImage(ImageFormat::IMGFMT_RGB8, 2, 2, 1, nullTex);
-    RRID nullId = createTextureImmutable(null, {});
+    uint8 nullTex[3] = {0, 0, 0};
+    null.loadImage(ImageFormat::IMGFMT_RGB8, 1, 1, 1, nullTex);
+    RRID nullId = createTextureImmutable(null, samp);
     Resource.addTexture("null", RHI.getTexture(nullId));
+
+    Image white;
+    uint8 whiteTex[3] = {255, 255, 255};
+    white.loadImage(ImageFormat::IMGFMT_RGB8, 1, 1, 1, whiteTex);
+    RRID whiteId = createTextureImmutable(white, samp);
+    Resource.addTexture("white", RHI.getTexture(whiteId));
 
     // Load BRDF precomputation
     Image brdf;

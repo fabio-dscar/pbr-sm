@@ -87,21 +87,6 @@ layout(location = 17) uniform sampler2D brdfTex;
 
 out vec4 outColor;
 
-// Cope with these instead of linking conditionally
-float FetchParameter(sampler2D samp, float val) {
-    if (val >= 0)
-        return val;
-    else
-        return texture(samp, vsIn.texCoords).r;
-}
-
-vec3 FetchDiffuse() {
-    if (diffuse.r >= 0)
-        return diffuse;
-    else
-        return toLinearRGB(texture(diffuseTex, vsIn.texCoords).rgb, gamma);
-}
-
 vec3 CalcNormalFragTBN(in sampler2D normalMap) {
     vec3 normal = texture(normalMap, vsIn.texCoords).xyz * 2 - 1;
 
@@ -257,9 +242,9 @@ void main(void) {
     sc.N = PerturbNormal(normalTex);
     sc.R = reflect(-sc.V, sc.N);
 
-    sc.kd = FetchDiffuse();
-    sc.rough = FetchParameter(roughTex, roughness);
-    sc.metal = FetchParameter(metallicTex, metallic);
+    sc.kd = diffuse * toLinearRGB(texture(diffuseTex, vsIn.texCoords).rgb, gamma);
+    sc.rough = roughness * texture(roughTex, vsIn.texCoords).r;
+    sc.metal = metallic * texture(metallicTex, vsIn.texCoords).r;
 
     sc.NdotV = max(dot(sc.N, sc.V), 0);
 

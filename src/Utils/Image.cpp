@@ -572,7 +572,7 @@ uint8* Image::data(uint32 lvl) const {
 ImageType Image::type() const {
     if (_depth > 1)
         return IMGTYPE_3D;
-    if (_height > 1)
+    if (_height >= 1)
         return IMGTYPE_2D;
     if (_width > 1)
         return IMGTYPE_1D;

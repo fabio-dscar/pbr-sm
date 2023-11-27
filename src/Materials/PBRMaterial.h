@@ -76,8 +76,8 @@ private:
 
     Color _diffuse;
     Color _f0;
-    float _metallic;
-    float _roughness;
+    float _metallic = 1;
+    float _roughness = 1;
 };
 
 } // namespace pbr
