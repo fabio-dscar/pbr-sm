@@ -56,3 +56,15 @@ set(TINYGLTF_INSTALL OFF CACHE BOOL " " FORCE)
 set(TINYGLTF_HEADER_ONLY ON CACHE BOOL " " FORCE)
 
 add_subdirectory(tinygltf)
+
+#########################################
+## glfw
+set(BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL " " FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL " " FORCE)
+set(GLFW_BUILD_DOCS OFF CACHE BOOL " " FORCE)
+set(GLFW_INSTALL OFF CACHE BOOL " " FORCE)
+
+add_subdirectory(glfw)
+
+set_property(TARGET glfw PROPERTY FOLDER "ext")

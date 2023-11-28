@@ -107,6 +107,7 @@ target_link_libraries(pbr-sm PRIVATE
   glad
   freeglut_static
   ${ZLIB_LIBRARIES}
+  glfw
 )
 set(RELEASE_FLAGS "-march=native" "-mtune=native") # "-flto")
 target_compile_options(pbr-sm PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_FLAGS}>")
