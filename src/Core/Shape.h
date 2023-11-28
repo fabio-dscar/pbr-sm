@@ -19,8 +19,8 @@ class Geometry;
 class Skybox;
 
 enum ShapeUniform : uint32 {
-    MODEL_MATRIX = 10,
-    NORMAL_MATRIX = 11
+    MODEL_MATRIX = 20,
+    NORMAL_MATRIX = 21
 };
 
 class Shape : public SceneObject {

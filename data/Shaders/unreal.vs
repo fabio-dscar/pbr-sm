@@ -5,8 +5,8 @@ layout(location = 1) in vec3 Normal;
 layout(location = 2) in vec2 TexCoords;
 layout(location = 3) in vec4 Tangent;
 
-layout(location = 10) uniform mat4 ModelMatrix;
-layout(location = 11) uniform mat3 NormalMatrix;
+layout(location = 20) uniform mat4 ModelMatrix;
+layout(location = 21) uniform mat3 NormalMatrix;
 
 layout(std140, binding = 2) uniform cameraBlock {
     mat4 ViewMatrix;

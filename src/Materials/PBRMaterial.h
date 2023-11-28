@@ -14,10 +14,12 @@ enum PBRUniform {
     NORMAL_MAP = 2,
     METALLIC_MAP = 3,
     ROUGHNESS_MAP = 4,
-    DIFFUSE_VEC = 5,
-    METALLIC_FLOAT = 6,
-    ROUGHNESS_FLOAT = 7,
-    SPECULAR_VEC = 8,
+    OCCLUSION_MAP = 5,
+    EMISSIVE_MAP = 6,
+    DIFFUSE_VEC = 7,
+    METALLIC_FLOAT = 8,
+    ROUGHNESS_FLOAT = 9,
+    SPECULAR_VEC = 10,
 
     ENV_IRRADIANCE_MAP = 15,
     ENV_GGX_MAP = 16,
@@ -45,6 +47,10 @@ public:
     void setRoughness(RRID roughTex);
     void setRoughness(float roughness);
 
+    void setOcclusion(RRID occlusionTex);
+
+    void setEmissive(RRID emissiveTex);
+
     void setIrradianceTex(RRID id);
     void setBrdfTex(RRID id);
     void setGGXTex(RRID id);
@@ -68,6 +74,8 @@ private:
     RRID _normalTex;
     RRID _metallicTex;
     RRID _roughTex;
+    RRID _aoTex;
+    RRID _emissiveTex;
 
     // PBR maps
     RRID _irradianceTex;

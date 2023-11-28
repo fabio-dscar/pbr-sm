@@ -92,5 +92,11 @@ std::unique_ptr<Material> Utils::buildMaterial(const fs::path& objRoot,
     else
         mat->setMetallic(map.getFloat("metallic").value_or(0.5f));
 
+    if (auto tex = map.getTexture("ao"))
+        mat->setOcclusion(loadTexture(objRoot / tex.value()));
+
+    if (auto tex = map.getTexture("emissive"))
+        mat->setEmissive(loadTexture(objRoot / tex.value()));
+
     return mat;
 }

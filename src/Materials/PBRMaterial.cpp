@@ -11,17 +11,14 @@
 
 using namespace pbr;
 
-constexpr int64 NOT_SET = -1;
-
 PBRMaterial::PBRMaterial()
-    : Material(), _texHandles(8), _diffuse(1), _f0(0.04f), _metallic(1),
-      _roughness(1) {
+    : Material(), _texHandles(9), _diffuse(1), _f0(0.04f), _metallic(1), _roughness(1) {
 
     init();
 }
 
 PBRMaterial::PBRMaterial(const Color& diff, float metallic, float roughness)
-    : Material(), _texHandles(8), _diffuse(diff), _f0(0.04f), _metallic(metallic),
+    : Material(), _texHandles(9), _diffuse(diff), _f0(0.04f), _metallic(metallic),
       _roughness(roughness) {
 
     init();
@@ -38,26 +35,29 @@ void PBRMaterial::init() {
     _normalTex = nullTex;
     _metallicTex = whiteTex;
     _roughTex = whiteTex;
+    _aoTex = whiteTex;
+    _emissiveTex = nullTex;
 }
 
 void PBRMaterial::prepare() {
-    auto v =
-        RHI.queryTexHandles({_diffuseTex, _normalTex, _metallicTex, _roughTex, _brdfTex});
+    auto v = RHI.queryTexHandles({_diffuseTex, _normalTex, _metallicTex, _roughTex,
+                                  _aoTex, _emissiveTex, _brdfTex});
 
     _texHandles[0] = v[0];
     _texHandles[1] = v[1];
     _texHandles[2] = v[2];
     _texHandles[3] = v[3];
-    _texHandles[4] = 0;
-    _texHandles[7] = v[4];
+    _texHandles[4] = v[4];
+    _texHandles[5] = v[5];
+    _texHandles[8] = v[6];
 }
 
 void PBRMaterial::update(const Skybox& skybox) {
     _irradianceTex = skybox.irradianceTex();
     _ggxTex = skybox.ggxTex();
 
-    _texHandles[5] = RHI.queryTexHandle(_irradianceTex);
-    _texHandles[6] = RHI.queryTexHandle(_ggxTex);
+    _texHandles[6] = RHI.queryTexHandle(_irradianceTex);
+    _texHandles[7] = RHI.queryTexHandle(_ggxTex);
 }
 
 void PBRMaterial::uploadData() const {
@@ -66,7 +66,7 @@ void PBRMaterial::uploadData() const {
     RHI.setFloat(METALLIC_FLOAT, _metallic);
     RHI.setFloat(ROUGHNESS_FLOAT, _roughness);
 
-    RHI.bindTextures(1, 8, _texHandles);
+    RHI.bindTextures(1, 9, _texHandles);
 }
 
 void PBRMaterial::setIrradianceTex(RRID id) {
@@ -111,6 +111,14 @@ void PBRMaterial::setRoughness(RRID roughTex) {
 
 void PBRMaterial::setRoughness(float roughness) {
     _roughness = roughness;
+}
+
+void PBRMaterial::setOcclusion(RRID occlusionTex) {
+    _aoTex = occlusionTex;
+}
+
+void PBRMaterial::setEmissive(RRID emissiveTex) {
+    _emissiveTex = emissiveTex;
 }
 
 float PBRMaterial::metallic() const {

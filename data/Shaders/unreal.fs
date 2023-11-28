@@ -14,7 +14,7 @@ float distGGX(vec3 N, vec3 H, float roughness);
 float distGGX_Sphere(vec3 N, vec3 H, float roughness, float dist, float radius);
 
 const float PI = 3.14159265358979;
-const float MAX_GGX_LOD = 4.0;
+const float MAX_GGX_LOD = 4;
 
 const int NUM_LIGHTS = 5;
 const int LIGHT_NONE = 0;
@@ -74,11 +74,13 @@ layout(location = 1) uniform sampler2D diffuseTex;
 layout(location = 2) uniform sampler2D normalTex;
 layout(location = 3) uniform sampler2D metallicTex;
 layout(location = 4) uniform sampler2D roughTex;
+layout(location = 5) uniform sampler2D aoTex;
+layout(location = 6) uniform sampler2D emissiveTex;
 
-layout(location = 5) uniform vec3 diffuse;
-layout(location = 6) uniform float metallic;
-layout(location = 7) uniform float roughness;
-layout(location = 8) uniform vec3 spec;
+layout(location = 7) uniform vec3 diffuse;
+layout(location = 8) uniform float metallic;
+layout(location = 9) uniform float roughness;
+layout(location = 10) uniform vec3 spec;
 
 // IBL precomputation
 layout(location = 15) uniform samplerCube irradianceTex;
@@ -113,7 +115,7 @@ struct ShadingContext {
     vec3 V, N, R, L, H;
     vec3 kd, F0, Li;
     float NdotV, NdotL;
-    float att, specNorm, metal, rough;
+    float ao, att, specNorm, metal, rough;
 };
 
 // Closest point to sphere
@@ -131,8 +133,6 @@ vec3 closestPtTube(inout ShadingContext sc, in Light l, vec3 L) {
     float NdotL0 = dot(L0, sc.N) / (2 * distL0);
     float NdotL1 = dot(L1, sc.N) / (2 * distL0);
 
-    sc.NdotL = (2 * clamp(NdotL0 + NdotL1, 0, 1)) / (distL0 * distL1 + dot(L0, L1) + 2);
-
     vec3 Ld = L1 - L0;
     float RdotL0 = dot(sc.R, L0);
     float RdotLd = dot(sc.R, Ld);
@@ -143,6 +143,8 @@ vec3 closestPtTube(inout ShadingContext sc, in Light l, vec3 L) {
     vec3 closest = L0 + Ld * clamp(t, 0, 1);
     vec3 centerToRay = dot(closest, sc.R) * sc.R - closest;
     closest = closest + centerToRay * clamp(l.auxA / length(centerToRay), 0, 1);
+
+    sc.NdotL = (2 * clamp(NdotL0 + NdotL1, 0, 1)) / (distL0 * distL1 + dot(L0, L1) + 2);
 
     return closest;
 }
@@ -211,13 +213,13 @@ vec3 EnvironmentLighting(inout ShadingContext sc) {
     vec3 F = fresnelSchlickUnreal(sc.NdotV, spec);
 
     // Precomputed integrals
-    vec3 prefGGX = textureLod(ggxTex, sc.R, sc.rough * MAX_GGX_LOD).rgb;
+    vec3 prefGGX = textureLod(ggxTex, sc.R, sc.rough * (MAX_GGX_LOD - 1)).rgb;
     vec3 brdf = texture(brdfTex, vec2(sc.NdotV, sc.rough)).rgb;
 
     vec3 brdfInt = sc.F0 * brdf.r + brdf.g;
     vec3 specular = prefGGX * brdfInt;
 
-    return (1 - F) * (1 - sc.metal) * diffuse + specular;
+    return ((1 - F) * (1 - sc.metal) * diffuse + specular) * sc.ao;
 }
 
 vec3 ShadingLight(in ShadingContext sc) {
@@ -245,6 +247,9 @@ void main(void) {
     sc.kd = diffuse * toLinearRGB(texture(diffuseTex, vsIn.texCoords).rgb, gamma);
     sc.rough = roughness * texture(roughTex, vsIn.texCoords).r;
     sc.metal = metallic * texture(metallicTex, vsIn.texCoords).r;
+    sc.ao = texture(aoTex, vsIn.texCoords).r;
+
+    vec3 emissive = texture(emissiveTex, vsIn.texCoords).rgb;
 
     sc.NdotV = max(dot(sc.N, sc.V), 0);
 
@@ -265,7 +270,7 @@ void main(void) {
         Lrad += ShadingLight(sc);
     }
 
-    vec3 Lsum = Lenv + Lrad;
+    vec3 Lsum = emissive + Lenv + Lrad;
     Lsum = unchartedTonemapParam(Lsum, exposure, A, B, C, D, E, J, W);
     Lsum = toInverseGamma(Lsum, gamma);
 
