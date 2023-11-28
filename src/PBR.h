@@ -18,6 +18,7 @@
 #include <cstring>
 #include <vector>
 #include <iomanip>
+#include <cassert>
 
 #if defined(_MSC_VER)
 #define PBR_MSVC

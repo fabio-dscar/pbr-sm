@@ -55,7 +55,7 @@ set(RT_PBR_SOURCES
   src/Materials/PBRMaterial.cpp
 
   src/Math/Bounds.cpp
-  src/Math/Hash.hpp
+  src/Math/Hash.cpp
   src/Math/Matrix2x2.cpp
   src/Math/Matrix3x3.cpp
   src/Math/Matrix4x4.cpp
@@ -70,6 +70,9 @@ set(RT_PBR_SOURCES
   src/Utils/LoadXML.cpp
   src/Utils/ParameterMap.cpp
   src/Utils/Utils.cpp
+
+  src/Loaders/ObjLoader.cpp
+  src/Loaders/GltfLoader.cpp
   
   ext/pugixml/pugixml.cpp
   ext/lodepng/lodepng.cpp
@@ -82,6 +85,7 @@ target_include_directories(pbr-sm PUBLIC
   src
   src/App
   src/Core
+  src/Loaders
   src/Graphics
   src/GUI
   src/Lights

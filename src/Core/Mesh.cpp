@@ -1,11 +1,10 @@
 #include <Mesh.h>
 
 #include <Geometry.h>
+#include <ObjLoader.h>
 #include <RenderInterface.h>
 #include <Resources.h>
 #include <Material.h>
-
-#include <cassert>
 
 using namespace pbr;
 

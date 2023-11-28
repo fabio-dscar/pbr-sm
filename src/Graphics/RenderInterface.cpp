@@ -211,9 +211,11 @@ void RenderInterface::initMainShaders() {
     RHI.setSampler(NORMAL_MAP, 2);
     RHI.setSampler(METALLIC_MAP, 3);
     RHI.setSampler(ROUGHNESS_MAP, 4);
-    RHI.setSampler(ENV_IRRADIANCE_MAP, 6);
-    RHI.setSampler(ENV_GGX_MAP, 7);
-    RHI.setSampler(ENV_BRDF_MAP, 8);
+    RHI.setSampler(OCCLUSION_MAP, 5);
+    RHI.setSampler(EMISSIVE_MAP, 6);
+    RHI.setSampler(ENV_IRRADIANCE_MAP, 7);
+    RHI.setSampler(ENV_GGX_MAP, 8);
+    RHI.setSampler(ENV_BRDF_MAP, 9);
     RHI.useProgram(0);
 
     Resource.addShader("unreal", std::move(unrealProg));
@@ -254,20 +256,17 @@ void RenderInterface::initCommonMeshes() {
 }
 
 void RenderInterface::initialize() {
-    TexSampler samp{WRAP_REPEAT, WRAP_REPEAT, WRAP_REPEAT, FILTER_NEAREST,
-                    FILTER_NEAREST};
-
     // Craete null texture
     Image null;
     uint8 nullTex[3] = {0, 0, 0};
     null.loadImage(ImageFormat::IMGFMT_RGB8, 1, 1, 1, nullTex);
-    RRID nullId = createTextureImmutable(null, samp);
+    RRID nullId = createTextureImmutable(null, {});
     Resource.addTexture("null", RHI.getTexture(nullId));
 
     Image white;
     uint8 whiteTex[3] = {255, 255, 255};
     white.loadImage(ImageFormat::IMGFMT_RGB8, 1, 1, 1, whiteTex);
-    RRID whiteId = createTextureImmutable(white, samp);
+    RRID whiteId = createTextureImmutable(white, {});
     Resource.addTexture("white", RHI.getTexture(whiteId));
 
     // Load BRDF precomputation
@@ -463,31 +462,13 @@ void RenderInterface::setBufferLayout(RRID id, const BufferLayout& layout) {
 }
 
 bool RenderInterface::updateBuffer(RRID id, size_t size, const void* data) {
-    /*if (id < 0 || id >= _buffers.size())
-        return false; // Error
-
-    RHIBuffer buffer = _buffers[id];
-    if (buffer.id == 0)
-        return false; // Error
-    */
+    assert(id > 0 && id < _buffers.size());
 
     RHIBuffer buffer = _buffers[id];
     glBindBuffer(buffer.target, buffer.id);
-
-    // Invalidate buffer
     glBufferData(buffer.target, size, NULL, GL_DYNAMIC_DRAW);
-
-    // Invalidate buffer
-    ////glNamedBufferData(buffer.id, size, NULL, GL_DYNAMIC_DRAW);
-    ////glNamedBufferSubData(buffer.id, 0, size, data);
     glBufferSubData(buffer.target, 0, size, data);
-    /*GLvoid* p = glMapNamedBufferRange(buffer.id, 0, size, GL_MAP_WRITE_BIT |
-    GL_MAP_INVALIDATE_BUFFER_BIT); std::memcpy(p, data, size);
-    glUnmapNamedBuffer(buffer.id);*/
 
-    /*GLvoid* p = glMapBufferRange(buffer.target, 0, size, GL_MAP_WRITE_BIT);
-    std::memcpy(p, data, size);
-    glUnmapBuffer(buffer.target);*/
     glBindBuffer(buffer.target, 0);
 
     return true;
@@ -556,7 +537,7 @@ RRID RenderInterface::linkProgram(const Shader& shader) {
     // Create program
     GLuint id = glCreateProgram();
     if (id == 0) {
-        std::string message = getProgramError(shader);
+        std::string message = getProgramError(id);
         Utils::throwError("Could not create program " + shader.name());
     }
 
@@ -576,7 +557,7 @@ RRID RenderInterface::linkProgram(const Shader& shader) {
     glGetProgramiv(id, GL_LINK_STATUS, &res);
     if (res != GL_TRUE) {
         // Check program log for the error and print it
-        std::string message = getProgramError(shader);
+        std::string message = getProgramError(id);
         Utils::throwError(message);
 
         // Detach shaders
@@ -599,12 +580,12 @@ RRID RenderInterface::linkProgram(const Shader& shader) {
     return rrid;
 }
 
-std::string RenderInterface::getProgramError(const Shader& shader) {
+std::string RenderInterface::getProgramError(int shader) {
     GLint logLen;
-    glGetProgramiv(shader.id(), GL_INFO_LOG_LENGTH, &logLen);
+    glGetProgramiv(shader, GL_INFO_LOG_LENGTH, &logLen);
 
     char* log = new char[logLen];
-    glGetProgramInfoLog(shader.id(), logLen, &logLen, log);
+    glGetProgramInfoLog(shader, logLen, &logLen, log);
 
     std::string strLog(log);
     delete[] log;
@@ -771,11 +752,6 @@ RRID RenderInterface::createTextureImmutable(const Image& img,
     glBindTexture(target, 0);
 
     TexFormat fmt{img.type(), img.format(), img.compType(), img.numLevels()};
-    /*fmt.imgFmt  = img.format();
-    fmt.imgType = img.type();
-    fmt.levels  = img.numLevels();
-    fmt.pType   = img.compType();*/
-
     auto tex = std::make_shared<Texture>(resId, img.width(), img.height(), img.depth(),
                                          sampler, fmt);
 

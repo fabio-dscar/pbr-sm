@@ -118,8 +118,7 @@ public:
     uint32 compileShader(const ShaderSource& source);
     bool deleteShader(const ShaderSource& source);
     RRID linkProgram(const Shader& shader);
-
-    std::string getProgramError(const Shader& shader);
+    std::string getProgramError(int shader);
 
     void useProgram(RRID id);
 
