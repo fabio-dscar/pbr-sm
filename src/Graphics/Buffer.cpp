@@ -1,3 +1,4 @@
+#include "glad/glad.h"
 #include <Buffer.h>
 
 using namespace pbr;
@@ -10,6 +11,9 @@ Buffer::Buffer(EBufferType type, std::size_t size, uint32 flags, void* data) {
 }
 
 Buffer::~Buffer() {
+    if (flags & GL_MAP_PERSISTENT_BIT)
+        glUnmapNamedBuffer(handle);
+
     glDeleteBuffers(1, &handle);
 }
 
@@ -25,7 +29,7 @@ void Buffer::create(EBufferType type, std::size_t pSize, uint32 pFlags, void* da
 }
 
 void Buffer::wait(GLsync* pSync) {
-    GLenum res = glClientWaitSync(*pSync, 0, 0);
+    GLenum res = glClientWaitSync(*pSync, 0, FenceTimeout);
     if (res == GL_ALREADY_SIGNALED || res == GL_CONDITION_SATISFIED)
         glDeleteSync(*pSync);
 }

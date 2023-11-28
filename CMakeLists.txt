@@ -93,6 +93,7 @@ target_include_directories(pbr-sm PUBLIC
   ext/lodepng
   ext/pugixml
   ext/mikktspace
+  ext/tinygltf
   ${TINYOBJ_INCLUDE}
   ${ZLIB_INCLUDE_DIRS}
   ${GLAD_INCLUDE}

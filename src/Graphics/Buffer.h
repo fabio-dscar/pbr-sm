@@ -19,7 +19,7 @@ struct BufferRangeLock {
 enum class EBufferType : uint32 { ARRAY = 0, ELEMENT = 1, UNIFORM = 2 };
 
 // In nanoseconds
-static constexpr int FenceTimeout = 1.0 / 30.0 * 1e9;
+static constexpr uint64 FenceTimeout = 1.0 / 30.0 * 1e9;
 
 class Buffer {
 public:
