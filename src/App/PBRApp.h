@@ -32,6 +32,8 @@ private:
     void restoreToneDefaults();
     void changeSkybox(int id);
     void takeSnapshot();
+    void pickObject(int x, int y);
+    void initSkyboxes();
 
     Scene _scene;
     Renderer _renderer;
@@ -50,12 +52,16 @@ private:
     float _metallic;
     float _roughness;
 
-    int _skybox = 1;
     int _fps = 0;
 
+    int _skybox = 1;
     bool _showGUI = true;
-    bool _skyToggle = true;
+    bool _showSky = true;
     bool _perturbNormals = true;
+    bool _envLighting = true;
+    float _envIntensity = 1.0f;
+
+    float _accum = 0.0f;
 };
 
 } // namespace pbr

@@ -42,9 +42,9 @@ void OpenGLApplication::init(int argc, char* argv[]) {
     const GLubyte* vendor = glGetString(GL_VENDOR);
     const GLubyte* version = glGetString(GL_VERSION);
     const GLubyte* glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
-    std::cerr << "OpenGL Renderer: " << renderer << " (" << vendor << ")\n";
-    std::cerr << "OpenGL version " << version << '\n';
-    std::cerr << "GLSL version " << glslVersion << '\n';
+    std::cout << "OpenGL Renderer: " << renderer << " (" << vendor << ")\n";
+    std::cout << "OpenGL version " << version << '\n';
+    std::cout << "GLSL version " << glslVersion << '\n';
 
     // Initialize OpenGL state
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -72,27 +72,18 @@ void OpenGLApplication::reshape(int w, int h) {
     glViewport(0, 0, w, h);
 }
 
-void OpenGLApplication::update(float dt) {}
-
 void OpenGLApplication::render() {
     int timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
     int deltaTime = timeSinceStart - _oldTimeSinceStart;
     _oldTimeSinceStart = timeSinceStart;
 
-    float dt = (float)deltaTime / 1000.0f;
+    float dt = deltaTime / 1000.0f;
 
     // Limit the delta time to avoid large intervals
-    if (dt > 0.25f)
-        dt = 0.25f;
+    dt = std::min(dt, 0.25f);
 
-    // --------------------------------------
-    //   Update step
-    // --------------------------------------
     update(dt);
 
-    // --------------------------------------
-    //   Render step
-    // --------------------------------------
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     drawScene();
     glutSwapBuffers();
@@ -109,8 +100,6 @@ void OpenGLApplication::loop() const {
 void OpenGLApplication::idle() const {
     glutPostRedisplay();
 }
-
-void OpenGLApplication::cleanup() {}
 
 void OpenGLApplication::processMouseMotion(int x, int y) {
     updateMouse(x, y);
@@ -141,8 +130,8 @@ void OpenGLApplication::updateMouse(int x, int y) {
     _mouseX = x;
     _mouseY = y;
 
-    _mouseDx = (_mouseDx + (float)dx) / 2.0f;
-    _mouseDy = (_mouseDy + (float)dy) / 2.0f;
+    _mouseDx = (_mouseDx + dx) / 2.0f;
+    _mouseDy = (_mouseDy + dy) / 2.0f;
 }
 
 void OpenGLApplication::refresh() const {

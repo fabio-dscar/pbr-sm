@@ -5,6 +5,8 @@
 
 namespace pbr {
 
+enum MouseButton { LEFT = 0, MIDDLE = 1, RIGHT = 2 };
+
 class OpenGLApplication {
 public:
     OpenGLApplication(const std::string& title, int width, int height);
@@ -32,7 +34,7 @@ public:
 
     virtual void idle() const;
     virtual void reshape(int w, int h);
-    virtual void cleanup();
+    virtual void cleanup() = 0;
     virtual void processMouseMotion(int x, int y);
     virtual void processMouseClick(int button, int state, int x, int y);
     virtual void processKeyPress(unsigned char key, int x, int y);
@@ -40,7 +42,7 @@ public:
     virtual void prepare() = 0;
     virtual void drawScene() = 0;
     virtual void tickPerSecond() = 0;
-    virtual void update(float dt);
+    virtual void update(float dt) = 0;
 
 protected:
     std::string _title;
@@ -67,11 +69,7 @@ protected:
 
 private:
     int _windowHandle = -1;
-
-    int _oldTimeSinceStart;
-    float _accumTime;
-
-    static constexpr float FIXED_DELTA_TIME = 0.01f;
+    int _oldTimeSinceStart = 0;
 };
 
 } // namespace pbr
