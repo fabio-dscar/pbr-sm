@@ -22,10 +22,11 @@ public:
     void update(float dt) override;
     void cleanup() override;
 
-    void processKeyPress(unsigned char key, int x, int y) override;
-    void processMouseClick(int button, int state, int x, int y) override;
-    void reshape(int w, int h) override;
     void tickPerSecond() override;
+
+    void processMouseClick(int button, int action, int mods) override;
+    void processKeys(int key, int scancode, int action, int mods) override;
+    void reshape(int w, int h) override;
 
 private:
     void drawInterface();

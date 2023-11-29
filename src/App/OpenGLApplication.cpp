@@ -2,40 +2,79 @@
 
 // #include <GL/glew.h>
 #include <glad/glad.h>
-#include <GL/freeglut.h>
+#include <GLFW/glfw3.h>
 
 #include <iostream>
 #include <sstream>
+
+#include <format>
 
 using namespace pbr;
 
 OpenGLApplication::OpenGLApplication(const std::string& title, int width, int height)
     : _title(title), _width(width), _height(height) {}
 
-void OpenGLApplication::init(int argc, char* argv[]) {
+void OpenGLApplication::setCallbacks() {
+    using OGLApp = OpenGLApplication;
+
+    glfwSetKeyCallback(_window, [](GLFWwindow* w, int k, int s, int a, int m) {
+        OGLApp* app = static_cast<OGLApp*>(glfwGetWindowUserPointer(w));
+        app->processKeys(k, s, a, m);
+    });
+
+    glfwSetFramebufferSizeCallback(_window, [](GLFWwindow* win, int w, int h) {
+        OGLApp* app = static_cast<OGLApp*>(glfwGetWindowUserPointer(win));
+        app->reshape(w, h);
+    });
+
+    glfwSetMouseButtonCallback(_window, [](GLFWwindow* w, int b, int a, int m) {
+        OGLApp* app = static_cast<OGLApp*>(glfwGetWindowUserPointer(w));
+        app->processMouseClick(b, a, m);
+    });
+
+    glfwSetCursorPosCallback(_window, [](GLFWwindow* w, double x, double y) {
+        OGLApp* app = static_cast<OGLApp*>(glfwGetWindowUserPointer(w));
+        app->processMouseMotion(x, y);
+    });
+}
+
+void OpenGLApplication::init() {
     putenv((char*)"__GL_SYNC_TO_VBLANK=0");
 
-    // Setup glut
-    glutInit(&argc, argv);
-    glutInitContextVersion(4, 5);
-    glutInitContextProfile(GLUT_CORE_PROFILE);
-    glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
-    glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
-    glutInitWindowSize(_width, _height);
-    glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA | GLUT_MULTISAMPLE);
-    _windowHandle = glutCreateWindow(_title.c_str());
-    if (_windowHandle < 1) {
-        std::cerr << "ERROR: Could not create a new rendering window.\n";
+    glfwSetErrorCallback([](int, const char* desc) { std::cout << desc << "\n"; });
+
+    if (!glfwInit()) {
+        std::cerr << "[ERROR] Failed to initialize GLFW.\n";
         exit(EXIT_FAILURE);
     }
-    glutIgnoreKeyRepeat(1);
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+    glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+    glfwWindowHint(GLFW_SAMPLES, 8);
+
+    _window = glfwCreateWindow(_width, _height, _title.c_str(), NULL, NULL);
+    if (!_window) {
+        std::cerr << "[ERROR] Could not create a new rendering window.\n";
+        glfwTerminate();
+        exit(EXIT_FAILURE);
+    }
+
+    glfwSetWindowUserPointer(_window, this);
+    setCallbacks();
+
+    glfwMakeContextCurrent(_window);
 
     // Setup glad
-    int glver = gladLoadGL();
+    int glver = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
     if (glver == 0) {
-        std::cerr << "Failed to initialize OpenGL context\n";
+        std::cerr << "[ERROR] Failed to initialize OpenGL context\n";
         exit(EXIT_FAILURE);
     }
+    glfwSwapInterval(1);
 
     // Print system info
     const GLubyte* renderer = glGetString(GL_RENDERER);
@@ -62,20 +101,45 @@ void OpenGLApplication::init(int argc, char* argv[]) {
     prepare();
 }
 
+void OpenGLApplication::loop() {
+    while (!glfwWindowShouldClose(_window)) {
+        render();
+
+        glfwSwapBuffers(_window);
+        glfwPollEvents();
+    }
+
+    glfwDestroyWindow(_window);
+
+    cleanup();
+
+    glfwTerminate();
+    exit(EXIT_SUCCESS);
+}
+
 void OpenGLApplication::setTitle(const std::string& title) {
     _title = title;
+    glfwSetWindowTitle(_window, _title.c_str());
 }
 
 void OpenGLApplication::reshape(int w, int h) {
+    std::cout << std::format("{}x{}\n", w, h);
+
     _width = w;
     _height = h;
     glViewport(0, 0, w, h);
 }
 
 void OpenGLApplication::render() {
-    int timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
-    int deltaTime = timeSinceStart - _oldTimeSinceStart;
+    double timeSinceStart = glfwGetTime() * 1000.0f;
+    double deltaTime = timeSinceStart - _oldTimeSinceStart;
     _oldTimeSinceStart = timeSinceStart;
+
+    _secondCount += deltaTime;
+    if (_secondCount > 1000) {
+        tickPerSecond();
+        _secondCount -= 1000;
+    }
 
     float dt = deltaTime / 1000.0f;
 
@@ -86,100 +150,46 @@ void OpenGLApplication::render() {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     drawScene();
-    glutSwapBuffers();
     ++_frameCount;
 
     _mouseDx = 0;
     _mouseDy = 0;
 }
 
-void OpenGLApplication::loop() const {
-    glutMainLoop();
-}
-
-void OpenGLApplication::idle() const {
-    glutPostRedisplay();
-}
-
-void OpenGLApplication::processMouseMotion(int x, int y) {
+void OpenGLApplication::processMouseMotion(double x, double y) {
     updateMouse(x, y);
 }
 
-void OpenGLApplication::processKeyPress(unsigned char key, int x, int y) {
-    _keys[key] = true;
+void OpenGLApplication::processKeys(int key, int scancode, int action, int mods) {
+    if (key > 254)
+        return;
+
+    if (action == GLFW_PRESS || action == GLFW_REPEAT)
+        _keys[key] = true;
+    else
+        _keys[key] = false;
 }
 
-void OpenGLApplication::processKeyUp(unsigned char key, int x, int y) {
-    _keys[key] = false;
-}
+void OpenGLApplication::processMouseClick(int button, int action, int mods) {
+    if (button > 2)
+        return;
 
-void OpenGLApplication::processMouseClick(int button, int state, int x, int y) {
-    if (state == GLUT_DOWN)
+    if (action == GLFW_PRESS)
         _mouseBtns[button] = true;
     else
         _mouseBtns[button] = false;
 
-    _clickX = x;
-    _clickY = y;
+    _clickX = _mouseX;
+    _clickY = _mouseY;
 }
 
-void OpenGLApplication::updateMouse(int x, int y) {
-    int dx = -x + _mouseX;
-    int dy = y - _mouseY;
+void OpenGLApplication::updateMouse(double x, double y) {
+    double dx = -x + _mouseX;
+    double dy = y - _mouseY;
 
     _mouseX = x;
     _mouseY = y;
 
     _mouseDx = (_mouseDx + dx) / 2.0f;
     _mouseDy = (_mouseDy + dy) / 2.0f;
-}
-
-void OpenGLApplication::refresh() const {
-    glutPostRedisplay();
-}
-
-void OpenGLApplication::setDisplayCallback(void (*display)()) {
-    glutDisplayFunc(display);
-}
-
-void OpenGLApplication::setCloseCallback(void (*close)()) {
-    glutCloseFunc(close);
-}
-
-void OpenGLApplication::setReshapeCallback(void (*reshape)(int, int)) {
-    glutReshapeFunc(reshape);
-}
-
-void OpenGLApplication::setIdleCallback(void (*idle)()) {
-    glutIdleFunc(idle);
-}
-
-void OpenGLApplication::setCleanupCallback(void (*cleanup)()) {
-    glutCloseFunc(cleanup);
-}
-
-void OpenGLApplication::setTimerCallback(void (*idle)(int), unsigned int time,
-                                         int value) {
-    glutTimerFunc(time, idle, value);
-}
-
-void OpenGLApplication::setPassiveMouseMotionCallback(void (*mouseMove)(int, int)) {
-    glutPassiveMotionFunc(mouseMove);
-}
-
-void OpenGLApplication::setMouseMotionCallback(void (*mouseMove)(int, int)) {
-    glutMotionFunc(mouseMove);
-}
-
-void OpenGLApplication::setKeyPressCallback(void (*keyPress)(unsigned char, int, int)) {
-    glutKeyboardFunc(keyPress);
-}
-
-void OpenGLApplication::setKeyUpCallback(void (*keyUp)(unsigned char, int, int)) {
-    glutKeyboardUpFunc(keyUp);
-}
-
-void OpenGLApplication::setMouseButtonCallback(void (*mouseBtn)(int button, int state,
-                                                                int x, int y)) {
-    glutMouseFunc(mouseBtn);
 }

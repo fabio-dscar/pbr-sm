@@ -101,11 +101,11 @@ target_include_directories(pbr-sm PUBLIC
   ${TINYOBJ_INCLUDE}
   ${ZLIB_INCLUDE_DIRS}
   ${GLAD_INCLUDE}
+  ${GLFW_INCLUDE_DIRS}
 )
 target_link_libraries(pbr-sm PRIVATE
   OpenGL::GL
   glad
-  freeglut_static
   ${ZLIB_LIBRARIES}
   glfw
 )

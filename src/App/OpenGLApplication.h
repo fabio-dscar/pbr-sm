@@ -3,46 +3,32 @@
 
 #include <string>
 
+struct GLFWwindow;
+
 namespace pbr {
 
-enum MouseButton { LEFT = 0, MIDDLE = 1, RIGHT = 2 };
+enum MouseButton { LEFT = 0, RIGHT = 1, MIDDLE = 2 };
 
 class OpenGLApplication {
 public:
     OpenGLApplication(const std::string& title, int width, int height);
     virtual ~OpenGLApplication() = default;
 
-    void init(int argc, char* argv[]);
+    void init();
+    void loop();
+
     void setTitle(const std::string& title);
-    void render();
-    void loop() const;
-    void refresh() const;
 
-    void updateMouse(int x, int y);
-
-    void setCloseCallback(void (*close)());
-    void setDisplayCallback(void (*display)());
-    void setReshapeCallback(void (*reshape)(int, int));
-    void setIdleCallback(void (*idle)());
-    void setCleanupCallback(void (*cleanup)());
-    void setTimerCallback(void (*timer)(int), unsigned int time, int value);
-    void setMouseMotionCallback(void (*mouseMove)(int, int));
-    void setPassiveMouseMotionCallback(void (*mouseMove)(int, int));
-    void setKeyPressCallback(void (*keyPress)(unsigned char, int, int));
-    void setKeyUpCallback(void (*keyUp)(unsigned char, int, int));
-    void setMouseButtonCallback(void (*mouseBtn)(int button, int state, int x, int y));
-
-    virtual void idle() const;
-    virtual void reshape(int w, int h);
     virtual void cleanup() = 0;
-    virtual void processMouseMotion(int x, int y);
-    virtual void processMouseClick(int button, int state, int x, int y);
-    virtual void processKeyPress(unsigned char key, int x, int y);
-    virtual void processKeyUp(unsigned char key, int x, int y);
     virtual void prepare() = 0;
     virtual void drawScene() = 0;
     virtual void tickPerSecond() = 0;
     virtual void update(float dt) = 0;
+
+    virtual void processKeys(int key, int scancode, int action, int mods);
+    virtual void reshape(int w, int h);
+    virtual void processMouseClick(int button, int action, int mods);
+    virtual void processMouseMotion(double x, double y);
 
 protected:
     std::string _title;
@@ -52,14 +38,14 @@ protected:
     int _width;
     int _height;
 
-    int _mouseX;
-    int _mouseY;
+    double _mouseX;
+    double _mouseY;
 
-    int _clickX;
-    int _clickY;
+    double _clickX;
+    double _clickY;
 
-    float _mouseDx;
-    float _mouseDy;
+    double _mouseDx;
+    double _mouseDy;
 
     // Keyboard buttons state
     bool _keys[255];
@@ -68,8 +54,14 @@ protected:
     bool _mouseBtns[3];
 
 private:
-    int _windowHandle = -1;
-    int _oldTimeSinceStart = 0;
+    void render();
+    void updateMouse(double x, double y);
+    void setCallbacks();
+
+    double _oldTimeSinceStart = 0;
+    double _secondCount = 0;
+
+    GLFWwindow* _window;
 };
 
 } // namespace pbr

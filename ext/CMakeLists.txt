@@ -22,11 +22,6 @@ set(ZLIB_INCLUDE_DIRS ${ZLIB_INCLUDE_DIRS} PARENT_SCOPE)
 set(ZLIB_LIBRARIES ${ZLIB_LIBRARIES} PARENT_SCOPE)
 
 #########################################
-## freeglut
-set(FREEGLUT_BUILD_DEMOS OFF CACHE BOOL " " FORCE)
-add_subdirectory(freeglut)
-
-#########################################
 ## glad
 set(GLAD_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/glad/include PARENT_SCOPE)
 add_library(glad STATIC ${CMAKE_CURRENT_SOURCE_DIR}/glad/src/glad.c)
@@ -67,4 +62,5 @@ set(GLFW_INSTALL OFF CACHE BOOL " " FORCE)
 
 add_subdirectory(glfw)
 
+set(GLFW_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include PARENT_SCOPE)
 set_property(TARGET glfw PROPERTY FOLDER "ext")

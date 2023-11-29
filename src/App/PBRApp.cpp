@@ -204,25 +204,25 @@ void PBRApp::restoreToneDefaults() {
 
 void PBRApp::update(float dt) {
     if (_mouseBtns[MouseButton::RIGHT]) {
-        _camera->updateOrientation(_mouseDy * dt * 0.75f, _mouseDx * dt * 0.75f);
+        _camera->updateOrientation(_mouseDy * dt * 0.55f, _mouseDx * dt * 0.55f);
         _camera->updateViewMatrix();
     }
 
     Vector3 moveDir(0);
-    if (_keys[static_cast<int>('w')]) {
+    if (_keys[static_cast<int>('W')]) {
         moveDir += -_camera->front();
-    } else if (_keys[static_cast<int>('s')]) {
+    } else if (_keys[static_cast<int>('S')]) {
         moveDir += _camera->front();
     }
 
-    if (_keys[static_cast<int>('d')]) {
+    if (_keys[static_cast<int>('D')]) {
         moveDir += _camera->right();
-    } else if (_keys[static_cast<int>('a')]) {
+    } else if (_keys[static_cast<int>('A')]) {
         moveDir += -_camera->right();
     }
 
     if (moveDir != Vector3(0)) {
-        _camera->setPosition(_camera->position() + normalize(moveDir) * dt * 7.0f);
+        _camera->setPosition(_camera->position() + normalize(moveDir) * dt * 6.0f);
         _camera->updateViewMatrix();
     }
 
@@ -245,13 +245,13 @@ void PBRApp::update(float dt) {
 
 void PBRApp::cleanup() {}
 
-void PBRApp::processKeyPress(unsigned char key, int x, int y) {
-    OpenGLApplication::processKeyPress(key, x, y);
+void PBRApp::processKeys(int key, int scancode, int action, int mods) {
+    OpenGLApplication::processKeys(key, scancode, action, mods);
 
-    if (key == 'h')
+    if (key == 'H' && _keys['H'])
         _showGUI = !_showGUI;
 
-    if (key == 'p')
+    if (key == 'P' && _keys['P'])
         takeSnapshot();
 }
 
@@ -271,11 +271,11 @@ void PBRApp::pickObject(int x, int y) {
     }
 }
 
-void PBRApp::processMouseClick(int button, int state, int x, int y) {
-    OpenGLApplication::processMouseClick(button, state, x, y);
+void PBRApp::processMouseClick(int button, int action, int mods) {
+    OpenGLApplication::processMouseClick(button, action, mods);
 
     if (_mouseBtns[MouseButton::MIDDLE])
-        pickObject(x, y);
+        pickObject(_mouseX, _mouseY);
 }
 
 void PBRApp::drawInterface() {
