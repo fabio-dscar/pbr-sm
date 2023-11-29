@@ -48,6 +48,7 @@ public:
     unsigned int minDim() const;
 
     bool isInfinite() const;
+    bool isZero() const;
 };
 
 PBR_SHARED std::istream& operator>>(std::istream& is, Vector3& v);

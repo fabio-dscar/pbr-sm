@@ -44,6 +44,8 @@ public:
 
     float min() const;
     float max() const;
+
+    bool isZero() const;
 };
 
 PBR_SHARED std::istream& operator>>(std::istream& is, Vector4& v);

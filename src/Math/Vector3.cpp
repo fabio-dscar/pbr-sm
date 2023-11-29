@@ -150,6 +150,10 @@ bool Vector3::isInfinite() const {
            std::abs(z) == FLOAT_INFINITY;
 }
 
+bool Vector3::isZero() const {
+    return x == 0 && y == 0 && z == 0;
+}
+
 std::istream& math::operator>>(std::istream& is, Vector3& v) {
     is >> v.x;
     is >> v.y;

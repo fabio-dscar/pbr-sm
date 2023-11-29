@@ -1,5 +1,7 @@
-#include "PBRMath.h"
 #include <PBRApp.h>
+
+#include <GLFW/glfw3.h>
+#include <PBRMath.h>
 
 #include <chrono>
 #include <format>
@@ -203,25 +205,25 @@ void PBRApp::restoreToneDefaults() {
 }
 
 void PBRApp::update(float dt) {
-    if (_mouseBtns[MouseButton::RIGHT]) {
+    if (isMousePressed(MouseButton::RIGHT)) {
         _camera->updateOrientation(_mouseDy * dt * 0.55f, _mouseDx * dt * 0.55f);
         _camera->updateViewMatrix();
     }
 
     Vector3 moveDir(0);
-    if (_keys[static_cast<int>('W')]) {
+    if (isKeyPressed('W')) {
         moveDir += -_camera->front();
-    } else if (_keys[static_cast<int>('S')]) {
+    } else if (isKeyPressed('S')) {
         moveDir += _camera->front();
     }
 
-    if (_keys[static_cast<int>('D')]) {
+    if (isKeyPressed('D')) {
         moveDir += _camera->right();
-    } else if (_keys[static_cast<int>('A')]) {
+    } else if (isKeyPressed('A')) {
         moveDir += -_camera->right();
     }
 
-    if (moveDir != Vector3(0)) {
+    if (!moveDir.isZero()) {
         _camera->setPosition(_camera->position() + normalize(moveDir) * dt * 6.0f);
         _camera->updateViewMatrix();
     }
@@ -248,10 +250,9 @@ void PBRApp::cleanup() {}
 void PBRApp::processKeys(int key, int scancode, int action, int mods) {
     OpenGLApplication::processKeys(key, scancode, action, mods);
 
-    if (key == 'H' && _keys['H'])
+    if (key == 'H' && action == GLFW_PRESS)
         _showGUI = !_showGUI;
-
-    if (key == 'P' && _keys['P'])
+    else if (key == 'P' && action == GLFW_PRESS)
         takeSnapshot();
 }
 
@@ -274,7 +275,7 @@ void PBRApp::pickObject(int x, int y) {
 void PBRApp::processMouseClick(int button, int action, int mods) {
     OpenGLApplication::processMouseClick(button, action, mods);
 
-    if (_mouseBtns[MouseButton::MIDDLE])
+    if (isMousePressed(MouseButton::MIDDLE))
         pickObject(_mouseX, _mouseY);
 }
 

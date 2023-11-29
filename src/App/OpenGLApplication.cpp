@@ -161,7 +161,7 @@ void OpenGLApplication::processMouseMotion(double x, double y) {
 }
 
 void OpenGLApplication::processKeys(int key, int scancode, int action, int mods) {
-    if (key > 254)
+    if (key >= 255)
         return;
 
     if (action == GLFW_PRESS || action == GLFW_REPEAT)

@@ -30,6 +30,14 @@ public:
     virtual void processMouseClick(int button, int action, int mods);
     virtual void processMouseMotion(double x, double y);
 
+    bool isMousePressed(MouseButton button) const {
+        return _mouseBtns[button];
+    }
+
+    bool isKeyPressed(int key) const {
+        return _keys[key];
+    }
+
 protected:
     std::string _title;
 
@@ -47,10 +55,7 @@ protected:
     double _mouseDx;
     double _mouseDy;
 
-    // Keyboard buttons state
     bool _keys[255];
-
-    // Mouse buttons state
     bool _mouseBtns[3];
 
 private:

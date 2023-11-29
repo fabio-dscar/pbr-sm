@@ -47,6 +47,8 @@ public:
     float max() const;
     unsigned int maxDim() const;
     unsigned int minDim() const;
+
+    bool isZero() const;
 };
 
 PBR_SHARED std::istream& operator>>(std::istream& is, Vector2& v);

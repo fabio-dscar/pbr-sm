@@ -115,6 +115,10 @@ unsigned int Vector2::minDim() const {
     return 1;
 }
 
+bool Vector2::isZero() const {
+    return x == 0 && y == 0;
+}
+
 std::istream& math::operator>>(std::istream& is, Vector2& v) {
     is >> v.x;
     is >> v.y;

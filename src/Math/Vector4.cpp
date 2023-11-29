@@ -121,6 +121,10 @@ float Vector4::max() const {
     return std::max(x, std::max(y, std::max(z, w)));
 }
 
+bool Vector4::isZero() const {
+    return x == 0 && y == 0 && z == 0 && w == 0;
+}
+
 std::istream& math::operator>>(std::istream& is, Vector4& v) {
     is >> v.x;
     is >> v.y;
