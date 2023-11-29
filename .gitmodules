@@ -1,9 +1,6 @@
 [submodule "ext/zlib"]
 	path = ext/zlib
 	url = https://github.com/madler/zlib
-[submodule "ext/freeglut"]
-	path = ext/freeglut
-	url = https://github.com/FreeGLUTProject/freeglut
 [submodule "ext/lodepng"]
 	path = ext/lodepng
 	url = https://github.com/lvandeve/lodepng
