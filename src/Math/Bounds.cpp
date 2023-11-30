@@ -5,9 +5,6 @@
 using namespace pbr;
 using namespace pbr::math;
 
-BBox3::BBox3(const Vec3& pt) : _min(pt), _max(pt) {}
-BBox3::BBox3(const Vec3& min, const Vec3& max) : _min(min), _max(max) {}
-
 const Vec3& BBox3::min() const {
     return _min;
 }
@@ -145,8 +142,6 @@ BBox3 math::transform(const Matrix4x4& mat, const BBox3& box) {
 
     return ret;
 }
-
-BSphere::BSphere(const Vec3& center, float radius) : _center(center), _radius(radius) {}
 
 const Vec3& BSphere::center() const {
     return _center;

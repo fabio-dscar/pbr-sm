@@ -57,6 +57,10 @@ public:
 
     float trace() const;
     float det() const;
+
+    const float* data() const {
+        return &m[0][0];
+    }
 };
 
 PBR_SHARED std::istream& operator>>(std::istream& is, Matrix4x4& mat);

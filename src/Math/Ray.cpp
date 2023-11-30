@@ -2,12 +2,6 @@
 
 using namespace pbr::math;
 
-Ray::Ray(const Vec3& origin, const Vec3& dir)
-    : _origin(origin), _dir(dir), _tMin(FLOAT_EPSILON), _tMax(FLOAT_INFINITY) {}
-
-Ray::Ray(const Vec3& origin, const Vec3& dir, float tMin, float tMax)
-    : _origin(origin), _dir(dir), _tMin(tMin), _tMax(tMax) {}
-
 const Vec3& Ray::origin() const {
     return _origin;
 }

@@ -1,13 +1,12 @@
 #ifndef __PBR_TRANSFORM_H__
 #define __PBR_TRANSFORM_H__
 
+#include "Matrix4x4.h"
 #include <PBR.h>
 #include <PBRMath.h>
 
 namespace pbr {
 namespace math {
-
-
 
 inline Matrix4x4 translation(const Vector3& tr) {
     Matrix4x4 ret;
@@ -73,6 +72,10 @@ inline Matrix4x4 rotationZ(float rads) {
     rotZ(1, 1) = cos;
 
     return rotZ;
+}
+
+inline Matrix4x4 transform(const Vector3& tr, const Vector3& s, const Matrix4x4& rot) {
+    return translation(tr) * rot * scale(s);
 }
 
 PBR_SHARED Matrix4x4 rotationAxis(float rads, const Vector3& axis);

@@ -1,16 +1,9 @@
 #include <Vector2.h>
-
-#include <cmath>
-#include <algorithm>
-
 #include <Vector3.h>
 
 using namespace pbr;
 using namespace pbr::math;
 
-Vector2::Vector2() : x(0), y(0) {}
-Vector2::Vector2(float scalar) : x(scalar), y(scalar) {}
-Vector2::Vector2(float x, float y) : x(x), y(y) {}
 Vector2::Vector2(const Vector3& v) : x(v.x), y(v.y) {}
 
 Vector2 Vector2::operator+(const Vector2& v) const {

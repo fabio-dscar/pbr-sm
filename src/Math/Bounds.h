@@ -12,8 +12,8 @@ class BSphere;
 class PBR_SHARED BBox3 {
 public:
     BBox3() = default;
-    BBox3(const Vec3& pt);
-    BBox3(const Vec3& min, const Vec3& max);
+    BBox3(const Vec3& pt) : _min(pt), _max(pt) {}
+    BBox3(const Vec3& min, const Vec3& max) : _min(min), _max(max) {}
 
     const Vec3& min() const;
     const Vec3& max() const;
@@ -50,7 +50,8 @@ PBR_SHARED BBox3 transform(const Matrix4x4& mat, const BBox3& box);
 
 class PBR_SHARED BSphere {
 public:
-    BSphere(const Vec3& center, float radius);
+    BSphere() = default;
+    BSphere(const Vec3& center, float radius) : _center(center), _radius(radius) {}
 
     const Vec3& center() const;
     float radius() const;

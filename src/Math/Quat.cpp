@@ -5,10 +5,6 @@
 using namespace pbr;
 using namespace pbr::math;
 
-Quat::Quat() : x(0), y(0), z(0), w(1) {}
-Quat::Quat(const Vector3& v, float w) : x(v.x), y(v.y), z(v.z), w(w) {}
-Quat::Quat(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
-
 Quat::Quat(const Matrix4x4& mat) {
     const Matrix3x3 m = Matrix3x3(mat);
 

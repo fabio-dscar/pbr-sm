@@ -2,20 +2,20 @@
 #define __PBR_QUAT_H__
 
 #include <PBR.h>
+#include <Vector3.h>
 
 namespace pbr {
 namespace math {
 
-class Vector3;
 class Matrix4x4;
 
 class PBR_SHARED Quat {
 public:
-    float x, y, z, w;
+    float x = 0, y = 0, z = 0, w = 1;
 
-    Quat();
-    Quat(const Vector3& v, float w);
-    Quat(float x, float y, float z, float w);
+    Quat() = default;
+    Quat(const Vector3& v, float w) : x(v.x), y(v.y), z(v.z), w(w) {}
+    Quat(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {};
     explicit Quat(const Matrix4x4& mat);
 
     Quat operator+(const Quat& q) const;

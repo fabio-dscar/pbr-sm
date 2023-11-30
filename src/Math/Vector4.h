@@ -10,11 +10,11 @@ class Vector3;
 
 class PBR_SHARED Vector4 {
 public:
-    float x, y, z, w;
+    float x = 0, y = 0, z = 0 , w = 1;
 
-    Vector4();
-    Vector4(float scalar);
-    Vector4(float x, float y, float z, float w);
+    Vector4() = default;
+    Vector4(float s) : x(s), y(s), z(s), w(1) {}
+    Vector4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
     Vector4(const Vector3& v, float w);
 
     Vector4 operator*(float scalar) const;

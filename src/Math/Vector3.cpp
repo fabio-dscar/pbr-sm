@@ -8,9 +8,6 @@
 using namespace pbr;
 using namespace pbr::math;
 
-Vector3::Vector3() : x(0), y(0), z(0) {}
-Vector3::Vector3(float scalar) : x(scalar), y(scalar), z(scalar) {}
-Vector3::Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
 Vector3::Vector3(const Vector4& v) : x(v.x), y(v.y), z(v.z) {
     if (v.w != 0) {
         x /= v.w;
