@@ -56,9 +56,17 @@ void Geometry::setVertices(const std::vector<Vertex>& vertices) {
     std::copy(vertices.begin(), vertices.end(), _vertices.begin());
 }
 
+void Geometry::setVertices(std::vector<Vertex>&& vertices) {
+    _vertices = std::move(vertices);
+}
+
 void Geometry::setIndices(const std::vector<uint32>& indices) {
     _indices.resize(indices.size());
     std::copy(indices.begin(), indices.end(), _indices.begin());
+}
+
+void Geometry::setIndices(std::vector<uint32>&& indices) {
+    _indices = std::move(indices);
 }
 
 BBox3 Geometry::bbox() const {
@@ -214,7 +222,7 @@ void Geometry::removeRedundantVerts() {
     std::cout << std::format("Faces: {} Verts: {}\n\n", other._indices.size() / 3,
                              other._vertices.size());
 
-    *this = std::move(other);
+    this->swap(other);
 }
 
 std::unique_ptr<Geometry> pbr::genUnitCube() {

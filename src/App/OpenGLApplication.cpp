@@ -1,6 +1,5 @@
 #include <OpenGLApplication.h>
 
-// #include <GL/glew.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -110,11 +109,9 @@ void OpenGLApplication::loop() {
     }
 
     glfwDestroyWindow(_window);
+    glfwTerminate();
 
     cleanup();
-
-    glfwTerminate();
-    exit(EXIT_SUCCESS);
 }
 
 void OpenGLApplication::setTitle(const std::string& title) {

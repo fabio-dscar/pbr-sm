@@ -23,6 +23,13 @@ struct Vertex {
 
 class PBR_SHARED Geometry {
 public:
+    void swap(Geometry& rhs) noexcept {
+        using std::swap;
+        swap(_id, rhs._id);
+        swap(_vertices, rhs._vertices);
+        swap(_indices, rhs._indices);
+    }
+
     RRID rrid() const;
     void setRRID(RRID id);
 
@@ -33,7 +40,10 @@ public:
     void addIndex(uint32 idx);
 
     void setVertices(const std::vector<Vertex>& vertices);
+    void setVertices(std::vector<Vertex>&& vertices);
+
     void setIndices(const std::vector<uint32>& indices);
+    void setIndices(std::vector<uint32>&& indices);
 
     uint32 getNumFaces() { return _indices.size() / 3; }
 
@@ -58,6 +68,10 @@ private:
     std::vector<uint32> _indices;
     std::vector<Vertex> _vertices;
 };
+
+inline void swap(Geometry& lhs, Geometry& rhs) noexcept {
+    lhs.swap(rhs);
+}
 
 PBR_SHARED std::unique_ptr<Geometry> genUnitSphere(uint32 widthSegments,
                                                    uint32 heightSegments);

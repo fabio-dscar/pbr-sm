@@ -10,7 +10,7 @@ using namespace pbr;
 
 Mesh::Mesh(const std::string& objPath) : Shape() {
     _geometry = std::make_shared<Geometry>();
-    
+
     ObjFile objFile;
     loadObj(objPath, objFile);
     fromObjFile(*_geometry, objFile);
@@ -36,10 +36,10 @@ void Mesh::draw() {
     assert(_material != nullptr);
 
     updateMatrix();
-    
+
     _material->use();
 
-    RHI.setMatrix4(MODEL_MATRIX,  objToWorld());
+    RHI.setMatrix4(MODEL_MATRIX, objToWorld());
     RHI.setMatrix3(NORMAL_MATRIX, normalMatrix());
 
     _material->uploadData();
