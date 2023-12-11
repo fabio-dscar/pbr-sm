@@ -11,8 +11,12 @@ ShaderSource::ShaderSource(ShaderType type, const std::string& filePath)
     : _name(filePath), _type(type) {
 
     std::string path = SHADER_PATH + filePath;
-    if (!Utils::readFile(path, std::ios_base::in, _source))
+    auto source = Utils::ReadTextFile(path, std::ios_base::in);
+    if (!source.has_value()) {
         std::cerr << path;
+    }
+
+    _source = source.value();
 
     if (!compile())
         std::cerr << "Couldn't compile shader: " << path;

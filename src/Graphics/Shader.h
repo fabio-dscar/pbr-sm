@@ -4,10 +4,7 @@
 #include <PBR.h>
 
 namespace pbr {
-
-template<class T>
-using vec = std::vector<T>;
-
+    
 enum ShaderType {
     VERTEX_SHADER = 0,
     FRAGMENT_SHADER = 1,

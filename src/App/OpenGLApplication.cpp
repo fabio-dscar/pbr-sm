@@ -53,7 +53,7 @@ void OpenGLApplication::init() {
 
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-    glfwWindowHint(GLFW_SAMPLES, 8);
+    glfwWindowHint(GLFW_SAMPLES, 4);
 
     _window = glfwCreateWindow(_width, _height, _title.c_str(), NULL, NULL);
     if (!_window) {

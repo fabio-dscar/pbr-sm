@@ -12,11 +12,11 @@ static const float Gamma = 2.2f;
 
 class PBR_SHARED RGBSpectrum {
 public:
-    float r, g, b;
+    float r = 0, g = 0, b = 0;
 
-    RGBSpectrum();
-    RGBSpectrum(float r, float g, float b);
-    explicit RGBSpectrum(float s);
+    RGBSpectrum() = default;
+    RGBSpectrum(float r, float g, float b) : r(r), g(g), b(b) {}
+    explicit RGBSpectrum(float s) : r(s), g(s), b(s) {}
     explicit RGBSpectrum(const Vec3& v);
 
     RGBSpectrum operator+(const RGBSpectrum& rgb) const;

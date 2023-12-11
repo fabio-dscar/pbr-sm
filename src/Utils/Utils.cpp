@@ -17,22 +17,23 @@ using namespace pbr;
 
 namespace fs = std::filesystem;
 
-bool Utils::readFile(const std::string& filePath, std::ios_base::openmode mode,
-                     std::string& str) {
-
+std::optional<std::string> Utils::ReadTextFile(const std::string& filePath,
+                                               std::ios_base::openmode mode) {
     std::ifstream file(filePath, mode);
     if (file.fail()) {
         perror(filePath.c_str());
-        return false;
+        return {};
     }
 
+    std::string contents;
     file.seekg(0, std::ios::end);
-    str.reserve((size_t)file.tellg());
+    contents.reserve(static_cast<std::size_t>(file.tellg()));
     file.seekg(0, std::ios::beg);
 
-    str.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    contents.assign((std::istreambuf_iterator<char>(file)),
+                    std::istreambuf_iterator<char>());
 
-    return true;
+    return contents;
 }
 
 void Utils::throwError(const std::string& error) {
