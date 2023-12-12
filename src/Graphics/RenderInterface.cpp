@@ -655,7 +655,6 @@ void RenderInterface::setBufferBlock(const std::string& name, uint32 binding) {
     GLuint id = _programs[_currProgram].id;
     GLint idx = glGetUniformBlockIndex(id, name.c_str());
     glUniformBlockBinding(id, idx, binding);
-    std::cout << "index: " << idx << " binding: " << binding << "\n";
 }
 
 int32 RenderInterface::uniformLocation(RRID id, const std::string& name) {
@@ -696,9 +695,6 @@ RRID RenderInterface::createTextureImmutable(const Image& img,
 
     RRID resId = _textures.size();
 
-    // std::cout << static_cast<uint32>(img.type()) << "\n";
-    // checkOpenGLError("Error Texture.");
-
     glGenTextures(1, &id);
     glBindTexture(target, id);
 
@@ -710,11 +706,6 @@ RRID RenderInterface::createTextureImmutable(const Image& img,
     uint32 width = img.width();
     uint32 height = img.height();
     uint32 depth = img.depth();
-
-    std::cout << std::dec;
-    std::cout << width << " " << height << "\n";
-    std::cout << std::hex;
-    std::cout << pType << " " << oglSizedFmt << " " << static_cast<int>(type) << "\n\n\n";
 
     // Create immutable texture storage
     using enum ImageType;

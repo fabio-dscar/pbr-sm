@@ -218,12 +218,24 @@ bool Image::savePNG(const std::string& filePath, uint32 lvl) const {
     return true;
 }
 
+struct ImgHeader {
+    char id[4] = {'I', 'M', 'G', ' '};
+    unsigned int fmt;
+    unsigned int width;
+    unsigned int height;
+    unsigned int depth;
+    unsigned int compSize;
+    unsigned int numChannels;
+    unsigned int totalSize;
+    unsigned int levels;
+};
+
 bool Image::loadIMG(const std::string& filePath) {
     std::ifstream file(filePath, std::ios::in | std::ios::binary);
 
     // Read header
-    IMGHeader header;
-    file.read((char*)&header, sizeof(IMGHeader));
+    ImgHeader header;
+    file.read((char*)&header, sizeof(ImgHeader));
 
     if (!(header.id[0] == 'I' && header.id[1] == 'M' && header.id[2] == 'G' &&
           header.id[3] == ' ')) {
@@ -231,8 +243,11 @@ bool Image::loadIMG(const std::string& filePath) {
         return false;
     }
 
-    init((ImageFormat)header.fmt, header.width, header.height, header.depth,
-         header.levels);
+    auto fmt = IMGFMT_RG16F;
+    if (header.compSize == 4)
+        fmt = IMGFMT_RG32F;
+
+    init(fmt, header.width, header.height, header.depth, header.levels);
 
     auto imgData = std::make_unique<uint8[]>(header.totalSize);
 
@@ -699,12 +714,23 @@ Image* Cubemap::face(CubemapFace face) {
     return &_faces[face];
 }
 
+struct CubeHeader {
+    char id[4] = {'C', 'U', 'B', 'E'};
+    unsigned int fmt;
+    unsigned int width;
+    unsigned int height;
+    unsigned int compSize;
+    unsigned int numChannels;
+    unsigned int totalSize;
+    unsigned int levels;
+};
+
 bool Cubemap::loadCUBE(const std::string& filePath) {
     std::ifstream file(filePath, std::ios::in | std::ios::binary);
 
     // Read header
-    CUBEHeader header;
-    file.read((char*)&header, sizeof(CUBEHeader));
+    CubeHeader header;
+    file.read((char*)&header, sizeof(CubeHeader));
 
     // Validate file signature
     if (!(header.id[0] == 'C' && header.id[1] == 'U' && header.id[2] == 'B' &&
@@ -716,7 +742,7 @@ bool Cubemap::loadCUBE(const std::string& filePath) {
     auto imgData = std::make_unique<uint8[]>(header.totalSize);
 
     // Check if file is compressed
-    if (header.totalSize != header.compSize) {
+    if (false && header.totalSize != header.compSize) {
         auto srcBuffer = std::make_unique<uint8[]>(header.compSize);
         file.read((char*)srcBuffer.get(), header.compSize);
         file.close();
@@ -734,8 +760,12 @@ bool Cubemap::loadCUBE(const std::string& filePath) {
         file.close();
     }
 
+    auto fmt = ImageFormat::IMGFMT_RGB32F;
+    if (header.compSize == 2)
+        fmt = ImageFormat::IMGFMT_RGB16F;
+
     // Initialize the image
-    init((ImageFormat)header.fmt, header.width, header.height, header.levels);
+    init(fmt, header.width, header.height, header.levels);
 
     uint8* ptr = imgData.get();
     for (uint32 f = 0; f < 6; ++f) {
