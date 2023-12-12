@@ -20,10 +20,18 @@ enum BufferIndices : uint32 {
     LIGHTS_BUFFER_IDX = 3
 };
 
+enum ToneMap : uint32 {
+    PARAMETRIC = 0,
+    ACES = 1,
+    ACES_BOOSTED = 2,
+    ACES_FAST = 3
+};
+
 // Buffer for shaders with renderer information
 struct alignas(256) RendererData {
     float gamma;
     float exposure;
+    int tonemap;
 
     // Tone curve control parameters
     float A, B, C, D, E, F, W;
@@ -54,6 +62,13 @@ public:
     float exposure() const;
     void setExposure(float exp);
 
+    ToneMap toneMap() const {
+        return _toneMap;
+    }
+    void setToneMap(ToneMap toneMap) {
+        _toneMap = toneMap;
+    }
+
     const float* toneParams() const;
     void setToneParams(std::span<float, 7> toneParams);
 
@@ -71,6 +86,7 @@ private:
 
     float _gamma = pbr::Gamma;
     float _exposure = 3.0f;
+    ToneMap _toneMap = PARAMETRIC;
     std::array<float, 7> _toneParams = {0.15f, 0.5f, 0.1f, 0.2f, 0.02f, 0.3f, 11.2f};
 
     bool _drawSkybox = true;
@@ -79,7 +95,6 @@ private:
     float _envIntensity = 1.0f;
 
     MultiBuffer _uniformBuffer{};
-    int _bufferFrame = 0;
 };
 
 } // namespace pbr

@@ -49,6 +49,7 @@ void Renderer::uploadUniformBuffer(const Scene& scene, const Camera& camera) {
     // Renderer
     ub->rd.gamma = _gamma;
     ub->rd.exposure = _exposure;
+    ub->rd.tonemap = _toneMap;
 
     ub->rd.A = _toneParams[0];
     ub->rd.B = _toneParams[1];

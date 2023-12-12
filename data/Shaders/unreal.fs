@@ -15,18 +15,6 @@ vsIn;
 /* ==============================================================================
         Uniforms
  ==============================================================================*/
-layout(std140, binding = 1) uniform rendererBlock {
-    float gamma;
-    float exposure;
-
-    // Tone map params
-    float A, B, C, D, E, J, W;
-
-    float envIntensity;
-    int perturbNormals;
-    int envLighting;
-};
-
 layout(std140, binding = 2) uniform cameraBlock {
     mat4 ViewMatrix;
     mat4 ProjMatrix;
@@ -229,7 +217,7 @@ vec3 ShadingLight(in ShadingContext sc) {
     float HdotV = clamp(dot(sc.H, sc.V), 0.0, 1.0);
     float NdotH = clamp(dot(sc.N, sc.H), 0.0, 1.0);
 
-    float D = distGGX2(NdotH, sc.a);
+    float D = distGGX(NdotH, sc.a);
     float V = visSmithGGX(sc.NdotL, sc.NdotV, sc.a);
     vec3 F = fresnSchlick(HdotV, sc.F0);
 
@@ -283,7 +271,7 @@ void main(void) {
     }
 
     vec3 Lsum = sc.Le + Lenv + Lrad;
-    Lsum = unchartedTonemapParam(Lsum, exposure, A, B, C, D, E, J, W);
+    Lsum = ToneMap(toneMapType, Lsum, exposure);
     Lsum = toInverseGamma(Lsum, gamma);
 
     outColor = vec4(Lsum, 1);

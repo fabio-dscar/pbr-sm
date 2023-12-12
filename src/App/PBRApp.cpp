@@ -1,3 +1,4 @@
+#include "Renderer.h"
 #include "imgui.h"
 #include <PBRApp.h>
 
@@ -310,6 +311,10 @@ void PBRApp::processMouseClick(int button, int action, int mods) {
         pickObject(_mouseX, _mouseY);
 }
 
+void PBRApp::changeToneMap(int id) {
+    _renderer.setToneMap(static_cast<ToneMap>(id));
+}
+
 void PBRApp::drawInterface() {
     ImGui_NewFrame(_mouseX, _mouseY, _mouseBtns);
 
@@ -329,6 +334,10 @@ void PBRApp::drawInterface() {
 
     ImGui::Begin("Tone Map");
 
+    if (ImGui::Combo("Tone Map", (int*)&_toneMap,
+                     "Parametric\0ACES\0ACES Boosted\0ACES Fast\0"))
+        changeToneMap(_toneMap);
+
     ImGui::TextWrapped(
         "Tone function parameters to control the shape of the tone curve.");
 
@@ -337,33 +346,35 @@ void PBRApp::drawInterface() {
 
     ImGui::Separator();
 
-    ImGui::SliderFloat("A", &_toneParams[0], 0.0f, 2.0f);
-    ImGui::SliderFloat("B", &_toneParams[1], 0.0f, 2.0f);
-    ImGui::SliderFloat("C", &_toneParams[2], 0.0f, 2.0f);
-    ImGui::SliderFloat("D", &_toneParams[3], 0.0f, 2.0f);
-    ImGui::SliderFloat("E", &_toneParams[4], 0.0f, 0.2f);
-    ImGui::SliderFloat("J", &_toneParams[5], 0.0f, 2.0f);
-    ImGui::SliderFloat("W", &_toneParams[6], 0.0f, 30.0f);
+    if (_renderer.toneMap() == ToneMap::PARAMETRIC) {
+        ImGui::SliderFloat("A", &_toneParams[0], 0.0f, 2.0f);
+        ImGui::SliderFloat("B", &_toneParams[1], 0.0f, 2.0f);
+        ImGui::SliderFloat("C", &_toneParams[2], 0.0f, 2.0f);
+        ImGui::SliderFloat("D", &_toneParams[3], 0.0f, 2.0f);
+        ImGui::SliderFloat("E", &_toneParams[4], 0.0f, 0.2f);
+        ImGui::SliderFloat("J", &_toneParams[5], 0.0f, 2.0f);
+        ImGui::SliderFloat("W", &_toneParams[6], 0.0f, 30.0f);
 
-    ImGui::Separator();
+        ImGui::Separator();
 
-    ImGui::PlotLines(
-        "Tone map curve",
-        [](void* data, int idx) {
-            float* p = (float*)data;
-            float v = 0.03f * (float)idx;
-            float scale = ((p[6] * (p[0] * p[6] + p[2] * p[1]) + p[3] * p[4]) /
-                           (p[6] * (p[0] * p[6] + p[1]) + p[3] * p[5])) -
-                          p[4] / p[5];
-            return (((v * (p[0] * v + p[2] * p[1]) + p[3] * p[4]) /
-                     (v * (p[0] * v + p[1]) + p[3] * p[5])) -
-                    p[4] / p[5]) /
-                   scale;
-        },
-        _toneParams, 100, 0, NULL, FLOAT_MAXIMUM, FLOAT_MAXIMUM, ImVec2(320, 120));
+        ImGui::PlotLines(
+            "Tone map curve",
+            [](void* data, int idx) {
+                float* p = (float*)data;
+                float v = 0.03f * (float)idx;
+                float scale = ((p[6] * (p[0] * p[6] + p[2] * p[1]) + p[3] * p[4]) /
+                               (p[6] * (p[0] * p[6] + p[1]) + p[3] * p[5])) -
+                              p[4] / p[5];
+                return (((v * (p[0] * v + p[2] * p[1]) + p[3] * p[4]) /
+                         (v * (p[0] * v + p[1]) + p[3] * p[5])) -
+                        p[4] / p[5]) /
+                       scale;
+            },
+            _toneParams, 100, 0, NULL, FLOAT_MAXIMUM, FLOAT_MAXIMUM, ImVec2(320, 120));
 
-    if (ImGui::Button("Restore defaults"))
-        restoreToneDefaults();
+        if (ImGui::Button("Restore defaults"))
+            restoreToneDefaults();
+    }
 
     ImGui::End();
 

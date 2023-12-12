@@ -35,6 +35,7 @@ private:
     void takeSnapshot();
     void pickObject(int x, int y);
     void initSkyboxes();
+    void changeToneMap(int id);
 
     Scene _scene;
     Renderer _renderer;
@@ -49,6 +50,7 @@ private:
     float _gamma;
     float _exposure;
     float _toneParams[7];
+    ToneMap _toneMap;
     float _metallic;
     float _roughness;
     float _f0;
