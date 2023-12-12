@@ -12,13 +12,13 @@
 using namespace pbr;
 
 PBRMaterial::PBRMaterial()
-    : Material(), _texHandles(9), _diffuse(1), _f0(0.04f), _metallic(1), _roughness(1) {
+    : Material(), _texHandles(9), _diffuse(1), _f0(0.5f), _metallic(1), _roughness(1) {
 
     init();
 }
 
 PBRMaterial::PBRMaterial(const Color& diff, float metallic, float roughness)
-    : Material(), _texHandles(9), _diffuse(diff), _f0(0.04f), _metallic(metallic),
+    : Material(), _texHandles(10), _diffuse(diff), _f0(0.5f), _metallic(metallic),
       _roughness(roughness) {
 
     init();
@@ -30,6 +30,7 @@ void PBRMaterial::init() {
 
     RRID nullTex = Resource.getTexture("null")->rrid();
     RRID whiteTex = Resource.getTexture("white")->rrid();
+    RRID planarTex = Resource.getTexture("planar")->rrid();
 
     _diffuseTex = whiteTex;
     _normalTex = nullTex;
@@ -37,11 +38,12 @@ void PBRMaterial::init() {
     _roughTex = whiteTex;
     _aoTex = whiteTex;
     _emissiveTex = nullTex;
+    _clearCoatNormTex = planarTex;
 }
 
 void PBRMaterial::prepare() {
     auto v = RHI.queryTexHandles({_diffuseTex, _normalTex, _metallicTex, _roughTex,
-                                  _aoTex, _emissiveTex, _brdfTex});
+                                  _aoTex, _emissiveTex, _clearCoatNormTex, _brdfTex});
 
     _texHandles[0] = v[0];
     _texHandles[1] = v[1];
@@ -49,24 +51,27 @@ void PBRMaterial::prepare() {
     _texHandles[3] = v[3];
     _texHandles[4] = v[4];
     _texHandles[5] = v[5];
-    _texHandles[8] = v[6];
+    _texHandles[6] = v[6];
+    _texHandles[9] = v[7];
 }
 
 void PBRMaterial::update(const Skybox& skybox) {
     _irradianceTex = skybox.irradianceTex();
     _ggxTex = skybox.ggxTex();
 
-    _texHandles[6] = RHI.queryTexHandle(_irradianceTex);
-    _texHandles[7] = RHI.queryTexHandle(_ggxTex);
+    _texHandles[7] = RHI.queryTexHandle(_irradianceTex);
+    _texHandles[8] = RHI.queryTexHandle(_ggxTex);
 }
 
 void PBRMaterial::uploadData() const {
     RHI.setVector3(DIFFUSE_VEC, Vec3(_diffuse.r, _diffuse.g, _diffuse.b));
-    RHI.setVector3(SPECULAR_VEC, Vec3(_f0.r, _f0.g, _f0.b));
+    RHI.setFloat(REFLECTIVITY_FLOAT, _f0);
     RHI.setFloat(METALLIC_FLOAT, _metallic);
     RHI.setFloat(ROUGHNESS_FLOAT, _roughness);
+    RHI.setFloat(CLEARCOAT_FLOAT, _clearCoat);
+    RHI.setFloat(CLEARCOAT_ROUGH_FLOAT, _clearCoatRough);
 
-    RHI.bindTextures(1, 9, _texHandles);
+    RHI.bindTextures(1, 10, _texHandles);
 }
 
 void PBRMaterial::setIrradianceTex(RRID id) {
@@ -93,7 +98,7 @@ void PBRMaterial::setNormal(RRID normalTex) {
     _normalTex = normalTex;
 }
 
-void PBRMaterial::setSpecular(const Color& spec) {
+void PBRMaterial::setReflectivity(float spec) {
     _f0 = spec;
 }
 
@@ -113,6 +118,13 @@ void PBRMaterial::setRoughness(float roughness) {
     _roughness = roughness;
 }
 
+void PBRMaterial::setClearCoat(float clearCoat) {
+    _clearCoat = clearCoat;
+}
+void PBRMaterial::setClearCoatRoughness(float roughness) {
+    _clearCoatRough = roughness;
+}
+
 void PBRMaterial::setOcclusion(RRID occlusionTex) {
     _aoTex = occlusionTex;
 }
@@ -129,8 +141,16 @@ float PBRMaterial::roughness() const {
     return _roughness;
 }
 
-Color PBRMaterial::specular() const {
+float PBRMaterial::reflectivity() const {
     return _f0;
+}
+
+float PBRMaterial::clearCoat() const {
+    return _clearCoat;
+}
+
+float PBRMaterial::clearCoatRough() const {
+    return _clearCoatRough;
 }
 
 Color PBRMaterial::diffuse() const {

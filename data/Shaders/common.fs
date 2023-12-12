@@ -1,6 +1,14 @@
-#version 450 core
-
 const float PI = 3.14159265358979;
+const float MaxSpecularLod = 8;
+const float ClearCoatF0 = 0.04;
+
+const int NUM_LIGHTS = 5;
+const int LIGHT_NONE = 0;
+const int LIGHT_POINT = 1;
+const int LIGHT_SPOT = 2;
+const int LIGHT_DIR = 3;
+const int LIGHT_SPHERE = 4;
+const int LIGHT_TUBE = 5;
 
 vec3 toLinearRGB(vec3 c, float gamma) { return pow(c, vec3(gamma)); }
 vec3 toInverseGamma(vec3 c, float gamma) { return pow(c, vec3(1.0 / gamma)); }
@@ -55,72 +63,36 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness) {
 float brdfLambert() { return 1.0 / PI; }
 
 /* ============================================================================
-        Microfacet Models
+        Microfacet Model
  ============================================================================*/
 
-// [Walter et al, 2007] - "Microfacet Models for Refraction through Rough
-// Surfaces"
-float distGGX(vec3 N, vec3 H, float roughness) {
-    float a = roughness * roughness;
-    float a2 = a * a;
-
-    float NdotH = max(dot(N, H), 0.0);
+float distGGX(float NdotH, float rough) {
+    float a2 = rough * rough;
     float NdotH2 = NdotH * NdotH;
-
-    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
-    denom = PI * denom * denom;
-
-    return a2 / (denom + 0.00001);
+    float denom = NdotH2 * (a2 - 1) + 1.0;
+    return a2 / (PI * denom * denom);
 }
 
-float distGGX_Sphere(vec3 N, vec3 H, float roughness, float dist, float radius) {
-    float a = roughness * roughness;
-    float a2 = a * a;
-    float ap = clamp(a + radius / (2 * dist), 0.0, 1.0);
-    float ap2 = ap * ap;
+float visSmithGGX(float NdotL, float NdotV, float rough) {
+    float a2 = rough * rough;
+    float NdotL2 = NdotL * NdotL;
+    float NdotV2 = NdotV * NdotV;
 
-    float NdotH = max(dot(N, H), 0.0);
-    float NdotH2 = NdotH * NdotH;
+    float geoL = NdotV * sqrt(NdotL2 * (1.0 - a2) + a2);
+    float geoV = NdotL * sqrt(NdotV2 * (1.0 - a2) + a2);
+    float geoSum = geoL + geoV;
 
-    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    if (geoSum > 0.0)
+        return 0.5 / geoSum;
 
-    return (a2 * ap2) / (denom * denom + 0.0000001);
+    return 0.0;
 }
 
-// [Walter et al. 2007, "Microfacet models for refraction through rough
-// surfaces"]
-float distBeckmann(float NdotH, float roughness) {
-    float a = roughness * roughness;
-    float a2 = a * a;
-
-    float NdotH2 = NdotH * NdotH;
-
-    return exp((NdotH2 - 1) / (a2 * NdotH2)) / (PI * a2 * NdotH2 * NdotH2);
+vec3 fresnSchlick(float HdotV, vec3 F0) {
+    float p = pow(1.0 - HdotV, 5.0);
+    return F0 * (1.0 - p) + p;
 }
 
-// Geometric attenuation for *analytic* light sources
-float geoGGX(float NdotV, float roughness) {
-    // Remap roughness like [Burley, 2012]
-    float r = (roughness + 1.0) / 2.0;
-    float k = (r * r) / 2.0;
-
-    return NdotV / (NdotV * (1.0 - k) + k);
-}
-
-// Geometric attenuation for environment map lighting
-float geoGGX_IBL(float NdotV, float roughness) {
-    float a = roughness;
-    float k = (a * a) / 2.0;
-
-    return NdotV / (NdotV * (1.0 - k) + k);
-}
-
-float geoSmith(vec3 N, vec3 V, vec3 L, float roughness) {
-    float NdotL = max(dot(N, L), 0.0);
-    float NdotV = max(dot(N, V), 0.0);
-
-    float GGX1 = geoGGX(NdotV, roughness);
-    float GGX2 = geoGGX(NdotL, roughness);
-
-    return GGX1 * GGX2;
+float fresnSchlick(float HdotV, float F0, float F90) {
+    return F0 + (F90 - F0) * pow(1.0 - HdotV, 5.0);
 }

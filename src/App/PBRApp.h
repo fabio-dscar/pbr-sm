@@ -40,7 +40,6 @@ private:
     Renderer _renderer;
     std::vector<Skybox> _skyboxes;
 
-    Color _f0;
     Color _diffuse;
 
     sref<Camera> _camera;
@@ -52,10 +51,13 @@ private:
     float _toneParams[7];
     float _metallic;
     float _roughness;
+    float _f0;
+    float _clearCoat;
+    float _clearCoatRough;
 
     int _fps = 0;
 
-    int _skybox = 1;
+    int _skybox = 0;
     bool _showGUI = true;
     bool _showSky = true;
     bool _perturbNormals = true;

@@ -1,3 +1,4 @@
+#include "imgui.h"
 #include <PBRApp.h>
 
 #include <GLFW/glfw3.h>
@@ -48,8 +49,11 @@ void initializeEngine() {
 }
 
 void PBRApp::initSkyboxes() {
-    std::vector<std::string> folders = {"Pinetree", "Ruins", "WalkOfFame",
-                                        "WinterForest"};
+    // std::vector<std::string> folders = {"Pinetree", "Ruins", "WalkOfFame",
+    //                                     "WinterForest"};
+    std::vector<std::string> folders = {"Aero", "Fireplace", "Photostudio", "Newport",
+                                        "Pillars"};
+
     for (const std::string& str : folders)
         _skyboxes.emplace_back("PBR/" + str);
 
@@ -81,6 +85,8 @@ void PBRApp::prepare() {
                                       Vec3(0, 1, 0), 0.1f, 500.0f, 60.0f);
     _scene.addCamera(_camera);
 
+    glShadeModel(GL_SMOOTH);
+
     /*sref<Shape> obj = Utils::loadSceneObject("sphere");
     obj->setPosition(Vec3(-20.0f, 0.0f, 0.0f));
     obj->_prog = -1;
@@ -96,15 +102,20 @@ void PBRApp::prepare() {
     prev->setPosition(Vec3(20.0f, 0.0f, 0.0f));
     _scene.addShape(prev);
 
-    sref<Shape> spec = Utils::loadSceneObject("specular");
-    spec->setScale(1.0f, 1.0f, 1.0f);
-    spec->setPosition(Vec3(-10.0f, 0.0f, 0.0f));
-    _scene.addShape(spec);
+    // sref<Shape> spec = Utils::loadSceneObject("specular");
+    // spec->setScale(1.0f, 1.0f, 1.0f);
+    // spec->setPosition(Vec3(-10.0f, 0.0f, 0.0f));
+    // _scene.addShape(spec);
 
     sref<Shape> rough = Utils::loadSceneObject("dmg_helmet");
     rough->setScale(1.0f, 1.0f, 1.0f);
     rough->setPosition(Vec3(10.0f, 0.0f, 0.0f));
     _scene.addShape(rough);
+
+    sref<Shape> spec = Utils::loadSceneObject("sphere");
+    spec->setScale(1.0f, 1.0f, 1.0f);
+    spec->setPosition(Vec3(-10.0f, 0.0f, 0.0f));
+    _scene.addShape(spec);
 
     /*sref<Shape> obj = std::make_shared<Sphere>(Vec3(-20.0f, 0.0f, 0.0f), 1.0f);
     sref<PBRMaterial> m = std::make_shared<PBRMaterial>(Color(1.0, 0.0, 0.0), 0.0f,
@@ -119,12 +130,12 @@ void PBRApp::prepare() {
     sref<Shape> obj = std::make_shared<Quad>();
     sref<PBRMaterial> m =
         std::make_shared<PBRMaterial>(Color(1.0, 0.0, 0.0), 0.0f, 0.20f);
-    // m->setNormal(static_cast<PBRMaterial*>(rough->material().get())->normalTex());
+    m->setNormal(static_cast<PBRMaterial*>(spec->material().get())->normalTex());
     obj->setMaterial(m);
     m->prepare();
     obj->prepare();
     obj->setScale(45.0f, 1.0f, 45.0f);
-    obj->setPosition({0.0f, -2.0f, 0.0f});
+    obj->setPosition({0.0f, -1.0f, 0.0f});
     _scene.addShape(obj);
 
     /*sref<Light> light = std::make_shared<PointLight>(Color(1.0f), 200.0f);
@@ -147,27 +158,39 @@ void PBRApp::prepare() {
     light5->setPosition(Vec3(24.0f, 6.0f, 0.0f));
     _scene.addLight(light5);*/
 
-    /*sref<Light> light5 =
-        std::make_shared<SphereLight>(Color(1.0f, 1.0f, 1.0f), 2.0f, 3.0f);
-    light5->setPosition({0.0f, 4.5f, 0.0f});
-    // light5->setOrientation(Quat(rotationX(radians(45))));
-    _scene.addLight(light5);*/
+    // sref<Light> light5 =
+    //     std::make_shared<SphereLight>(Color(1.0f, 1.0f, 1.0f), 4.0f, 1.5f);
+    // light5->setPosition({-10.0f, 4.5f, 0.0f});
+    // // light5->setOrientation(Quat(rotationX(radians(45))));
+    // _scene.addLight(light5);
 
-    sref<Light> light5 = std::make_shared<TubeLight>(Color(1.0f, 1.0f, 1.0f), 9.5f, 0.5f);
+    sref<Light> light5 =
+        std::make_shared<TubeLight>(Color(1.0f, 1.0f, 1.0f), 8.0f, 0.25f);
     light5->setPosition({-10.0f, 4.5f, 0.0f});
-    light5->setScale(7, 0, 0);
+    light5->setScale(6, 0, 0);
     light5->updateMatrix();
     // light5->setOrientation(Quat(rotationX(radians(45))));
     _scene.addLight(light5);
 
     /*sref<Light> light6 = std::make_shared<PointLight>(Color(1.0f, 1.0f, 1.0f), 1.6f);
     light6->setPosition({0.0f, 4.5f, 0.0f});
-    // light5->setOrientation(Quat(rotationX(radians(45))));
+    // light5->setOr    // sref<Light> spot = std::make_shared<SpotLight>(Color(1.0f),
+    250.0f);
+    // spot->setPosition({-10.0f, 4.0f, 0.0f});
+    // _scene.addLight(spot);ientation(Quat(rotationX(radians(45))));
     _scene.addLight(light6);*/
 
-    /*sref<Light> spot = std::make_shared<SpotLight>(Color(1.0f), 8.0f);
-    spot->setPosition({0.0f, 4.0f, 0.0f});
-    _scene.addLight(spot);*/
+    // sref<Light> spot = std::make_shared<SpotLight>(Color(1.0f), 250.0f);
+    // spot->setPosition({-10.0f, 4.0f, 0.0f});
+    // _scene.addLight(spot);
+
+    // sref<Light> dir = std::make_shared<DirectionalLight>(Color(1.0f), 10.0f);
+    // dir->setOrientation(Quat(rotationX(radians(45))));
+    // _scene.addLight(dir);
+
+    // sref<Light> pt = std::make_shared<PointLight>(Color(1.0f), 200.0f);
+    // pt->setPosition({-10, 4, 0});
+    // _scene.addLight(pt);
 
     std::cout << "[INFO] Assets finished loading..." << std::endl;
 
@@ -237,12 +260,20 @@ void PBRApp::update(float dt) {
     _renderer.setEnvIntensity(_envIntensity);
 
     _accum += dt;
-    sref<Light> l = *_scene.lights().begin();
+    /*sref<Light> l = *_scene.lights().begin();
     l->setOrientation(Quat(rotationY(2 * PI * _accum * 0.5f)));
     l->setPosition({std::cos(PI * _accum * 0.35f) * 20,
                     /*1.0f + std::sin(PI * _accum * 1.2f) * 2.0f, */
-                    3.5f, 3.0f});
+    // 3.5f, 3.0f});
+    /*l->updateMatrix();*/
+
+    sref<Light> l = *_scene.lights().begin();
+    l->setOrientation(Quat(rotationY(2 * PI * _accum * 0.65f)));
+    l->setPosition({std::cos(PI * _accum * 0.15f) * 20,
+                    /*1.0f + std::sin(PI * _accum * 1.2f) * 2.0f, */
+                    3.5, 0.0});
     l->updateMatrix();
+    /*l->updateMatrix();*/
 }
 
 void PBRApp::cleanup() {}
@@ -268,7 +299,7 @@ void PBRApp::pickObject(int x, int y) {
         _diffuse = pbrMat->diffuse();
         _metallic = pbrMat->metallic();
         _roughness = pbrMat->roughness();
-        _f0 = pbrMat->specular();
+        _f0 = pbrMat->reflectivity();
     }
 }
 
@@ -288,8 +319,11 @@ void PBRApp::drawInterface() {
     ImGui::Checkbox("Perturb Normals", &_perturbNormals);
     ImGui::Checkbox("Env Lighting", &_envLighting);
     ImGui::SliderFloat("Env Intensity", &_envIntensity, 0.0f, 1.0f);
+    // if (ImGui::Combo("Current Environment", &_skybox,
+    //                  "Pinetree\0Ruins\0Walk of Fame\0Winter Forest\0"))
+    //     changeSkybox(_skybox);
     if (ImGui::Combo("Current Environment", &_skybox,
-                     "Pinetree\0Ruins\0Walk of Fame\0Winter Forest\0"))
+                     "Aero\0Fireplace\0Photostudio\0Newport\0Pillars\0"))
         changeSkybox(_skybox);
     ImGui::End();
 
@@ -343,8 +377,8 @@ void PBRApp::drawInterface() {
             if (ImGui::ColorEdit3("Diffuse", (float*)&_diffuse))
                 _selMat->setDiffuse(_diffuse);
 
-        if (ImGui::ColorEdit3("Specular", (float*)&_f0))
-            _selMat->setSpecular(_f0);
+        if (ImGui::SliderFloat("Reflectivity", &_f0, 0.0f, 1.0f))
+            _selMat->setReflectivity(_f0);
 
         if (_selMat->metallicTex() == whiteTex)
             if (ImGui::SliderFloat("Metallic", &_metallic, 0.0f, 1.0f))
@@ -353,6 +387,12 @@ void PBRApp::drawInterface() {
         if (_selMat->roughTex() == whiteTex)
             if (ImGui::SliderFloat("Roughness", &_roughness, 0.0f, 1.0f))
                 _selMat->setRoughness(_roughness);
+
+        if (ImGui::SliderFloat("Clear Coat Roughness", &_clearCoatRough, 0.0f, 1.0f))
+            _selMat->setClearCoatRoughness(_clearCoatRough);
+
+        if (ImGui::SliderFloat("Clear Coat", &_clearCoat, 0.0f, 1.0f))
+            _selMat->setClearCoat(_clearCoat);
 
         ImGui::End();
     }

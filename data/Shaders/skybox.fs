@@ -1,11 +1,4 @@
-#version 450 core
-
-// Imports
-vec3 simpleToneMap(vec3 c, float exp);
-vec3 unchartedTonemap(vec3 c, float exp);
-vec3 unchartedTonemapParam(vec3 c, float exp, float A, float B, float C,
-                           float D, float E, float J, float W);
-vec3 toInverseGamma(vec3 c, float gamma);
+#include <common.fs>
 
 in vec3 worldPos;
 
@@ -13,7 +6,12 @@ layout(std140, binding = 1) uniform rendererBlock {
     float gamma;
     float exposure;
 
+    // Tone map params
     float A, B, C, D, E, J, W;
+
+    float envIntensity;
+    int perturbNormals;
+    int envLighting;
 };
 
 layout(location = 1) uniform samplerCube envMap;
@@ -21,7 +19,7 @@ layout(location = 1) uniform samplerCube envMap;
 out vec4 outColor;
 
 void main() {
-    vec3 envColor = textureLod(envMap, worldPos, 2.0).rgb;
+    vec3 envColor = textureLod(envMap, worldPos).rgb;
 
     envColor = unchartedTonemapParam(envColor, exposure, A, B, C, D, E, J, W);
     envColor = toInverseGamma(envColor, gamma);

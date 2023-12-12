@@ -16,10 +16,13 @@ enum PBRUniform {
     ROUGHNESS_MAP = 4,
     OCCLUSION_MAP = 5,
     EMISSIVE_MAP = 6,
-    DIFFUSE_VEC = 7,
-    METALLIC_FLOAT = 8,
-    ROUGHNESS_FLOAT = 9,
-    SPECULAR_VEC = 10,
+    CLEARCOAT_NORMAL_MAP = 7,
+    DIFFUSE_VEC = 8,
+    METALLIC_FLOAT = 9,
+    ROUGHNESS_FLOAT = 10,
+    REFLECTIVITY_FLOAT = 11,
+    CLEARCOAT_ROUGH_FLOAT = 12,
+    CLEARCOAT_FLOAT = 13,
 
     ENV_IRRADIANCE_MAP = 15,
     ENV_GGX_MAP = 16,
@@ -39,13 +42,16 @@ public:
     void setDiffuse(const Color& diffuse);
 
     void setNormal(RRID normalTex);
-    void setSpecular(const Color& spec);
+    void setReflectivity(float spec);
 
     void setMetallic(RRID metalTex);
     void setMetallic(float metallic);
 
     void setRoughness(RRID roughTex);
     void setRoughness(float roughness);
+
+    void setClearCoat(float clearCoat);
+    void setClearCoatRoughness(float roughness);
 
     void setOcclusion(RRID occlusionTex);
 
@@ -57,7 +63,9 @@ public:
 
     float metallic() const;
     float roughness() const;
-    Color specular() const;
+    float reflectivity() const;
+    float clearCoat() const;
+    float clearCoatRough() const;
     Color diffuse() const;
 
     RRID diffuseTex() const;
@@ -69,13 +77,14 @@ private:
     void init();
 
     std::vector<uint32> _texHandles;
-    
+
     RRID _diffuseTex;
     RRID _normalTex;
     RRID _metallicTex;
     RRID _roughTex;
     RRID _aoTex;
     RRID _emissiveTex;
+    RRID _clearCoatNormTex;
 
     // PBR maps
     RRID _irradianceTex;
@@ -83,9 +92,11 @@ private:
     RRID _ggxTex;
 
     Color _diffuse;
-    Color _f0;
+    float _f0 = 0.5f;
     float _metallic = 1;
     float _roughness = 1;
+    float _clearCoat = 0;
+    float _clearCoatRough = 0;
 };
 
 } // namespace pbr

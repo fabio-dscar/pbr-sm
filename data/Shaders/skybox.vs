@@ -1,5 +1,3 @@
-#version 450 core
-
 layout(location = 0) in vec3 Position;
 
 layout(std140, binding = 2) uniform cameraBlock {
