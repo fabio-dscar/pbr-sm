@@ -23,7 +23,7 @@ void Resources::addShape(const std::string& name, const sref<Shape>& shape) {
     _shapes[name] = shape;
 }
 
-void Resources::addShader(const std::string& name, const sref<Shader>& shader) {
+void Resources::addShader(const std::string& name, const sref<Program>& shader) {
     _shaders[name] = shader;
 }
 
@@ -71,7 +71,7 @@ bool Resources::deleteTexture(const std::string& name) {
     return false;
 }
 
-Shader* Resources::getShader(const std::string& name) {
+Program* Resources::getShader(const std::string& name) {
     return _shaders.at(name).get();
 }
 

@@ -13,7 +13,7 @@ namespace pbr {
 
     class Shape;
     class Geometry;
-    class Shader;
+    class Program;
     class Texture;
 
     template<class KT, class T> 
@@ -27,7 +27,7 @@ namespace pbr {
 
         void addGeometry(const std::string& name, const sref<Geometry>& geometry);
         void addShape   (const std::string& name, const sref<Shape>& shape);
-        void addShader  (const std::string& name, const sref<Shader>& shader);
+        void addShader  (const std::string& name, const sref<Program>& shader);
         void addTexture (const std::string& name, const sref<Texture>& texture);
 
         bool deleteGeometry(const std::string& name);
@@ -37,7 +37,7 @@ namespace pbr {
 
         Geometry* getGeometry(const std::string& name);
         Shape*    getShape   (const std::string& name);
-        Shader*   getShader  (const std::string& name);
+        Program*  getShader  (const std::string& name);
         Texture*  getTexture (const std::string& name);
 
         void cleanup();
@@ -47,7 +47,7 @@ namespace pbr {
 
         map<std::string, sref<Geometry>> _geometry;
         map<std::string, sref<Shape>>    _shapes;
-        map<std::string, sref<Shader>>   _shaders;
+        map<std::string, sref<Program>>  _shaders;
         map<std::string, sref<Texture>>  _textures;
     };
 

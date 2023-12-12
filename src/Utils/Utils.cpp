@@ -42,6 +42,11 @@ void Utils::throwError(const std::string& error) {
     exit(EXIT_FAILURE);
 }
 
+void Utils::ExitWithErrorMsg(const std::string& message) {
+    std::cerr << "[ERROR] " << message << "\n";
+    std::exit(EXIT_FAILURE);
+}
+
 std::unique_ptr<Shape> Utils::loadSceneObject(const std::string& folder) {
     fs::path objRoot{std::format("Objects/{}", folder)};
 
@@ -81,7 +86,7 @@ std::unique_ptr<Material> Utils::buildMaterial(const fs::path& objRoot,
     if (auto tex = map.getTexture("normal"))
         mat->setNormal(loadTexture(objRoot / tex.value()));
 
-    mat->setSpecular(map.getRGB("specular").value_or(Color{0.04f}));
+    mat->setReflectivity(map.getFloat("specular").value_or(0.5f));
 
     if (auto tex = map.getTexture("roughness"))
         mat->setRoughness(loadTexture(objRoot / tex.value()));
@@ -97,6 +102,9 @@ std::unique_ptr<Material> Utils::buildMaterial(const fs::path& objRoot,
         mat->setOcclusion(loadTexture(objRoot / tex.value()));
 
     if (auto tex = map.getTexture("emissive"))
+        mat->setEmissive(loadTexture(objRoot / tex.value()));
+
+    if (auto tex = map.getTexture("clearnormal"))
         mat->setEmissive(loadTexture(objRoot / tex.value()));
 
     return mat;

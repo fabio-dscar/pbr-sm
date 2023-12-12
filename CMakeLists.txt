@@ -109,5 +109,10 @@ target_link_libraries(pbr-sm PRIVATE
   ${ZLIB_LIBRARIES}
   glfw
 )
+
+add_custom_command(TARGET pbr-sm POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data/Shaders ${CMAKE_BINARY_DIR}/glsl
+)
+
 set(RELEASE_FLAGS "-march=native" "-mtune=native") # "-flto")
 target_compile_options(pbr-sm PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_FLAGS}>")

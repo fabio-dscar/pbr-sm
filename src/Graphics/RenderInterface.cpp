@@ -14,6 +14,7 @@
 #include <cstring>
 #include <cassert>
 
+#include <ios>
 #include <ranges>
 #include <format>
 
@@ -159,6 +160,7 @@ const GLenum OGLTexPixelTypes[] = {GL_UNSIGNED_BYTE,
                                    GL_UNSIGNED_INT,
                                    GL_INT,
                                    GL_FLOAT,
+                                   GL_HALF_FLOAT,
                                    GL_UNSIGNED_BYTE_3_3_2,
                                    GL_UNSIGNED_BYTE_2_3_3_REV,
                                    GL_UNSIGNED_SHORT_5_6_5,
@@ -183,6 +185,7 @@ const GLenum OGLTexWrapping[] = {GL_REPEAT, GL_MIRRORED_REPEAT, GL_CLAMP_TO_EDGE
                                  GL_CLAMP_TO_BORDER};
 
 using namespace pbr;
+using namespace std::literals;
 
 RenderInterface& RenderInterface::get() {
     static RenderInterface _inst;
@@ -194,18 +197,11 @@ void RenderInterface::initMainShaders() {
     _currProgram = 0;
 
     // PBR shader
-    ShaderSource fsCommon(FRAGMENT_SHADER, "common.fs");
-    ShaderSource vsUnreal(VERTEX_SHADER, "unreal.vs");
-    ShaderSource fsUnreal(FRAGMENT_SHADER, "unreal.fs");
+    auto pbrSources = std::vector{"unreal.vs"s, "unreal.fs"s};
+    auto pbrProg = CompileAndLinkProgram("pbr", pbrSources);
 
-    auto unrealProg = std::make_unique<Shader>("unreal");
-    unrealProg->addShader(vsUnreal);
-    unrealProg->addShader(fsUnreal);
-    unrealProg->addShader(fsCommon);
-    unrealProg->link();
-
-    // Set fixed uniforms
-    RHI.useProgram(unrealProg->id());
+    // Set fixed sampler uniforms
+    RHI.useProgram(pbrProg->id());
     using pbr::PBRUniform;
     RHI.setSampler(DIFFUSE_MAP, 1);
     RHI.setSampler(NORMAL_MAP, 2);
@@ -213,26 +209,17 @@ void RenderInterface::initMainShaders() {
     RHI.setSampler(ROUGHNESS_MAP, 4);
     RHI.setSampler(OCCLUSION_MAP, 5);
     RHI.setSampler(EMISSIVE_MAP, 6);
-    RHI.setSampler(ENV_IRRADIANCE_MAP, 7);
-    RHI.setSampler(ENV_GGX_MAP, 8);
-    RHI.setSampler(ENV_BRDF_MAP, 9);
+    RHI.setSampler(CLEARCOAT_NORMAL_MAP, 7);
+    RHI.setSampler(ENV_IRRADIANCE_MAP, 8);
+    RHI.setSampler(ENV_GGX_MAP, 9);
+    RHI.setSampler(ENV_BRDF_MAP, 10);
     RHI.useProgram(0);
 
-    Resource.addShader("unreal", std::move(unrealProg));
+    Resource.addShader("unreal", std::move(pbrProg));
 
-    // Set BRDF precomputation
-    glActiveTexture(GL_TEXTURE8);
-    RHI.bindTexture(Resource.getTexture("brdf")->rrid());
-
-    // Environment shader
-    ShaderSource vsSkybox(VERTEX_SHADER, "skybox.vs");
-    ShaderSource fsSkybox(FRAGMENT_SHADER, "skybox.fs");
-
-    auto skyProg = std::make_unique<Shader>("skybox");
-    skyProg->addShader(vsSkybox);
-    skyProg->addShader(fsSkybox);
-    skyProg->addShader(fsCommon);
-    skyProg->link();
+    // Skybox shader
+    auto skyBoxSources = std::vector{"skybox.vs"s, "skybox.fs"s};
+    auto skyProg = CompileAndLinkProgram("skybox", skyBoxSources);
 
     RHI.useProgram(skyProg->id());
     RHI.setSampler(ENV_MAP, 5);
@@ -268,6 +255,12 @@ void RenderInterface::initialize() {
     white.loadImage(ImageFormat::IMGFMT_RGB8, 1, 1, 1, whiteTex);
     RRID whiteId = createTextureImmutable(white, {});
     Resource.addTexture("white", RHI.getTexture(whiteId));
+
+    Image planar;
+    uint8 planarTex[3] = {127, 127, 255};
+    planar.loadImage(ImageFormat::IMGFMT_RGB8, 1, 1, 1, planarTex);
+    RRID planarId = createTextureImmutable(planar, {});
+    Resource.addTexture("planar", RHI.getTexture(planarId));
 
     // Load BRDF precomputation
     Image brdf;
@@ -488,7 +481,7 @@ bool RenderInterface::deleteBuffer(RRID id) {
     return false;
 }
 
-uint32 RenderInterface::compileShader(const ShaderSource& source) {
+/*uint32 RenderInterface::compileShader(const ShaderSource& source) {
     // Create shader id
     GLuint id = glCreateShader(OGLShaderTypes[source.type()]);
     if (id == 0)
@@ -533,7 +526,7 @@ bool RenderInterface::deleteShader(const ShaderSource& source) {
     return false;
 }
 
-RRID RenderInterface::linkProgram(const Shader& shader) {
+RRID RenderInterface::linkProgram(const Program& shader) {
     // Create program
     GLuint id = glCreateProgram();
     if (id == 0) {
@@ -591,10 +584,10 @@ std::string RenderInterface::getProgramError(int shader) {
     delete[] log;
 
     return strLog;
-}
+}*/
 
 void RenderInterface::useProgram(RRID id) {
-    glUseProgram(_programs[id].id);
+    glUseProgram(id);
     _currProgram = id;
 }
 
@@ -717,6 +710,11 @@ RRID RenderInterface::createTextureImmutable(const Image& img,
     uint32 width = img.width();
     uint32 height = img.height();
     uint32 depth = img.depth();
+
+    std::cout << std::dec;
+    std::cout << width << " " << height << "\n";
+    std::cout << std::hex;
+    std::cout << pType << " " << oglSizedFmt << " " << static_cast<int>(type) << "\n\n\n";
 
     // Create immutable texture storage
     using enum ImageType;

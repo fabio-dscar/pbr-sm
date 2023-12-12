@@ -1,58 +1,69 @@
 #ifndef __PBR_SHADER_H__
 #define __PBR_SHADER_H__
 
+#include <glad/glad.h>
 #include <PBR.h>
 
+#include <filesystem>
+#include <span>
+
 namespace pbr {
-    
+
 enum ShaderType {
-    VERTEX_SHADER = 0,
-    FRAGMENT_SHADER = 1,
-    GEOMETRY_SHADER = 2,
-    COMPUTE_SHADER = 3
+    VERTEX_SHADER = GL_VERTEX_SHADER,
+    FRAGMENT_SHADER = GL_FRAGMENT_SHADER,
+    GEOMETRY_SHADER = GL_GEOMETRY_SHADER,
+    COMPUTE_SHADER = GL_COMPUTE_SHADER
 };
+
+static const std::string VerDirective = "#version 450 core\n\n";
+static const std::filesystem::path ShaderFolder = "./glsl";
 
 class PBR_SHARED ShaderSource {
 public:
-    ShaderSource(ShaderType type, const std::string& filePath);
-    ~ShaderSource();
+    ShaderSource(const std::string& name, ShaderType type, const std::string& src)
+        : name(name), source({src}), type(type) {
+        handleIncludes();
+    }
 
     uint32 id() const;
-    ShaderType type() const;
 
-    const std::string& name() const;
-    const std::string& source() const;
-
-    bool compile();
+    void compile(const std::string& defines = VerDirective);
 
 private:
-    std::string _name;
-    std::string _source;
-    uint32 _id = 0;
-    ShaderType _type;
+    void handleIncludes();
+
+    std::string name;
+    std::string source;
+    uint32 handle = 0;
+    ShaderType type;
 };
 
-class PBR_SHARED Shader {
+class PBR_SHARED Program {
 public:
-    explicit Shader(const std::string& name);
+    explicit Program(const std::string& name) : name(name) {}
+    ~Program();
 
-    uint32 id() const;
-    void addShader(const ShaderSource& source);
+    void addShader(const ShaderSource& src);
+    uint32 id() const { return handle; }
     void link();
-
-    const std::string& name() const;
-    const std::vector<uint32>& shaders() const;
-
-    void registerUniform(const std::string& name);
-    void registerUniformBlock(const std::string& name);
+    void cleanShaders();
 
 private:
-    std::vector<uint32> _shaders;
-    std::vector<int32> _uniforms;
-    std::vector<uint32> _uniformBlocks;
-    std::string _name;
-    uint32 _id = 0;
+    std::vector<uint32> sourceHandles;
+    std::string name;
+    uint32 handle = 0;
 };
+
+ShaderSource LoadShaderFile(const std::string& filePath);
+ShaderSource LoadShaderFile(ShaderType type, const std::string& filePath);
+std::unique_ptr<Program> CompileAndLinkProgram(const std::string& name,
+                                               std::span<std::string> sourceNames,
+                                               std::span<std::string> definesList = {});
+
+std::string BuildDefinesBlock(std::span<std::string> defines);
+std::string GetShaderLog(unsigned int handle);
+std::string GetProgramError(unsigned int handle);
 
 } // namespace pbr
 

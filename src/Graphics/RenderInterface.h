@@ -19,7 +19,7 @@ namespace pbr {
 class Geometry;
 class TexSampler;
 class Texture;
-class Shader;
+class Program;
 class ShaderSource;
 
 template<class T>
@@ -117,7 +117,7 @@ public:
     =====================================================================================*/
     uint32 compileShader(const ShaderSource& source);
     bool deleteShader(const ShaderSource& source);
-    RRID linkProgram(const Shader& shader);
+    RRID linkProgram(const Program& shader);
     std::string getProgramError(int shader);
 
     void useProgram(RRID id);
