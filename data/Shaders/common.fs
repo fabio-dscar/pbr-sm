@@ -149,6 +149,10 @@ float visSmithGGX(float NdotL, float NdotV, float rough) {
     return 0.0;
 }
 
+float visKelemen(float HdotL) {
+    return 0.25 / (HdotL * HdotL);
+}
+
 vec3 fresnSchlick(float HdotV, vec3 F0) {
     float p = pow(1.0 - HdotV, 5.0);
     return F0 * (1.0 - p) + p;

@@ -197,8 +197,9 @@ void RenderInterface::initMainShaders() {
     _currProgram = 0;
 
     // PBR shader
-    auto pbrSources = std::vector{"unreal.vs"s, "unreal.fs"s};
-    auto pbrProg = CompileAndLinkProgram("pbr", pbrSources);
+    auto defines = std::vector{"MULTISCATTERING"s};
+    auto pbrSources = std::vector{"pbr.vs"s, "pbr.fs"s};
+    auto pbrProg = CompileAndLinkProgram("pbr", pbrSources, defines);
 
     // Set fixed sampler uniforms
     RHI.useProgram(pbrProg->id());
@@ -215,7 +216,7 @@ void RenderInterface::initMainShaders() {
     RHI.setSampler(ENV_BRDF_MAP, 10);
     RHI.useProgram(0);
 
-    Resource.addShader("unreal", std::move(pbrProg));
+    Resource.addShader("pbr", std::move(pbrProg));
 
     // Skybox shader
     auto skyBoxSources = std::vector{"skybox.vs"s, "skybox.fs"s};

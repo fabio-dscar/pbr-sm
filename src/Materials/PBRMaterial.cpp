@@ -25,7 +25,7 @@ PBRMaterial::PBRMaterial(const Color& diff, float metallic, float roughness)
 }
 
 void PBRMaterial::init() {
-    _prog = Resource.getShader("unreal")->id();
+    _prog = Resource.getShader("pbr")->id();
     _brdfTex = Resource.getTexture("brdf")->rrid();
 
     RRID nullTex = Resource.getTexture("null")->rrid();

@@ -169,8 +169,6 @@ void CalcLightAttrs(inout ShadingContext sc, in Light l) {
     }
 }
 
-#define MULTISCATTERING
-
 vec3 EnvironmentLighting(in ShadingContext sc) {
     if (envLighting == 0)
         return vec3(0);
@@ -193,8 +191,6 @@ vec3 EnvironmentLighting(in ShadingContext sc) {
     // -----------------------------------------------------------------
     //    Clearcoat
     // -----------------------------------------------------------------
-    float Fc = fresnSchlick(sc.NdotV, ClearCoatF0, 1.0) * clearCoat;
-
     prefGGX = textureLod(ggxTex, sc.R, clearCoatRough * MaxSpecularLod).rgb;
     brdf = texture(brdfTex, vec2(sc.NdotV, clearCoatRough)).rg;
 #ifdef MULTISCATTERING
@@ -205,17 +201,19 @@ vec3 EnvironmentLighting(in ShadingContext sc) {
     vec3 iblClearCoat = (ClearCoatF0 * brdf.r + brdf.g) * prefGGX;
 #endif
 
+    float Fc = fresnSchlick(sc.NdotV, ClearCoatF0, 1.0) * clearCoat;
+
     // Attenuate base layer and add clear coat's contribution
     iblDiffuse *= 1.0 - Fc;
-    iblSpecular *= (1.0 - Fc) * (1.0 - Fc);
-    iblSpecular += iblClearCoat * Fc;
+    iblSpecular *= 1.0 - Fc;
 
-    return (iblDiffuse + iblSpecular) * sc.ao;
+    return (iblDiffuse + iblSpecular) * sc.ao + iblClearCoat * clearCoat;
 }
 
 vec3 ShadingLight(in ShadingContext sc) {
     float HdotV = clamp(dot(sc.H, sc.V), 0.0, 1.0);
     float NdotH = clamp(dot(sc.N, sc.H), 0.0, 1.0);
+    float HdotL = clamp(dot(sc.H, sc.L), 0.0, 1.0);
 
     float D = distGGX(NdotH, sc.a);
     float V = visSmithGGX(sc.NdotL, sc.NdotV, sc.a);
@@ -223,10 +221,22 @@ vec3 ShadingLight(in ShadingContext sc) {
 
     vec3 specular = D * V * F;
     vec3 diff = (1 - sc.metal) * sc.kd / PI;
+    vec3 baseLayer = (1.0 - F) * diff + specular;
+
+    // -----------------------------------------------------------------
+    //    Clearcoat
+    // -----------------------------------------------------------------
+    float remapClearRough = clamp(clearCoatRough, 0.089, 1.0);
+    float clearCoatA = remapClearRough * remapClearRough;
+
+    float Dcc = distGGX(NdotH, clearCoatA);
+    float Vcc = visKelemen(HdotL);
+    float Fcc = fresnSchlick(HdotV, ClearCoatF0, 1.0) * clearCoat;
+    float clearCoatLayer = Dc * Vc * Fc * clearCoat;
 
     vec3 Li = sc.Li * sc.att;
 
-    return ((1.0 - F) * diff + specular) * Li * sc.NdotL;
+    return (baseLayer * (1.0 - Fcc) + clearCoatLayer) * Li * sc.NdotL;
 }
 
 void GetMaterial(inout ShadingContext sc) {
