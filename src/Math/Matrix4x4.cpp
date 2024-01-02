@@ -10,27 +10,27 @@ using namespace pbr;
 using namespace pbr::math;
 
 Matrix4x4::Matrix4x4()
-    : m11(1), m12(0), m13(0), m14(0), m21(0), m22(1), m23(0), m24(0), m31(0), m32(0),
-      m33(1), m34(0), m41(0), m42(0), m43(0), m44(1) {}
+    : m11(1), m21(0), m31(0), m41(0), m12(0), m22(1), m32(0), m42(0), m13(0), m23(0),
+      m33(1), m43(0), m14(0), m24(0), m34(0), m44(1) {}
 
 Matrix4x4::Matrix4x4(float s) : m{{s, s, s, s}, {s, s, s, s}, {s, s, s, s}, {s, s, s, s}} {}
 
 Matrix4x4::Matrix4x4(float m11, float m12, float m13, float m14, float m21, float m22,
                      float m23, float m24, float m31, float m32, float m33, float m34,
                      float m41, float m42, float m43, float m44)
-    : m11(m11), m12(m12), m13(m13), m14(m14), m21(m21), m22(m22), m23(m23), m24(m24),
-      m31(m31), m32(m32), m33(m33), m34(m34), m41(m41), m42(m42), m43(m43), m44(m44) {}
+    : m11(m11), m21(m21), m31(m31), m41(m41), m12(m12), m22(m22), m32(m32), m42(m42),
+      m13(m13), m23(m23), m33(m33), m43(m43), m14(m14), m24(m24), m34(m34), m44(m44) {}
 
 Matrix4x4::Matrix4x4(const Vector4& col0, const Vector4& col1, const Vector4& col2,
                      const Vector4& col3)
-    : m11(col0.x), m12(col1.x), m13(col2.x), m14(col3.x), m21(col0.y), m22(col1.y),
-      m23(col2.y), m24(col3.y), m31(col0.z), m32(col1.z), m33(col2.z), m34(col3.z),
-      m41(col0.w), m42(col1.w), m43(col2.w), m44(col3.w) {}
+    : m11(col0.x), m21(col0.y), m31(col0.z), m41(col0.w), m12(col1.x), m22(col1.y),
+      m32(col1.z), m42(col1.w), m13(col2.x), m23(col2.y), m33(col2.z), m43(col2.w),
+      m14(col3.x), m24(col3.y), m34(col3.z), m44(col3.w) {}
 
 Matrix4x4::Matrix4x4(const Matrix3x3& mat)
-    : m11(mat.m11), m12(mat.m12), m13(mat.m13), m14(0), m21(mat.m21), m22(mat.m22),
-      m23(mat.m23), m24(0), m31(mat.m31), m32(mat.m32), m33(mat.m33), m34(0), m41(0),
-      m42(0), m43(0), m44(1) {}
+    : m11(mat.m11), m21(mat.m21), m31(mat.m31), m41(0), m12(mat.m12), m22(mat.m22),
+      m32(mat.m32), m42(0), m13(mat.m13), m23(mat.m23), m33(mat.m33), m43(0), m14(0),
+      m24(0), m34(0), m44(1) {}
 
 Matrix4x4::Matrix4x4(const Quat& quat) {
     *this = quat.toMatrix();

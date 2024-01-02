@@ -9,20 +9,20 @@ using namespace pbr::math;
 Matrix3x3::Matrix3x3()
     : m11(1), m12(0), m13(0), m21(0), m22(1), m23(0), m31(0), m32(0), m33(1) {}
 
-Matrix3x3::Matrix3x3(float s) : m{s, s, s, s, s, s, s, s, s} {}
+Matrix3x3::Matrix3x3(float s) : m{{s, s, s}, {s, s, s}, {s, s, s}} {}
 
 Matrix3x3::Matrix3x3(float m11, float m12, float m13, float m21, float m22, float m23,
                      float m31, float m32, float m33)
-    : m11(m11), m12(m12), m13(m13), m21(m21), m22(m22), m23(m23), m31(m31), m32(m32),
+    : m11(m11), m21(m21), m31(m31), m12(m12), m22(m22), m32(m32), m13(m13), m23(m23),
       m33(m33) {}
 
 Matrix3x3::Matrix3x3(const Vector3& col0, const Vector3& col1, const Vector3& col2)
-    : m11(col0.x), m12(col1.x), m13(col2.x), m21(col0.y), m22(col1.y), m23(col2.y),
-      m31(col0.z), m32(col1.z), m33(col2.z) {}
+    : m11(col0.x), m21(col0.y), m31(col0.z), m12(col1.x), m22(col1.y), m32(col1.z),
+      m13(col2.x), m23(col2.y), m33(col2.z) {}
 
 Matrix3x3::Matrix3x3(const Matrix4x4& mat)
-    : m11(mat.m11), m12(mat.m12), m13(mat.m13), m21(mat.m21), m22(mat.m22), m23(mat.m23),
-      m31(mat.m31), m32(mat.m32), m33(mat.m33) {}
+    : m11(mat.m11), m21(mat.m21), m31(mat.m31), m12(mat.m12), m22(mat.m22), m32(mat.m32),
+      m13(mat.m13), m23(mat.m23), m33(mat.m33) {}
 
 Matrix3x3 Matrix3x3::operator*(float s) const {
     return {s * m11, s * m12, s * m13, 

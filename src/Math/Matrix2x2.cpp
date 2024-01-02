@@ -8,7 +8,7 @@ using namespace pbr::math;
 
 Matrix2x2::Matrix2x2() : m11(1), m21(0), m12(0), m22(1) {}
 
-Matrix2x2::Matrix2x2(float scalar) : m{scalar, scalar, scalar, scalar} {}
+Matrix2x2::Matrix2x2(float scalar) : m{{scalar, scalar}, {scalar, scalar}} {}
 
 Matrix2x2::Matrix2x2(float m11, float m12, float m21, float m22)
     : m11(m11), m21(m21), m12(m12), m22(m22) {}
