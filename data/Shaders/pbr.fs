@@ -1,8 +1,8 @@
 #include <common.fs>
 
-/* ==============================================================================
-        Stage Inputs
- ==============================================================================*/
+// -----------------------------------------------------------------------------
+//    Stage Inputs
+// -----------------------------------------------------------------------------
 // Everything in world coordinates
 in FragData {
     vec3 position;
@@ -12,9 +12,9 @@ in FragData {
 }
 vsIn;
 
-/* ==============================================================================
-        Uniforms
- ==============================================================================*/
+// -----------------------------------------------------------------------------
+//    Uniforms
+// -----------------------------------------------------------------------------
 layout(std140, binding = 2) uniform cameraBlock {
     mat4 ViewMatrix;
     mat4 ProjMatrix;
@@ -64,22 +64,6 @@ struct ShadingContext {
     float a, ao, att, specNorm, metal, rough, dist;
 };
 
-vec3 CalcNormalFragTBN(in sampler2D normalMap) {
-    vec3 normal = texture(normalMap, vsIn.texCoords).xyz * 2 - 1;
-
-    vec2 duvdx = dFdx(vsIn.texCoords);
-    vec2 duvdy = dFdy(vsIn.texCoords);
-    vec3 dpdx = dFdx(vsIn.position);
-    vec3 dpdy = dFdy(vsIn.position);
-
-    // Find tangent from derivates and build the TBN basis
-    vec3 N = normalize(vsIn.normal);
-    vec3 T = normalize(dpdx * duvdy.t - dpdy * duvdx.t);
-    vec3 B = -normalize(cross(N, T));
-
-    return normalize(mat3(T, B, N) * normal);
-}
-
 vec3 PerturbNormal(in sampler2D normalMap) {
     vec3 normal = texture(normalMap, vsIn.texCoords).rgb;
     normal = normal * 2.0 - 1.0;
@@ -89,11 +73,12 @@ vec3 PerturbNormal(in sampler2D normalMap) {
 // Closest point to sphere
 vec3 closestPtSphere(inout ShadingContext sc, float radius) {
     vec3 centerToRay = dot(sc.L, sc.R) * sc.R - sc.L;
-    vec3 closest = sc.L + centerToRay * clamp(radius / length(centerToRay), 0, 1);
+    vec3 closest = sc.L + centerToRay * clamp(radius / length(centerToRay), 0.0, 1.0);
     sc.dist = length(sc.L);
     return closest;
 }
 
+// [Karis, 2013] "Real Shading in Unreal Engine 4"
 vec3 closestPtTube(inout ShadingContext sc, in Light l, vec3 L) {
     vec3 L0 = L;
     vec3 L1 = l.auxB - vsIn.position;
@@ -113,7 +98,7 @@ vec3 closestPtTube(inout ShadingContext sc, in Light l, vec3 L) {
     vec3 centerToRay = dot(closest, sc.R) * sc.R - closest;
     closest = closest + centerToRay * clamp(l.auxA / length(centerToRay), 0, 1);
 
-    sc.NdotL = (2 * clamp(NdotL0 + NdotL1, 0, 1)) / (distL0 * distL1 + dot(L0, L1) + 2);
+    sc.NdotL = (2.0 * clamp(NdotL0 + NdotL1, 0.0, 1.0)) / (distL0 * distL1 + dot(L0, L1) + 2.0);
     sc.dist = length(closest);
 
     return closest;
@@ -163,10 +148,24 @@ void CalcLightAttrs(inout ShadingContext sc, in Light l) {
         case LIGHT_SPHERE:
         case LIGHT_TUBE:
             float radius = l.auxA;
-            float ap = clamp(sc.a + radius / (2 * sc.dist), 0, 1);
+            float ap = clamp(sc.a + radius / (2.0 * sc.dist), 0.0, 1.0);
             sc.specNorm = ap * ap * PI;
             break;
     }
+}
+
+vec3 EvalSpecularIBL(vec3 R, float NdotV, vec3 F0, float roughness) {
+    vec3 cubeConv = textureLod(ggxTex, R, roughness * MaxSpecularLod).rgb;
+    vec2 brdf = texture(brdfTex, vec2(NdotV, roughness)).rg;
+
+#ifdef MULTISCATTERING
+    vec3 iblSpecular = mix(brdf.xxx, brdf.yyy, F0) * cubeConv;
+    vec3 multiscattering = 1.0 + F0 * (1.0 / brdf.y - 1.0);
+    iblSpecular *= multiscattering;
+    return iblSpecular;
+#else
+    return (F0 * brdf.r + brdf.g) * cubeConv;
+#endif
 }
 
 vec3 EnvironmentLighting(in ShadingContext sc) {
@@ -176,67 +175,58 @@ vec3 EnvironmentLighting(in ShadingContext sc) {
     vec3 diffuseColor = (1.0 - sc.metal) * sc.kd;
     vec3 irradiance = texture(irradianceTex, sc.N).rgb;
 
-    vec3 prefGGX = textureLod(ggxTex, sc.R, sc.rough * MaxSpecularLod).rgb;
-    vec2 brdf = texture(brdfTex, vec2(sc.NdotV, sc.rough)).rg;
+    vec3 iblDiffuse = diffuseColor * irradiance * brdfLambert();
+    vec3 iblSpecular = EvalSpecularIBL(sc.R, sc.NdotV, sc.F0, sc.rough);
 
-    vec3 iblDiffuse = (1.0 / PI) * diffuseColor * irradiance;
-#ifdef MULTISCATTERING
-    vec3 iblSpecular = mix(brdf.xxx, brdf.yyy, sc.F0) * prefGGX;
-    vec3 multiscattering = 1.0 + sc.F0 * (1.0 / brdf.y - 1.0);
-    iblSpecular *= multiscattering;
-#else
-    vec3 iblSpecular = (sc.F0 * brdf.r + brdf.g) * prefGGX;
-#endif
-
-    // -----------------------------------------------------------------
+#ifdef HAS_CLEARCOAT
+    // ---------------------------------------------------------------------
     //    Clearcoat
-    // -----------------------------------------------------------------
-    prefGGX = textureLod(ggxTex, sc.R, clearCoatRough * MaxSpecularLod).rgb;
-    brdf = texture(brdfTex, vec2(sc.NdotV, clearCoatRough)).rg;
-#ifdef MULTISCATTERING
-    vec3 iblClearCoat = mix(brdf.xxx, brdf.yyy, ClearCoatF0) * prefGGX;
-    float ms = 1.0 + ClearCoatF0 * (1.0 / brdf.y - 1.0);
-    iblClearCoat *= ms;
-#else
-    vec3 iblClearCoat = (ClearCoatF0 * brdf.r + brdf.g) * prefGGX;
-#endif
+    // ---------------------------------------------------------------------
+    float Fcc = fresnSchlick(sc.NdotV, ClearCoatF0, 1.0) * clearCoat;
+    vec3 iblClearCoat = EvalSpecularIBL(sc.R, sc.NdotV, vec3(ClearCoatF0), clearCoatRough);
 
-    float Fc = fresnSchlick(sc.NdotV, ClearCoatF0, 1.0) * clearCoat;
-
-    // Attenuate base layer and add clear coat's contribution
-    iblDiffuse *= 1.0 - Fc;
-    iblSpecular *= 1.0 - Fc;
+    // Attenuate base layer
+    iblDiffuse *= 1.0 - Fcc;
+    iblSpecular *= 1.0 - Fcc;
 
     return (iblDiffuse + iblSpecular) * sc.ao + iblClearCoat * clearCoat;
+#else
+    return (iblDiffuse + iblSpecular) * sc.ao;
+#endif
 }
 
 vec3 ShadingLight(in ShadingContext sc) {
     float HdotV = clamp(dot(sc.H, sc.V), 0.0, 1.0);
     float NdotH = clamp(dot(sc.N, sc.H), 0.0, 1.0);
-    float HdotL = clamp(dot(sc.H, sc.L), 0.0, 1.0);
 
     float D = distGGX(NdotH, sc.a);
     float V = visSmithGGX(sc.NdotL, sc.NdotV, sc.a);
     vec3 F = fresnSchlick(HdotV, sc.F0);
 
     vec3 specular = D * V * F;
-    vec3 diff = (1 - sc.metal) * sc.kd / PI;
-    vec3 baseLayer = (1.0 - F) * diff + specular;
+    vec3 diffuse = (1.0 - sc.metal) * sc.kd * brdfLambert();
+    vec3 baseLayer = (1.0 - F) * diffuse + specular;
 
-    // -----------------------------------------------------------------
+    vec3 Li = sc.Li * sc.att;
+
+#ifdef HAS_CLEARCOAT
+    // ---------------------------------------------------------------------
     //    Clearcoat
-    // -----------------------------------------------------------------
+    // ---------------------------------------------------------------------
+    float HdotL = clamp(dot(sc.H, sc.L), 0.0, 1.0);
+
     float remapClearRough = clamp(clearCoatRough, 0.089, 1.0);
     float clearCoatA = remapClearRough * remapClearRough;
 
     float Dcc = distGGX(NdotH, clearCoatA);
     float Vcc = visKelemen(HdotL);
     float Fcc = fresnSchlick(HdotV, ClearCoatF0, 1.0) * clearCoat;
-    float clearCoatLayer = Dc * Vc * Fc * clearCoat;
-
-    vec3 Li = sc.Li * sc.att;
+    float clearCoatLayer = Dcc * Vcc * Fcc;
 
     return (baseLayer * (1.0 - Fcc) + clearCoatLayer) * Li * sc.NdotL;
+#else
+    return baseLayer * Li * sc.NdotL;
+#endif
 }
 
 void GetMaterial(inout ShadingContext sc) {
@@ -247,7 +237,10 @@ void GetMaterial(inout ShadingContext sc) {
     sc.ao = texture(aoTex, vsIn.texCoords).r;
     sc.a = sc.rough * sc.rough;
     sc.Le = toLinearRGB(texture(emissiveTex, vsIn.texCoords).rgb, gamma);
+
+#ifdef HAS_CLEARCOAT
     sc.clearCoatNormal = PerturbNormal(clearCoatNormTex);
+#endif
 
     // Map F0 to diffuse color for metals and maxmimum 0.04 for dielectrics
     sc.F0 = 0.16 * spec * spec * (1.0 - sc.metal) + sc.kd * sc.metal;
@@ -275,7 +268,7 @@ void main(void) {
         CalcLightAttrs(sc, l);
 
         if (l.type != LIGHT_TUBE)
-            sc.NdotL = max(dot(sc.N, sc.L), 0);
+            sc.NdotL = max(dot(sc.N, sc.L), 0.0);
 
         Lrad += ShadingLight(sc);
     }
