@@ -6,6 +6,60 @@
 
 namespace pbr {
 
+enum class BufferType : unsigned int { Array = 0, Element = 1, Uniform = 2 };
+enum class BufferFlag : unsigned int {
+    None = 0,
+    Dynamic = GL_DYNAMIC_STORAGE_BIT,
+    Read = GL_MAP_READ_BIT,
+    Write = GL_MAP_WRITE_BIT,
+    Persistent = GL_MAP_PERSISTENT_BIT,
+    Coherent = GL_MAP_COHERENT_BIT,
+    ClientStorage = GL_CLIENT_STORAGE_BIT
+};
+
+inline BufferFlag operator|(BufferFlag lhs, BufferFlag rhs) {
+    auto lflag = static_cast<unsigned int>(lhs);
+    auto rflag = static_cast<unsigned int>(rhs);
+    return static_cast<BufferFlag>(lflag | rflag);
+}
+
+inline bool HasFlag(BufferFlag lhs, BufferFlag rhs) {
+    auto lflag = static_cast<unsigned int>(lhs);
+    auto rflag = static_cast<unsigned int>(rhs);
+    return lflag & rflag;
+}
+
+// In nanoseconds
+static constexpr unsigned long FenceTimeout = 1.0 / 30.0 * 1e9;
+
+class Buffer {
+public:
+    Buffer() = default;
+    Buffer(BufferType type, std::size_t size, BufferFlag flags = BufferFlag::None,
+           void* data = nullptr);
+    ~Buffer();
+
+    void create(BufferType type, std::size_t size, BufferFlag flags, void* data);
+    void bindRange(unsigned int index, std::size_t offset, std::size_t size) const;
+
+    template<typename T>
+    T* get(std::size_t offset = 0) const {
+        return reinterpret_cast<T*>(ptr + offset);
+    }
+
+protected:
+    unsigned int target = 0;
+    unsigned int handle = 0;
+
+private:
+    std::byte* ptr = nullptr;
+    std::size_t size = 0;
+    BufferFlag flags = BufferFlag::None;
+};
+
+// --------------------------------------------------------------------------------------
+//      Synchronized Buffer
+// --------------------------------------------------------------------------------------
 struct BufferRangeLock {
     GLsync lock = 0;
     std::size_t start = 0;
@@ -16,40 +70,17 @@ struct BufferRangeLock {
     }
 };
 
-enum class EBufferType : uint32 { ARRAY = 0, ELEMENT = 1, UNIFORM = 2 };
-
-// In nanoseconds
-static constexpr uint64 FenceTimeout = 1.0 / 30.0 * 1e9;
-
-class Buffer {
+class SyncedBuffer : public Buffer {
 public:
-    Buffer() = default;
-    Buffer(EBufferType type, std::size_t size, uint32 flags, void* data = nullptr);
-    ~Buffer();
-
-    void create(EBufferType type, std::size_t size, uint32 flags, void* data);
-
-    void bindRange(uint32 index, std::size_t offset, std::size_t size);
+    SyncedBuffer() = default;
 
     void waitRange(std::size_t start, std::size_t size);
     void lockRange(std::size_t start, std::size_t size);
-
-    template<typename T>
-    T* get(std::size_t offset = 0) const {
-        return reinterpret_cast<T*>(ptr + offset);
-    }
-
-protected:
-    uint32 target = 0;
-    uint32 handle = 0;
 
 private:
     void wait(GLsync* pSync);
 
     std::vector<BufferRangeLock> locks;
-    std::byte* ptr = nullptr;
-    std::size_t size = 0;
-    uint32 flags = 0;
 };
 
 } // namespace pbr

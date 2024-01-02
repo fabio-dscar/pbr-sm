@@ -1,4 +1,3 @@
-#include "glad/glad.h"
 #include <Buffer.h>
 
 using namespace pbr;
@@ -6,35 +5,44 @@ using namespace pbr;
 const GLenum OGLBufferTarget[] = {GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER,
                                   GL_UNIFORM_BUFFER};
 
-Buffer::Buffer(EBufferType type, std::size_t size, uint32 flags, void* data) {
+Buffer::Buffer(BufferType type, std::size_t size, BufferFlag flags, void* data) {
     create(type, size, flags, data);
 }
 
 Buffer::~Buffer() {
-    if (flags & GL_MAP_PERSISTENT_BIT)
-        glUnmapNamedBuffer(handle);
+    if (handle != 0) {
+        if (HasFlag(flags, BufferFlag::Persistent))
+            glUnmapNamedBuffer(handle);
 
-    glDeleteBuffers(1, &handle);
+        glDeleteBuffers(1, &handle);
+    }
 }
 
-void Buffer::create(EBufferType type, std::size_t pSize, uint32 pFlags, void* data) {
-    target = OGLBufferTarget[static_cast<uint32>(type)];
+void Buffer::create(BufferType type, std::size_t pSize, BufferFlag pFlags, void* data) {
+    target = OGLBufferTarget[static_cast<unsigned int>(type)];
     flags = pFlags;
     size = pSize;
     glCreateBuffers(1, &handle);
-    glNamedBufferStorage(handle, size, data, flags);
+    glNamedBufferStorage(handle, size, data, static_cast<GLbitfield>(flags));
 
-    if (flags & GL_MAP_PERSISTENT_BIT)
-        ptr = reinterpret_cast<std::byte*>(glMapNamedBufferRange(handle, 0, size, flags));
+    if (HasFlag(flags, BufferFlag::Persistent))
+        ptr = reinterpret_cast<std::byte*>(
+            glMapNamedBufferRange(handle, 0, size, static_cast<GLbitfield>(flags)));
 }
 
-void Buffer::wait(GLsync* pSync) {
+void Buffer::bindRange(unsigned int index, std::size_t offset, std::size_t bSize) const {
+    glBindBufferRange(target, index, handle, offset, bSize);
+}
+
+void SyncedBuffer::wait(GLsync* pSync) {
     GLenum res = glClientWaitSync(*pSync, 0, FenceTimeout);
     if (res == GL_ALREADY_SIGNALED || res == GL_CONDITION_SATISFIED)
         glDeleteSync(*pSync);
+    else
+        LOGD("Fence timeout expired.");
 }
 
-void Buffer::waitRange(std::size_t start, std::size_t pSize) {
+void SyncedBuffer::waitRange(std::size_t start, std::size_t pSize) {
     std::vector<BufferRangeLock> swapLocks;
     for (auto it = locks.begin(); it != locks.end(); ++it) {
         if (it->overlaps(start, pSize)) {
@@ -46,11 +54,7 @@ void Buffer::waitRange(std::size_t start, std::size_t pSize) {
     locks.swap(swapLocks);
 }
 
-void Buffer::lockRange(std::size_t start, std::size_t pSize) {
+void SyncedBuffer::lockRange(std::size_t start, std::size_t pSize) {
     GLsync syncName = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
     locks.emplace_back(syncName, start, pSize);
-}
-
-void Buffer::bindRange(uint32 index, std::size_t offset, std::size_t bSize) {
-    glBindBufferRange(target, index, handle, offset, bSize);
 }
