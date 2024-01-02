@@ -1,7 +1,8 @@
 cmake_minimum_required (VERSION 3.20)
 
-#########################################
-## zlib
+# ---------------------------------------------------------------------------------------
+#     zlib
+# ---------------------------------------------------------------------------------------
 find_package(ZLIB)
 if(NOT ZLIB_FOUND)
     set(ZLIB_BUILD_STATIC_LIBS ON CACHE BOOL " " FORCE)
@@ -21,8 +22,9 @@ endif()
 set(ZLIB_INCLUDE_DIRS ${ZLIB_INCLUDE_DIRS} PARENT_SCOPE)
 set(ZLIB_LIBRARIES ${ZLIB_LIBRARIES} PARENT_SCOPE)
 
-#########################################
-## glad
+# ---------------------------------------------------------------------------------------
+#     glad
+# ---------------------------------------------------------------------------------------
 set(GLAD_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/glad/include PARENT_SCOPE)
 add_library(glad STATIC ${CMAKE_CURRENT_SOURCE_DIR}/glad/src/glad.c)
 
@@ -30,12 +32,14 @@ target_include_directories(glad PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/glad/include
 
 set_property(TARGET glad PROPERTY FOLDER "ext")
 
-#########################################
-## tinyobj
+# ---------------------------------------------------------------------------------------
+#     tinyobj
+# ---------------------------------------------------------------------------------------
 set(TINYOBJ_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/tinyobj PARENT_SCOPE)
 
-#########################################
-## Imgui
+# ---------------------------------------------------------------------------------------
+#     Imgui
+# ---------------------------------------------------------------------------------------
 set(IMGUI_SOURCES 
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui_draw.cpp
@@ -52,8 +56,9 @@ set(TINYGLTF_HEADER_ONLY ON CACHE BOOL " " FORCE)
 
 add_subdirectory(tinygltf)
 
-#########################################
-## glfw
+# ---------------------------------------------------------------------------------------
+#     glfw
+# ---------------------------------------------------------------------------------------
 set(BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL " " FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL " " FORCE)
@@ -64,3 +69,21 @@ add_subdirectory(glfw)
 
 set(GLFW_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/glfw/include PARENT_SCOPE)
 set_property(TARGET glfw PROPERTY FOLDER "ext")
+
+# ---------------------------------------------------------------------------------------
+#     spdlog
+# ---------------------------------------------------------------------------------------
+set(SPDLOG_USE_STD_FORMAT ON CACHE BOOL " " FORCE)
+
+add_subdirectory(spdlog)
+
+set(SPDLOG_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/spdlog/include PARENT_SCOPE)
+set_property(TARGET spdlog PROPERTY FOLDER "ext")
+
+# ---------------------------------------------------------------------------------------
+#     backward-cpp
+# ---------------------------------------------------------------------------------------
+add_subdirectory(backward-cpp)
+
+set(BACKWARD_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/backward-cpp PARENT_SCOPE)
+set_property(TARGET spdlog PROPERTY FOLDER "ext")

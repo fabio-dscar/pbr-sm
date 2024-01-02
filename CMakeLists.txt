@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.20)
 
 project(pbr-sm VERSION 0.1 LANGUAGES CXX C)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to 'Release' as none was specified.")
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
@@ -70,6 +67,7 @@ set(RT_PBR_SOURCES
   src/Utils/LoadXML.cpp
   src/Utils/ParameterMap.cpp
   src/Utils/Utils.cpp
+  src/Utils/Log.cpp
 
   src/Loaders/ObjLoader.cpp
   src/Loaders/GltfLoader.cpp
@@ -81,6 +79,8 @@ set(RT_PBR_SOURCES
 )
 
 add_executable(pbr-sm src/main.cpp ${RT_PBR_SOURCES})
+target_compile_features(pbr-sm PUBLIC cxx_std_20)
+target_compile_definitions(pbr-sm PUBLIC "$<$<CONFIG:Debug>:DEBUG>")
 target_include_directories(pbr-sm PUBLIC
   src
   src/App
@@ -102,12 +102,16 @@ target_include_directories(pbr-sm PUBLIC
   ${ZLIB_INCLUDE_DIRS}
   ${GLAD_INCLUDE}
   ${GLFW_INCLUDE_DIRS}
+  ${SPDLOG_INCLUDE_DIRS}
+  ${BACKWARD_INCLUDE_DIRS}
 )
 target_link_libraries(pbr-sm PRIVATE
   OpenGL::GL
   glad
-  ${ZLIB_LIBRARIES}
   glfw
+  Backward::Interface
+  spdlog
+  ${ZLIB_LIBRARIES}
 )
 
 add_custom_command(TARGET pbr-sm POST_BUILD
