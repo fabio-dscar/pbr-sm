@@ -7,6 +7,8 @@
 #include <filesystem>
 #include <span>
 
+namespace fs = std::filesystem;
+
 namespace pbr {
 
 enum ShaderType {
@@ -16,8 +18,8 @@ enum ShaderType {
     COMPUTE_SHADER = GL_COMPUTE_SHADER
 };
 
-static const std::string VerDirective = "#version 450 core\n\n";
-static const std::filesystem::path ShaderFolder = "./glsl";
+static const std::string DefaultVer = "450 core\n\n";
+static const fs::path ShaderFolder = "./glsl";
 
 class PBR_SHARED ShaderSource {
 public:
@@ -26,16 +28,21 @@ public:
         handleIncludes();
     }
 
-    uint32 id() const;
+    void setVersion(const std::string& ver);
+    void include(const std::string& source);
 
-    void compile(const std::string& defines = VerDirective);
+    unsigned int id() const;
+    void compile(const std::string& defines = "");
 
 private:
+    std::string getVersion();
+    bool hasVersionDir();
+
     void handleIncludes();
 
     std::string name;
     std::string source;
-    uint32 handle = 0;
+    unsigned int handle = 0;
     ShaderType type;
 };
 
@@ -45,18 +52,19 @@ public:
     ~Program();
 
     void addShader(const ShaderSource& src);
-    uint32 id() const { return handle; }
+    unsigned int id() const { return handle; }
     void link();
     void cleanShaders();
 
 private:
-    std::vector<uint32> sourceHandles;
+    std::vector<unsigned int> sourceHandles;
     std::string name;
-    uint32 handle = 0;
+    unsigned int handle = 0;
 };
 
-ShaderSource LoadShaderFile(const std::string& filePath);
-ShaderSource LoadShaderFile(ShaderType type, const std::string& filePath);
+ShaderSource LoadShaderFile(const fs::path& filePath);
+ShaderSource LoadShaderFile(ShaderType type, const fs::path& filePath);
+
 std::unique_ptr<Program> CompileAndLinkProgram(const std::string& name,
                                                std::span<std::string> sourceNames,
                                                std::span<std::string> definesList = {});

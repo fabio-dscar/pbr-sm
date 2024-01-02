@@ -19,6 +19,9 @@
 #include <vector>
 #include <iomanip>
 #include <cassert>
+#include <format>
+
+#include <Check.h>
 
 #if defined(_MSC_VER)
 #define PBR_MSVC
@@ -50,6 +53,17 @@
 #else
 #define PBR_SHARED
 #endif
+
+#if defined(DEBUG)
+#define THROW_ERROR(...)                                                                 \
+    throw std::runtime_error(std::format("{} ({}): {}", std::string(__FILE__),           \
+                                         std::to_string(__LINE__),                       \
+                                         std::format(__VA_ARGS__)))
+#else
+#define THROW_ERROR(...) throw std::runtime_error(std::format(__VA_ARGS__))
+#endif
+
+#define THROW(...) THROW_ERROR(__VA_ARGS__)
 
 namespace pbr {
 

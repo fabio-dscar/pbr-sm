@@ -37,6 +37,7 @@ set(RT_PBR_SOURCES
   src/Graphics/Renderer.cpp
   src/Graphics/RenderInterface.cpp
   src/Graphics/Buffer.cpp
+  src/Graphics/RingBuffer.cpp
   src/Graphics/Shader.cpp
 
   src/GUI/GUI.cpp
