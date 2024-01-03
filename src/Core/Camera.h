@@ -57,6 +57,8 @@ protected:
     float _yaw;
 };
 
+std::unique_ptr<Camera> CreateCamera(const ParameterMap& params);
+
 } // namespace pbr
 
 #endif

@@ -1,18 +1,21 @@
 #include <Camera.h>
 
+#include <PBRMath.h>
+#include <Perspective.h>
 #include <Transform.h>
+#include <SceneLoader.h>
 
 using namespace pbr;
 
-Camera::Camera(int32 width, int32 height, const Vec3& eye,
-               const Vec3& at, const Vec3& up, float n, float f) 
+Camera::Camera(int32 width, int32 height, const Vec3& eye, const Vec3& at, const Vec3& up,
+               float n, float f)
     : _width(width), _height(height), _far(f), _near(n) {
-    
+
     lookAt(eye, at, up);
 
     Vector3 viewDir = normalize(at - eye);
     _pitch = asinf(-viewDir.y);
-    _yaw   = atan2f(viewDir.x, -viewDir.z);
+    _yaw = atan2f(viewDir.x, -viewDir.z);
 }
 
 int32 Camera::width() const {
@@ -36,29 +39,26 @@ float Camera::far() const {
 }
 
 Vec3 Camera::right() const {
-    return Vec3(_objToWorld.m11,
-                _objToWorld.m12,
-                _objToWorld.m13);
+    return Vec3(_objToWorld.m11, _objToWorld.m12, _objToWorld.m13);
 }
 
 Vec3 Camera::front() const {
-    return Vec3(_objToWorld.m31, 
-                _objToWorld.m32, 
-                _objToWorld.m33);
+    return Vec3(_objToWorld.m31, _objToWorld.m32, _objToWorld.m33);
 }
 
 Vec3 Camera::up() const {
-    return Vec3(_objToWorld.m21,
-                _objToWorld.m22,
-                _objToWorld.m23);
+    return Vec3(_objToWorld.m21, _objToWorld.m22, _objToWorld.m23);
 }
 
 void Camera::lookAt(const Vec3& eye, const Vec3& at, const Vec3& up) {
-    _position    = eye;
-    _objToWorld  = math::lookAt(eye, at, up);
+    _position = eye;
+    _objToWorld = math::lookAt(eye, at, up);
 
     Mat4 matOrient = _objToWorld;
-    matOrient.m14 = 0; matOrient.m24 = 0; matOrient.m34 = 0; matOrient.m44 = 1;
+    matOrient.m14 = 0;
+    matOrient.m24 = 0;
+    matOrient.m34 = 0;
+    matOrient.m44 = 1;
     _orientation = Quat(matOrient);
 }
 
@@ -85,7 +85,7 @@ void Camera::updateDimensions(int w, int h) {
 
 void Camera::updateViewMatrix() {
     Matrix4x4 rotX = rotationAxis(_pitch, Vector3(1, 0, 0));
-    Matrix4x4 rotY = rotationAxis(_yaw,   Vector3(0, 1, 0));
+    Matrix4x4 rotY = rotationAxis(_yaw, Vector3(0, 1, 0));
 
     Matrix4x4 orientation = rotX * rotY;
 
@@ -95,7 +95,7 @@ void Camera::updateViewMatrix() {
 
 void Camera::updateOrientation(float dpdx, float dydx) {
     _pitch += dpdx;
-    _yaw   -= dydx;
+    _yaw -= dydx;
 
     // Normalize angles
     _yaw = fmodf(_yaw, 2.0f * PI);
@@ -122,4 +122,20 @@ Ray Camera::traceRay(const Vec2& px) const {
     rayWorld = normalize(rayWorld);
 
     return {_position, rayWorld};
+}
+
+std::unique_ptr<Camera> pbr::CreateCamera(const ParameterMap& params) {
+    auto eye = params.lookup<Vec3>("eye", {});
+    auto at = params.lookup<Vec3>("at", {});
+    auto up = params.lookup<Vec3>("up", {});
+
+    auto type = params.lookup("type", "perspective"s);
+    if (type == "perspective") {
+        auto near = params.lookup("near", 0.1f);
+        auto far = params.lookup("far", 500.0f);
+        auto fov = params.lookup("fov", 60.0f);
+        return std::make_unique<Perspective>(1, 1, eye, at, up, near, far, fov);
+    }
+
+    return nullptr;
 }

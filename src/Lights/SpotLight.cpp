@@ -26,7 +26,7 @@ Vec3 SpotLight::direction() const {
 }
 
 void SpotLight::toData(LightData& data) const {
-    data.type = _on ? LightType::LIGHT_SPOT : LightType::LIGHT_NONE;
+    data.type = _on ? ToInt(LightType::Spot) : ToInt(LightType::None);
     data.emission = _intensity * _emission;
     data.position = position();
     data.auxA = std::cos(_cutoff);

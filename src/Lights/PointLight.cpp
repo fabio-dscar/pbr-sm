@@ -9,7 +9,7 @@ PointLight::PointLight(const Vec3& position, const Color& emission, float intens
     : Light(position, emission, intensity) {}
 
 void PointLight::toData(LightData& data) const {
-    data.type = _on ? LightType::LIGHT_POINT : LightType::LIGHT_NONE;
+    data.type = _on ? ToInt(LightType::Point) : ToInt(LightType::None);
     data.emission = _intensity * _emission;
     data.position = position();
 }
