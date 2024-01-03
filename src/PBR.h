@@ -83,6 +83,8 @@ typedef int64 RRID;
 template<typename T>
 using sref = std::shared_ptr<T>;
 
+class ParameterMap;
+
 } // namespace pbr
 
 #endif

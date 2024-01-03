@@ -1,7 +1,7 @@
 #ifndef __PBR_OGLAPP_H__
 #define __PBR_OGLAPP_H__
 
-#include <string>
+#include <PBR.h>
 
 struct GLFWwindow;
 

@@ -1,5 +1,5 @@
-#ifndef __PBR_UTILS_H__
-#define __PBR_UTILS_H__
+#ifndef __PBR_UTIL_H__
+#define __PBR_UTIL_H__
 
 #include <PBR.h>
 
@@ -7,33 +7,38 @@
 #include <optional>
 #include <format>
 
+namespace fs = std::filesystem;
+
 namespace pbr {
 
 class Shape;
 class Material;
-class ParameterMap;
+class OParameterMap;
 
-namespace Utils {
+namespace util {
 
-std::optional<std::string> ReadTextFile(const std::string& filePath,
-                                        std::ios_base::openmode mode);
-void throwError(const std::string& error);
+std::optional<std::string> ReadTextFile(const fs::path& filePath);
 
-RRID loadTexture(const std::string& path);
-std::unique_ptr<Shape> loadSceneObject(const std::string& folder);
-std::unique_ptr<Material> buildMaterial(const std::filesystem::path& path,
-                                        const ParameterMap& map);
+RRID LoadTexture(const fs::path& path);
+std::unique_ptr<Shape> LoadSceneObject(const std::string& folder);
+std::unique_ptr<Material> BuildMaterial(const fs::path& path, const OParameterMap& map);
 
-
-
-void ExitWithErrorMsg(const std::string& message);
-
-template<typename... Args>
-void ExitWithError(const std::format_string<Args...>& fmt, Args&&... args) {
-    ExitWithErrorMsg(std::format(fmt, std::forward<Args>(args)...));
+inline void PrintMsg(std::ostream& stream, const std::string& header,
+                     const std::string& message) {
+    stream << header << message << '\n';
 }
 
-} // namespace Utils
+template<typename... Args>
+void Print(const std::format_string<Args...>& fmt, Args&&... args) {
+    PrintMsg(std::cout, "", std::format(fmt, std::forward<Args>(args)...));
+}
+
+template<typename... Args>
+void PrintError(const std::format_string<Args...>& fmt, Args&&... args) {
+    PrintMsg(std::cerr, "[ERROR] ", std::format(fmt, std::forward<Args>(args)...));
+}
+
+} // namespace util
 } // namespace pbr
 
 #endif

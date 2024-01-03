@@ -6,13 +6,11 @@
 #include <span>
 #include <Camera.h>
 #include <Light.h>
-
-#include <MultiBuffer.h>
+#include <RingBuffer.h>
 
 namespace pbr {
 
 class Scene;
-class Camera;
 
 enum BufferIndices : uint32 {
     RENDERER_BUFFER_IDX = 1,
@@ -20,12 +18,7 @@ enum BufferIndices : uint32 {
     LIGHTS_BUFFER_IDX = 3
 };
 
-enum ToneMap : uint32 {
-    PARAMETRIC = 0,
-    ACES = 1,
-    ACES_BOOSTED = 2,
-    ACES_FAST = 3
-};
+enum ToneMap : uint32 { PARAMETRIC = 0, ACES = 1, ACES_BOOSTED = 2, ACES_FAST = 3 };
 
 // Buffer for shaders with renderer information
 struct alignas(256) RendererData {
@@ -62,12 +55,8 @@ public:
     float exposure() const;
     void setExposure(float exp);
 
-    ToneMap toneMap() const {
-        return _toneMap;
-    }
-    void setToneMap(ToneMap toneMap) {
-        _toneMap = toneMap;
-    }
+    ToneMap toneMap() const { return _toneMap; }
+    void setToneMap(ToneMap toneMap) { _toneMap = toneMap; }
 
     const float* toneParams() const;
     void setToneParams(std::span<float, 7> toneParams);
@@ -94,7 +83,7 @@ private:
     bool _envLighting = true;
     float _envIntensity = 1.0f;
 
-    MultiBuffer _uniformBuffer{};
+    RingBuffer _uniformBuffer{};
 };
 
 } // namespace pbr

@@ -38,14 +38,11 @@ void OpenGLApplication::setCallbacks() {
 }
 
 void OpenGLApplication::init() {
-    putenv((char*)"__GL_SYNC_TO_VBLANK=0");
+    glfwSetErrorCallback(
+        [](int, const char* desc) { LOG_ERROR("Glfw Error: {}", desc); });
 
-    glfwSetErrorCallback([](int, const char* desc) { std::cout << desc << "\n"; });
-
-    if (!glfwInit()) {
-        std::cerr << "[ERROR] Failed to initialize GLFW.\n";
-        exit(EXIT_FAILURE);
-    }
+    if (!glfwInit())
+        FATAL("Failed to initialize GLFW.");
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
@@ -53,13 +50,12 @@ void OpenGLApplication::init() {
 
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-    glfwWindowHint(GLFW_SAMPLES, 4);
+    glfwWindowHint(GLFW_SAMPLES, 8);
 
     _window = glfwCreateWindow(_width, _height, _title.c_str(), NULL, NULL);
     if (!_window) {
-        std::cerr << "[ERROR] Could not create a new rendering window.\n";
         glfwTerminate();
-        exit(EXIT_FAILURE);
+        FATAL("Failed to create window.");
     }
 
     glfwSetWindowUserPointer(_window, this);
@@ -69,20 +65,20 @@ void OpenGLApplication::init() {
 
     // Setup glad
     int glver = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-    if (glver == 0) {
-        std::cerr << "[ERROR] Failed to initialize OpenGL context\n";
-        exit(EXIT_FAILURE);
-    }
+    if (glver == 0)
+        FATAL("Failed to load OpenGL functions.");
+    
     glfwSwapInterval(1);
 
     // Print system info
-    const GLubyte* renderer = glGetString(GL_RENDERER);
-    const GLubyte* vendor = glGetString(GL_VENDOR);
-    const GLubyte* version = glGetString(GL_VERSION);
-    const GLubyte* glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
-    std::cout << "OpenGL Renderer: " << renderer << " (" << vendor << ")\n";
-    std::cout << "OpenGL version " << version << '\n';
-    std::cout << "GLSL version " << glslVersion << '\n';
+    auto renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+    auto vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+    auto version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+    auto glslVer =
+        reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+    LOGI("OpenGL Renderer: {} ({})", renderer, vendor);
+    LOGI("OpenGL Version: {}", version);
+    LOGI("GLSL Version {}", glslVer);
 
     // Initialize OpenGL state
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -120,8 +116,6 @@ void OpenGLApplication::setTitle(const std::string& title) {
 }
 
 void OpenGLApplication::reshape(int w, int h) {
-    std::cout << std::format("{}x{}\n", w, h);
-
     _width = w;
     _height = h;
     glViewport(0, 0, w, h);

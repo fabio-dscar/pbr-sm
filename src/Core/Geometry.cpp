@@ -138,7 +138,7 @@ void Geometry::computeTangents() {
 
     int res = genTangSpaceDefault(&ctx);
     if (res == 0)
-        std::cout << "Error computing tangents.\n";
+        LOG_ERROR("Failed to compute tangents.");
 }
 
 std::unique_ptr<Geometry> pbr::genUnitSphere(uint32 widthSegments,
@@ -203,10 +203,7 @@ std::unique_ptr<Geometry> pbr::genUnitSphere(uint32 widthSegments,
 
 void Geometry::removeRedundantVerts() {
     Geometry other;
-
-    std::cout << std::format("Faces: {} Verts: {}\n", _indices.size() / 3,
-                             _vertices.size());
-
+    
     std::unordered_map<Vertex, uint32_t> uniqueVertices{};
     for (const auto index : _indices) {
         auto vertex = _vertices[index];
@@ -218,9 +215,6 @@ void Geometry::removeRedundantVerts() {
 
         other._indices.push_back(uniqueVertices[vertex]);
     }
-
-    std::cout << std::format("Faces: {} Verts: {}\n\n", other._indices.size() / 3,
-                             other._vertices.size());
 
     this->swap(other);
 }

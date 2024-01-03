@@ -1,4 +1,3 @@
-#include "glad/glad.h"
 #include <Renderer.h>
 
 #include <Camera.h>
@@ -83,14 +82,15 @@ void Renderer::drawShapes(const Scene& scene) {
 }
 
 void Renderer::drawSkybox(const Scene& scene) const {
-    if (scene.hasSkybox()) 
+    if (scene.hasSkybox())
         scene.skybox().draw();
 }
 
 void Renderer::prepare() {
-    // Triple buffered uniform buffer
-    _uniformBuffer.create(EBufferType::UNIFORM, 3, UniformBlockSize,
-                          GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+    // Triple slot ring buffer
+    using enum BufferFlag;
+    _uniformBuffer.create(BufferType::Uniform, 3, UniformBlockSize,
+                          Write | Persistent | Coherent);
 
     _uniformBuffer.registerBind(RENDERER_BUFFER_IDX, 0, sizeof(RendererData));
     _uniformBuffer.registerBind(CAMERA_BUFFER_IDX, offsetof(UniformBlockStruct, cd),
@@ -110,6 +110,5 @@ void Renderer::render(const Scene& scene, const Camera& camera) {
     if (_drawSkybox)
         drawSkybox(scene);
 
-    _uniformBuffer.lock();
-    _uniformBuffer.swap();
+    _uniformBuffer.lockAndSwap();
 }
