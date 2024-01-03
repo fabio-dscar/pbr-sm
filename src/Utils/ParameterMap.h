@@ -1,51 +1,52 @@
-#ifndef __PBR_PMAP_H__
-#define __PBR_PMAP_H__
+#ifndef __PBR_PARAMETERMAP_H__
+#define __PBR_PARAMETERMAP_H__
 
 #include <PBR.h>
 #include <PBRMath.h>
 #include <Spectrum.h>
 
-#include <optional>
-#include <unordered_map>
+#include <variant>
+
+using namespace pbr::math;
 
 namespace pbr {
 
+class ParameterMap;
+
+using ParameterType = std::variant<float, std::string, Vec3, Color, Mat4, ParameterMap*>;
+
 class ParameterMap {
 public:
-    bool hasFloat(const std::string& name) const;
-    bool hasRGB(const std::string& name) const;
-    bool hasTexture(const std::string& name) const;
-    bool hasBlinn() const;
-    bool hasUnreal() const;
-
-    void setFloat(const std::string& name, float value);
-    void setRGB(const std::string& name, const Color& value);
-    void setTexture(const std::string& name, const std::string& value);
-    void setMatInfo(const std::string& name, const std::string& value);
-
-    std::optional<float> getFloat(const std::string& name) const;
-    std::optional<Color> getRGB(const std::string& name) const;
-    std::optional<std::string> getTexture(const std::string& name) const;
-    std::optional<std::string> getMatInfo(const std::string& name) const;
-
-private:
-    template<template<class...> class T, class K, class V, class... R>
-    std::optional<V> fetchValue(const T<K, V, R...>& map, const std::string& name) const {
-        auto it = map.find(name);
-        if (it == map.end())
-            return {};
-        return it->second;
+    template<typename T>
+    void insert(const std::string& name, T param) {
+        map.emplace(name, std::move(param));
     }
 
-    template<typename K, typename V>
-    using map = std::unordered_map<K, V>;
+    template<typename T>
+    T lookup(const std::string& name, T defVal) const {
+        auto opt = lookup<T>(name);
+        if (!opt.has_value())
+            return defVal;
+        return *opt;
+    }
 
-    map<std::string, float> _floats;
-    map<std::string, Color> _rgb;
-    map<std::string, std::string> _textures;
-    map<std::string, std::string> _matInfo;
+    template<typename T>
+    std::optional<T> lookup(const std::string& name) const {
+        auto it = map.find(name);
+        if (it == map.end())
+            return std::nullopt;
+
+        auto param = it->second;
+        if (std::holds_alternative<T>(param))
+            return std::get<T>(param);
+
+        return std::nullopt;
+    }
+
+private:
+    std::unordered_map<std::string, ParameterType> map{};
 };
 
 } // namespace pbr
 
-#endif
+#endif // __PBR_PARAMETERMAP_H__

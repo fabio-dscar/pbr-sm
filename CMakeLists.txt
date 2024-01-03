@@ -8,12 +8,14 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-##################################
-## Third party libs
+# ---------------------------------------------------------------------------------------
+#     Third party libs
+# ---------------------------------------------------------------------------------------
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext)
 
-##################################
-## OpenGL
+# ---------------------------------------------------------------------------------------
+#     OpenGL
+# ---------------------------------------------------------------------------------------
 find_package(OpenGL REQUIRED)
 
 set(RT_PBR_SOURCES
@@ -66,9 +68,10 @@ set(RT_PBR_SOURCES
 
   src/Utils/Image.cpp
   src/Utils/LoadXML.cpp
-  src/Utils/ParameterMap.cpp
   src/Utils/Utils.cpp
   src/Utils/Log.cpp
+  src/Utils/SceneLoader.cpp
+  src/Utils/_ParameterMap.cpp
 
   src/Loaders/ObjLoader.cpp
   src/Loaders/GltfLoader.cpp
@@ -115,9 +118,14 @@ target_link_libraries(pbr-sm PRIVATE
   ${ZLIB_LIBRARIES}
 )
 
+# target_compile_options(pbr-sm PRIVATE -fsanitize=address)
+# target_link_options(pbr-sm PRIVATE -fsanitize=address)
+
 add_custom_command(TARGET pbr-sm POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data/Shaders ${CMAKE_BINARY_DIR}/glsl
 )
 
-set(RELEASE_FLAGS "-march=native" "-mtune=native") # "-flto")
-target_compile_options(pbr-sm PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_FLAGS}>")
+set(DEBUG_FLAGS -Wall -Wextra -Wpedantic)
+set(RELEASE_FLAGS -O3 -march=native)
+target_compile_options(pbr-sm PRIVATE "$<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${RELEASE_FLAGS}>" 
+                                      "$<$<CONFIG:Debug>:${DEBUG_FLAGS}>")
