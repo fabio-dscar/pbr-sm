@@ -22,13 +22,13 @@ inline int ToInt(LightType type) {
 }
 
 // Light data for shader blocks
-// CARE: data is properly aligned, do not change
-struct alignas(16) LightData {
-    Vec3 position;
+// CARE: data is properly aligned to std140, do not change
+struct LightData {
+    alignas(16) Vec3 position;
     float auxA;
-    Color emission;
+    alignas(16) Color emission;
     int type;
-    Vec3 auxB;
+    alignas(16) Vec3 auxB;
     float auxC;
 };
 
@@ -36,8 +36,8 @@ class PBR_SHARED Light : public SceneObject {
 public:
     Light() = default;
     Light(const Color& emission, float intensity);
-    Light(const Vec3& position, const Color& emission, float intensity);
-    Light(const Mat4& lightToWorld, const Color& emission, float intensity);
+    Light(const Color& emission, float intensity, const Vec3& position);
+    Light(const Color& emission, float intensity, const Mat4& lightToWorld);
     virtual ~Light() = default;
 
     bool isOn() const;
@@ -46,7 +46,6 @@ public:
     Color emission() const;
 
     virtual void toData(LightData& data) const = 0;
-    virtual sref<Shape> shape() const;
 
 protected:
     Color _emission{1.0f}; // Normalized emission

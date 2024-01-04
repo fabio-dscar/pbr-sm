@@ -9,7 +9,10 @@ class PBR_SHARED SpotLight : public Light {
 public:
     SpotLight();
     SpotLight(const Color& emission, float intensity);
-    SpotLight(const Color& emission, float intensity, float cutoff, float outerCutoff);
+    SpotLight(const Color& emission, float intensity, const Vec3& position, float cutoff,
+              float outerCutoff);
+    SpotLight(const Color& emission, float intensity, const Mat4& toWorld, float cutoff,
+              float outerCutoff);
 
     float cutOff() const;
     float outerCutOff() const;
@@ -18,8 +21,8 @@ public:
     void toData(LightData& data) const override;
 
 private:
-    float _cutoff;
-    float _outerCutoff;
+    float _cutoff = Radians(36.5f);
+    float _outerCutoff = Radians(40.0f);
 };
 
 } // namespace pbr

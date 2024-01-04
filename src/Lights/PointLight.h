@@ -8,7 +8,8 @@ namespace pbr {
 class PBR_SHARED PointLight : public Light {
 public:
     PointLight(const Color& emission, float intensity);
-    PointLight(const Vec3& position, const Color& emission, float intensity);
+    PointLight(const Color& emission, float intensity, const Vec3& position);
+    PointLight(const Color& emission, float intensity, const Mat4& toWorld);
 
     void toData(LightData& data) const override;
 };

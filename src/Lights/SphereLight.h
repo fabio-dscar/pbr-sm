@@ -8,8 +8,9 @@ namespace pbr {
 class SphereLight : public Light {
 public:
     SphereLight() = default;
-    SphereLight(const Color& emission, float intensity, float radius)
-        : Light(emission, intensity), _radius(radius) {}
+    SphereLight(const Color& emission, float intensity, const Vec3& position,
+                float radius)
+        : Light(emission, intensity, position), _radius(radius) {}
 
     void toData(LightData& data) const override;
 

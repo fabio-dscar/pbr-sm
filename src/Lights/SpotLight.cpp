@@ -2,14 +2,19 @@
 
 using namespace pbr;
 
-SpotLight::SpotLight() : Light(), _cutoff(radians(36.5f)), _outerCutoff(radians(40.0f)) {}
+namespace {
+// By default it is pointing downwards
+const Vec3 DefaultDir{0, -1, 0};
+} // namespace
+
+SpotLight::SpotLight() : Light() {}
 
 SpotLight::SpotLight(const Color& emission, float intensity)
-    : Light(emission, intensity), _cutoff(radians(36.5f)), _outerCutoff(radians(40.0f)) {}
+    : Light(emission, intensity) {}
 
-SpotLight::SpotLight(const Color& emission, float intensity, float cutoff,
-                     float outerCutoff)
-    : Light(emission, intensity), _cutoff(cutoff), _outerCutoff(outerCutoff) {}
+SpotLight::SpotLight(const Color& emission, float intensity, const Vec3& position,
+                     float cutoff, float outerCutoff)
+    : Light(emission, intensity, position), _cutoff(cutoff), _outerCutoff(outerCutoff) {}
 
 float SpotLight::cutOff() const {
     return _cutoff;
@@ -20,9 +25,7 @@ float SpotLight::outerCutOff() const {
 }
 
 Vec3 SpotLight::direction() const {
-    // By default it is pointing downwards
-    const Vec3 n = Vec3(0, -1, 0);
-    return normalize(rotate(_orientation, n));
+    return normalize(rotate(_orientation, DefaultDir));
 }
 
 void SpotLight::toData(LightData& data) const {

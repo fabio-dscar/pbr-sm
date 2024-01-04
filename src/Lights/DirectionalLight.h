@@ -8,6 +8,8 @@ namespace pbr {
 class PBR_SHARED DirectionalLight : public Light {
 public:
     DirectionalLight(const Color& emission, float intensity);
+    DirectionalLight(const Color& emission, float intensity, const Vec3& dir);
+    DirectionalLight(const Color& emission, float intensity, const Mat4& orientation);
 
     Vec3 direction() const;
 

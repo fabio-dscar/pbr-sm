@@ -10,8 +10,8 @@ namespace pbr {
 class TubeLight : public Light {
 public:
     TubeLight() = default;
-    TubeLight(const Color& emission, float intensity, float radius)
-        : Light(emission, intensity), _radius(radius) {}
+    TubeLight(const Color& emission, float intensity, const Vec3& position, float radius);
+    TubeLight(const Color& emission, float intensity, const Mat4& toWorld, float radius);
 
     void toData(LightData& data) const override;
 
