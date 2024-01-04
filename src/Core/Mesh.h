@@ -9,6 +9,7 @@ class Mesh : public Shape {
 public:
     Mesh(const std::string& objFile);
     Mesh(const std::string& objFile, const Mat4& objToWorld);
+    Mesh(const std::shared_ptr<Geometry>& geometry, const Mat4& objToWorld);
 
     void prepare() override;
     void draw() override;
@@ -22,6 +23,8 @@ public:
 private:
     BBox3 _bbox;
 };
+
+std::unique_ptr<Shape> CreateMesh(const ParameterMap& params);
 
 } // namespace pbr
 

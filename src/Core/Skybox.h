@@ -28,6 +28,8 @@ private:
     RRID _ggxTex;
 };
 
+Skybox CreateSkybox(const ParameterMap& params);
+
 } // namespace pbr
 
 #endif

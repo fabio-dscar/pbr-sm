@@ -6,7 +6,7 @@
 #include <SphereLight.h>
 #include <TubeLight.h>
 
-#include <SceneLoader.h>
+#include <ParameterMap.h>
 
 using namespace pbr;
 

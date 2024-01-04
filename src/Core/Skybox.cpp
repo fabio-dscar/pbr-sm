@@ -6,6 +6,8 @@
 #include <Shader.h>
 #include <Geometry.h>
 
+#include <ParameterMap.h>
+
 using namespace pbr;
 
 Skybox::Skybox(RRID cubeProg, RRID cubeTex)
@@ -62,4 +64,14 @@ RRID Skybox::cubeTex() const {
 
 RRID Skybox::ggxTex() const {
     return _ggxTex;
+}
+
+Skybox pbr::CreateSkybox(const ParameterMap& params) {
+    auto parentDir = params.lookup("parentdir", ""s);
+    auto optFolder = params.lookup<std::string>("folder");
+    
+    CHECK(optFolder.has_value());
+
+    auto folder = *optFolder;
+    // TODO: Load cubemaps
 }

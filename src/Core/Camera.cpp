@@ -3,7 +3,7 @@
 #include <PBRMath.h>
 #include <Perspective.h>
 #include <Transform.h>
-#include <SceneLoader.h>
+#include <ParameterMap.h>
 
 using namespace pbr;
 
@@ -125,9 +125,9 @@ Ray Camera::traceRay(const Vec2& px) const {
 }
 
 std::unique_ptr<Camera> pbr::CreateCamera(const ParameterMap& params) {
-    auto eye = params.lookup<Vec3>("eye", {});
-    auto at = params.lookup<Vec3>("at", {});
-    auto up = params.lookup<Vec3>("up", {});
+    auto eye = params.lookup("eye", Vec3{0});
+    auto at = params.lookup("at", Vec3{0, 0, -1});
+    auto up = params.lookup("up", Vec3{0, 1, 0});
 
     auto type = params.lookup("type", "perspective"s);
     if (type == "perspective") {
