@@ -23,10 +23,7 @@ static const fs::path ShaderFolder = "./glsl";
 
 class PBR_SHARED ShaderSource {
 public:
-    ShaderSource(const std::string& name, ShaderType type, const std::string& src)
-        : name(name), source({src}), type(type) {
-        handleIncludes();
-    }
+    ShaderSource(const std::string& name, ShaderType type, const std::string& src);
 
     void setVersion(const std::string& ver);
     void include(const std::string& source);

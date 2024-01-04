@@ -8,6 +8,16 @@
 using namespace pbr;
 using namespace pbr::util;
 
+ShaderSource::ShaderSource(const std::string& name, ShaderType type,
+                           const std::string& src)
+    : name(name), source({src}), type(type) {
+
+    if (!hasVersionDir())
+        setVersion(DefaultVer);
+
+    handleIncludes();
+}
+
 void ShaderSource::handleIncludes() {
     std::regex rgx(R"([ ]*#[ ]*include[ ]+[\"<](.*)[\">].*)");
     std::smatch smatch;
@@ -171,7 +181,7 @@ std::unique_ptr<Program> pbr::CompileAndLinkProgram(const std::string& name,
     auto program = std::make_unique<Program>(name);
     auto defines = BuildDefinesBlock(definesList);
 
-    for (auto& fname : sourceNames) {
+    for (const auto& fname : sourceNames) {
         ShaderSource s = LoadShaderFile(ShaderFolder / fname);
         s.compile(defines);
         program->addShader(s);
