@@ -36,10 +36,13 @@ class Buffer {
 public:
     Buffer() = default;
     Buffer(BufferType type, std::size_t size, BufferFlag flags = BufferFlag::None,
-           void* data = nullptr);
+           const void* data = nullptr);
     ~Buffer();
 
-    void create(BufferType type, std::size_t size, BufferFlag flags, void* data);
+    Buffer(Buffer&& rhs);
+
+    unsigned int id() const { return handle; }
+    void create(BufferType type, std::size_t size, BufferFlag flags, const void* data);
     void bindRange(unsigned int index, std::size_t offset, std::size_t size) const;
 
     template<typename T>

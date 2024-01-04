@@ -2,12 +2,18 @@
 
 using namespace pbr;
 
-const GLenum OGLBufferTarget[] = {GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER,
-                                  GL_UNIFORM_BUFFER};
+namespace {
+const std::array OglBufferTarget = {GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER,
+                                    GL_UNIFORM_BUFFER};
+}
 
-Buffer::Buffer(BufferType type, std::size_t size, BufferFlag flags, void* data) {
+Buffer::Buffer(BufferType type, std::size_t size, BufferFlag flags, const void* data) {
     create(type, size, flags, data);
 }
+
+Buffer::Buffer(Buffer&& rhs)
+    : target(rhs.target), handle(std::exchange(rhs.handle, 0)), size(rhs.size),
+      flags(rhs.flags) {}
 
 Buffer::~Buffer() {
     if (handle != 0) {
@@ -18,8 +24,9 @@ Buffer::~Buffer() {
     }
 }
 
-void Buffer::create(BufferType type, std::size_t pSize, BufferFlag pFlags, void* data) {
-    target = OGLBufferTarget[static_cast<unsigned int>(type)];
+void Buffer::create(BufferType type, std::size_t pSize, BufferFlag pFlags,
+                    const void* data) {
+    target = OglBufferTarget[static_cast<unsigned int>(type)];
     flags = pFlags;
     size = pSize;
     glCreateBuffers(1, &handle);
