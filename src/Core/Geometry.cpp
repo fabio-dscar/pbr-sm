@@ -27,6 +27,14 @@ struct hash<Vertex> {
 
 } // namespace std
 
+Geometry::Geometry(std::vector<Vertex>&& vertices, std::vector<uint32>&& indices) {
+    _vertices = std::move(vertices);
+    _indices = std::move(indices);
+
+    computeTangents();
+    removeRedundantVerts();
+}
+
 RRID Geometry::rrid() const {
     return _id;
 }
@@ -49,24 +57,6 @@ const std::vector<Vertex>& Geometry::vertices() const {
 
 const std::vector<uint32>& Geometry::indices() const {
     return _indices;
-}
-
-void Geometry::setVertices(const std::vector<Vertex>& vertices) {
-    _vertices.resize(vertices.size());
-    std::copy(vertices.begin(), vertices.end(), _vertices.begin());
-}
-
-void Geometry::setVertices(std::vector<Vertex>&& vertices) {
-    _vertices = std::move(vertices);
-}
-
-void Geometry::setIndices(const std::vector<uint32>& indices) {
-    _indices.resize(indices.size());
-    std::copy(indices.begin(), indices.end(), _indices.begin());
-}
-
-void Geometry::setIndices(std::vector<uint32>&& indices) {
-    _indices = std::move(indices);
 }
 
 BBox3 Geometry::bbox() const {
@@ -203,7 +193,7 @@ std::unique_ptr<Geometry> pbr::genUnitSphere(uint32 widthSegments,
 
 void Geometry::removeRedundantVerts() {
     Geometry other;
-    
+
     std::unordered_map<Vertex, uint32_t> uniqueVertices{};
     for (const auto index : _indices) {
         auto vertex = _vertices[index];
