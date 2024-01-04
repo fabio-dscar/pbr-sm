@@ -16,7 +16,7 @@ const int TONEMAP_ACES = 1;
 const int TONEMAP_ACES_BOOSTED = 2;
 const int TONEMAP_ACES_FAST = 3;
 
-layout(std140, binding = 1) uniform rendererBlock {
+layout(std140, binding = 0) uniform rendererBlock {
     float gamma;
     float exposure;
     int toneMapType;

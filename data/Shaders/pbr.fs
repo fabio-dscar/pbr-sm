@@ -15,7 +15,7 @@ vsIn;
 // -----------------------------------------------------------------------------
 //    Uniforms
 // -----------------------------------------------------------------------------
-layout(std140, binding = 2) uniform cameraBlock {
+layout(std140, binding = 1) uniform cameraBlock {
     mat4 ViewMatrix;
     mat4 ProjMatrix;
     mat4 ViewProjMatrix;
@@ -31,7 +31,7 @@ struct Light {
     float auxC;
 };
 
-layout(std140, binding = 3) uniform lightBlock { Light lights[NUM_LIGHTS]; };
+layout(std140, binding = 2) uniform lightBlock { Light lights[NUM_LIGHTS]; };
 
 // Material parameters
 layout(location = 1) uniform sampler2D diffuseTex;

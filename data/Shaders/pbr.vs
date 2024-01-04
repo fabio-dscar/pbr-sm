@@ -6,7 +6,7 @@ layout(location = 3) in vec4 Tangent;
 layout(location = 20) uniform mat4 ModelMatrix;
 layout(location = 21) uniform mat3 NormalMatrix;
 
-layout(std140, binding = 2) uniform cameraBlock {
+layout(std140, binding = 1) uniform cameraBlock {
     mat4 ViewMatrix;
     mat4 ProjMatrix;
     mat4 ViewProjMatrix;

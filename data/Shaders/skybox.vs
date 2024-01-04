@@ -1,6 +1,6 @@
 layout(location = 0) in vec3 Position;
 
-layout(std140, binding = 2) uniform cameraBlock {
+layout(std140, binding = 1) uniform cameraBlock {
     mat4 ViewMatrix;
     mat4 ProjMatrix;
     mat4 ViewProjMatrix;

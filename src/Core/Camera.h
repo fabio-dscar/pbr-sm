@@ -6,11 +6,11 @@
 
 namespace pbr {
 
-struct alignas(256) CameraData {
+struct CameraData {
     Mat4 viewMatrix;
     Mat4 projMatrix;
     Mat4 viewProjMatrix;
-    Vec3 viewPos;
+    alignas(16) Vec3 viewPos;
 };
 
 class Camera : public SceneObject {

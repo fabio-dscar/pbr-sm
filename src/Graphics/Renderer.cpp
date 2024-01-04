@@ -43,37 +43,38 @@ void Renderer::setPerturbNormals(bool state) {
 }
 
 void Renderer::uploadUniformBuffer(const Scene& scene, const Camera& camera) {
-    auto ub = _uniformBuffer.get<UniformBlockStruct>();
-
     // Renderer
-    ub->rd.gamma = _gamma;
-    ub->rd.exposure = _exposure;
-    ub->rd.tonemap = _toneMap;
+    auto rd = _uniformBuffer.getBind<RendererData>(RENDERER_BUFFER_IDX);
+    rd->gamma = _gamma;
+    rd->exposure = _exposure;
+    rd->tonemap = _toneMap;
 
-    ub->rd.A = _toneParams[0];
-    ub->rd.B = _toneParams[1];
-    ub->rd.C = _toneParams[2];
-    ub->rd.D = _toneParams[3];
-    ub->rd.E = _toneParams[4];
-    ub->rd.F = _toneParams[5];
-    ub->rd.W = _toneParams[6];
+    rd->A = _toneParams[0];
+    rd->B = _toneParams[1];
+    rd->C = _toneParams[2];
+    rd->D = _toneParams[3];
+    rd->E = _toneParams[4];
+    rd->F = _toneParams[5];
+    rd->W = _toneParams[6];
 
-    ub->rd.envIntensity = _envIntensity;
-    ub->rd.perturbNormals = _perturbNormals ? 1 : 0;
-    ub->rd.envLighting = _envLighting ? 1 : 0;
+    rd->envIntensity = _envIntensity;
+    rd->perturbNormals = _perturbNormals ? 1 : 0;
+    rd->envLighting = _envLighting ? 1 : 0;
 
     // Camera
-    ub->cd.viewMatrix = camera.viewMatrix();
-    ub->cd.projMatrix = camera.projMatrix();
-    ub->cd.viewPos = camera.position();
-    ub->cd.viewProjMatrix = camera.viewProjMatrix();
+    auto cd = _uniformBuffer.getBind<CameraData>(CAMERA_BUFFER_IDX);
+    cd->viewMatrix = camera.viewMatrix();
+    cd->projMatrix = camera.projMatrix();
+    cd->viewPos = camera.position();
+    cd->viewProjMatrix = camera.viewProjMatrix();
 
     // Lights
+    auto ld = _uniformBuffer.getBind<LightData>(LIGHTS_BUFFER_IDX);
     const auto& lights = scene.lights();
 
-    uint32 numLights = min(NumLights, lights.size());
+    auto numLights = Min(NumLights, lights.size());
     for (uint32 l = 0; l < numLights; ++l)
-        lights[l]->toData(ub->ld[l]);
+        lights[l]->toData(ld[l]);
 }
 
 void Renderer::drawShapes(const Scene& scene) {
@@ -87,16 +88,23 @@ void Renderer::drawSkybox(const Scene& scene) const {
 }
 
 void Renderer::prepare() {
-    // Triple slot ring buffer
     using enum BufferFlag;
-    _uniformBuffer.create(BufferType::Uniform, 3, UniformBlockSize,
-                          Write | Persistent | Coherent);
 
-    _uniformBuffer.registerBind(RENDERER_BUFFER_IDX, 0, sizeof(RendererData));
-    _uniformBuffer.registerBind(CAMERA_BUFFER_IDX, offsetof(UniformBlockStruct, cd),
-                                sizeof(CameraData));
-    _uniformBuffer.registerBind(LIGHTS_BUFFER_IDX, offsetof(UniformBlockStruct, ld),
-                                sizeof(LightData) * NumLights);
+    // Get aligned sizes for separate uniform buffers according to OGL implementation and
+    // put them all in a single contiguous buffer
+    auto rdSize = AlignUniformBuffer(sizeof(RendererData));
+    auto cdSize = AlignUniformBuffer(sizeof(CameraData));
+    auto ldSize = AlignUniformBuffer(sizeof(LightData) * NumLights);
+
+    auto cdOffset = rdSize;
+    auto ldOffset = cdOffset + cdSize;
+
+    auto uboSize = AlignUniformBuffer(rdSize + cdSize + ldSize);
+    _uniformBuffer.create(BufferType::Uniform, 3, uboSize, Write | Persistent | Coherent);
+
+    _uniformBuffer.registerBind(RENDERER_BUFFER_IDX, 0, rdSize);
+    _uniformBuffer.registerBind(CAMERA_BUFFER_IDX, cdOffset, cdSize);
+    _uniformBuffer.registerBind(LIGHTS_BUFFER_IDX, ldOffset, ldSize);
 }
 
 void Renderer::render(const Scene& scene, const Camera& camera) {

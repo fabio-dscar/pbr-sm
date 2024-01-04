@@ -12,16 +12,16 @@ namespace pbr {
 
 class Scene;
 
-enum BufferIndices : uint32 {
-    RENDERER_BUFFER_IDX = 1,
-    CAMERA_BUFFER_IDX = 2,
-    LIGHTS_BUFFER_IDX = 3
+enum BufferIndices : int {
+    RENDERER_BUFFER_IDX = 0,
+    CAMERA_BUFFER_IDX = 1,
+    LIGHTS_BUFFER_IDX = 2
 };
 
-enum ToneMap : uint32 { PARAMETRIC = 0, ACES = 1, ACES_BOOSTED = 2, ACES_FAST = 3 };
+enum ToneMap : int { PARAMETRIC = 0, ACES = 1, ACES_BOOSTED = 2, ACES_FAST = 3 };
 
 // Buffer for shaders with renderer information
-struct alignas(256) RendererData {
+struct RendererData {
     float gamma;
     float exposure;
     int tonemap;
@@ -34,7 +34,7 @@ struct alignas(256) RendererData {
     int envLighting;
 };
 
-static constexpr uint32 NumLights = 5;
+static constexpr unsigned int NumLights = 5;
 
 struct UniformBlockStruct {
     RendererData rd;
@@ -42,7 +42,7 @@ struct UniformBlockStruct {
     LightData ld[NumLights];
 };
 
-static constexpr uint32 UniformBlockSize = sizeof(UniformBlockStruct);
+static constexpr unsigned int UniformBlockSize = sizeof(UniformBlockStruct);
 
 class PBR_SHARED Renderer {
 public:
