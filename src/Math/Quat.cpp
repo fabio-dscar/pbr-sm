@@ -193,34 +193,59 @@ Quat math::operator*(float scalar, const Quat& q) {
     return q * scalar;
 }
 
-float math::dot(const Quat& q1, const Quat& q2) {
+float math::Dot(const Quat& q1, const Quat& q2) {
     return q1.w * q2.w + q1.x * q2.x + q1.y * q2.y + q1.z * q2.z;
 }
 
-Quat math::normalize(const Quat& q) {
+Quat math::Normalize(const Quat& q) {
     float lenSqr = q.lengthSqr();
     if (lenSqr > 0)
         return q / std::sqrt(lenSqr);
     return Quat(Vector3(0), 0);
 }
 
-Quat math::slerp(float t, const Quat& q1, const Quat& q2) {
-    float cosTheta = dot(q1, q2);
+Quat math::Slerp(float t, const Quat& q1, const Quat& q2) {
+    float cosTheta = Dot(q1, q2);
     if (cosTheta > ONE_MINUS_EPSILON)
-        return normalize((1 - t) * q1 + t * q2);
+        return Normalize((1 - t) * q1 + t * q2);
     else {
-        float theta = acosSafe(cosTheta);
+        float theta = SafeAcos(cosTheta);
         float thetap = theta * t;
 
-        Quat qperp = normalize(q2 - q1 * cosTheta);
+        Quat qperp = Normalize(q2 - q1 * cosTheta);
 
         return q1 * std::cos(thetap) + qperp * std::sin(thetap);
     }
 }
 
-Vector3 math::rotate(const Quat& q, const Vector3& v) {
+Vector3 math::Rotate(const Quat& q, const Vector3& v) {
     Vector3 u(q.x, q.y, q.z);
     float s = q.w;
 
     return 2.0f * dot(u, v) * u + (s * s - dot(u, u)) * v + 2.0f * s * cross(u, v);
+}
+
+Quat math::AxisAngle(const Vector3& axis, float angle) {
+    auto cos = std::cos(angle * 0.5f);
+    auto sin = std::sin(angle * 0.5f);
+
+    return {sin * axis, cos};
+}
+
+Quat math::RotationAlign(const Vector3& from, const Vector3& to) {
+    auto cosTheta = dot(from, to);
+
+    // Handle from = -to
+    if (cosTheta < -0.999999f) {
+        const Vector3 xAxis{1, 0, 0};
+        const Vector3 yAxis{0, 1, 0};
+
+        // Find non colinear vector and compute a perpendicular axis
+        Vector3 aux = std::abs(from.x) > std::abs(from.y) ? yAxis : xAxis;
+        Vector3 perp = cross(from, aux);
+        return Normalize(AxisAngle(perp, math::PI));
+    }
+
+    auto axis = cross(from, to);
+    return Normalize(Quat{axis.x, axis.y, axis.z, 1.0f + cosTheta});
 }

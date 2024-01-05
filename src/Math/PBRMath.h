@@ -42,63 +42,46 @@ static constexpr Float SQRTINVPI = 0.56418958354775628694;
 static constexpr Float SQRT2 = 1.41421356237309504880;
 static constexpr Float INVLOG2 = 1.44269504088896338700;
 
+
+template<typename T, typename U, typename R = std::common_type_t<T, U>>
+inline constexpr R Max(T x, U y) {
+    return std::max(static_cast<R>(x), static_cast<R>(y));
+}
+
+template<typename T, typename U, typename R = std::common_type_t<T, U>>
+inline constexpr R Min(T x, U y) {
+    return std::min(static_cast<R>(x), static_cast<R>(y));
+}
+
 template<typename T, typename U, typename V>
-inline constexpr PBR_SHARED T clamp(T val, U low, V high) {
-    if (val < low)
-        return low;
-    else if (val > high)
-        return high;
-    else
-        return val;
+inline constexpr T Clamp(T val, U low, V high) {
+    return Max(low, Min(val, high));
 }
 
 template<typename T>
-inline constexpr PBR_SHARED T clamp(T val, T low, T high) {
-    return clamp<T, T, T>(val, low, high);
+inline constexpr T Clamp(T val, T low, T high) {
+    return Clamp<T, T, T>(val, low, high);
 }
 
-template<typename T>
-inline constexpr PBR_SHARED T mod(T x, T y) {
-    T mod = x - (x / y) * y;
-
-    if (mod < 0)
-        mod += y;
-
-    return (T)mod;
+inline constexpr Float SafeAcos(Float x) {
+    return std::acos(Clamp(x, -1.0, 1.0));
 }
 
-template<>
-inline constexpr Float mod(Float x, Float y) {
-    return std::fmod(x, y);
-}
-
-inline constexpr Float max(Float x, Float y) {
-    return std::max(x, y);
-}
-
-inline constexpr Float min(Float x, Float y) {
-    return std::min(x, y);
-}
-
-inline constexpr Float acosSafe(Float x) {
-    return std::acos(clamp(x, -1.0, 1.0));
-}
-
-inline constexpr Float radians(Float degrees) {
+inline constexpr Float Radians(Float degrees) {
     return (PI / 180.0) * degrees;
 }
 
-inline constexpr Float lerp(Float t, Float v1, Float v2) {
+inline constexpr Float Lerp(Float t, Float v1, Float v2) {
     return (1 - t) * v1 + t * v2;
 }
 
-typedef Vector2 Vec2;
-typedef Vector3 Vec3;
-typedef Vector4 Vec4;
+using Vec2 = Vector2;
+using Vec3 = Vector3;
+using Vec4 = Vector4;
 
-typedef Matrix2x2 Mat2;
-typedef Matrix3x3 Mat3;
-typedef Matrix4x4 Mat4;
+using Mat2 = Matrix2x2;
+using Mat3 = Matrix3x3;
+using Mat4 = Matrix4x4;
 
 } // namespace math
 } // namespace pbr

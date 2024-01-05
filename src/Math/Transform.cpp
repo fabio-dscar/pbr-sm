@@ -5,7 +5,7 @@
 using namespace pbr;
 using namespace pbr::math;
 
-Matrix4x4 math::rotationAxis(float rads, const Vector3& a) {
+Matrix4x4 math::RotationAxis(float rads, const Vector3& a) {
     const float sin = std::sin(rads);
     const float cos = std::cos(rads);
 
@@ -15,7 +15,7 @@ Matrix4x4 math::rotationAxis(float rads, const Vector3& a) {
     return Matrix4x4(I + sin * K + (1.0f - cos) * K * K);
 }
 
-Matrix4x4 math::orthographic(float l, float r, float b, float t, float n, float f) {
+Matrix4x4 math::Orthographic(float l, float r, float b, float t, float n, float f) {
     Matrix4x4 mat;
 
     mat.m11 = 2.f / (r - l);
@@ -30,8 +30,8 @@ Matrix4x4 math::orthographic(float l, float r, float b, float t, float n, float 
     return mat;
 }
 
-Matrix4x4 math::perspective(float fov, float aspect, float near, float far) {
-    float tanFov = std::tan(radians(fov / 2.0f));
+Matrix4x4 math::Perspective(float fov, float aspect, float near, float far) {
+    float tanFov = std::tan(Radians(fov / 2.0f));
 
     float xScale = 1.0f / (tanFov * aspect);
     float yScale = 1.0f / tanFov;
@@ -49,7 +49,7 @@ Matrix4x4 math::perspective(float fov, float aspect, float near, float far) {
     return persp;
 }
 
-Matrix4x4 math::lookAt(const Vector3& eye, const Vector3& center, const Vector3& up) {
+Matrix4x4 math::LookAt(const Vector3& eye, const Vector3& center, const Vector3& up) {
     Vector3 n = eye - center;
 
     // If eye == center

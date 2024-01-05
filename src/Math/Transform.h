@@ -1,14 +1,13 @@
 #ifndef __PBR_TRANSFORM_H__
 #define __PBR_TRANSFORM_H__
 
-#include "Matrix4x4.h"
 #include <PBR.h>
 #include <PBRMath.h>
 
 namespace pbr {
 namespace math {
 
-inline Matrix4x4 translation(const Vector3& tr) {
+inline Matrix4x4 Translation(const Vector3& tr) {
     Matrix4x4 ret;
     ret(0, 3) = tr.x;
     ret(1, 3) = tr.y;
@@ -16,26 +15,25 @@ inline Matrix4x4 translation(const Vector3& tr) {
     return ret;
 }
 
-inline Matrix4x4 skewX(float m) {
+inline Matrix4x4 SkewX(float m) {
     Matrix4x4 ret;
     ret(0, 1) = m;
     return ret;
 }
 
-inline Matrix4x4 scale(const Vector3& scale) {
+inline Matrix4x4 Scale(float x, float y, float z) {
     Matrix4x4 ret;
-    ret(0, 0) = scale.x;
-    ret(1, 1) = scale.y;
-    ret(2, 2) = scale.z;
+    ret(0, 0) = x;
+    ret(1, 1) = y;
+    ret(2, 2) = z;
     return ret;
 }
 
-inline Matrix4x4 scale(float x, float y, float z) {
-    return scale({x, y, z});
+inline Matrix4x4 Scale(const Vector3& scale) {
+    return Scale(scale.x, scale.y, scale.z);
 }
 
-
-inline Matrix4x4 rotationX(float rads) {
+inline Matrix4x4 RotationX(float rads) {
     float sin = std::sin(rads);
     float cos = std::cos(rads);
 
@@ -48,7 +46,7 @@ inline Matrix4x4 rotationX(float rads) {
     return rotX;
 }
 
-inline Matrix4x4 rotationY(float rads) {
+inline Matrix4x4 RotationY(float rads) {
     const float sin = std::sin(rads);
     const float cos = std::cos(rads);
 
@@ -61,7 +59,7 @@ inline Matrix4x4 rotationY(float rads) {
     return rotY;
 }
 
-inline Matrix4x4 rotationZ(float rads) {
+inline Matrix4x4 RotationZ(float rads) {
     const float sin = std::sin(rads);
     const float cos = std::cos(rads);
 
@@ -74,15 +72,14 @@ inline Matrix4x4 rotationZ(float rads) {
     return rotZ;
 }
 
-inline Matrix4x4 transform(const Vector3& tr, const Vector3& s, const Matrix4x4& rot) {
-    return translation(tr) * rot * scale(s);
+inline Matrix4x4 Transform(const Vector3& tr, const Vector3& s, const Matrix4x4& rot) {
+    return Translation(tr) * rot * Scale(s);
 }
 
-PBR_SHARED Matrix4x4 rotationAxis(float rads, const Vector3& axis);
-
-PBR_SHARED Matrix4x4 orthographic(float l, float r, float b, float t, float n, float f);
-PBR_SHARED Matrix4x4 perspective(float fov, float aspect, float n, float f);
-PBR_SHARED Matrix4x4 lookAt(const Vector3& eye, const Vector3& center, const Vector3& up);
+PBR_SHARED Matrix4x4 RotationAxis(float rads, const Vector3& axis);
+PBR_SHARED Matrix4x4 Orthographic(float l, float r, float b, float t, float n, float f);
+PBR_SHARED Matrix4x4 Perspective(float fov, float aspect, float n, float f);
+PBR_SHARED Matrix4x4 LookAt(const Vector3& eye, const Vector3& center, const Vector3& up);
 
 } // namespace math
 } // namespace pbr

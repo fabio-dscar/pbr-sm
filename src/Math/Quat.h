@@ -15,7 +15,7 @@ public:
 
     Quat() = default;
     Quat(const Vector3& v, float w) : x(v.x), y(v.y), z(v.z), w(w) {}
-    Quat(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {};
+    Quat(float x, float y, float z, float w) : x(x), y(y), z(z), w(w){};
     explicit Quat(const Matrix4x4& mat);
 
     Quat operator+(const Quat& q) const;
@@ -51,12 +51,13 @@ PBR_SHARED std::ostream& operator<<(std::ostream& os, const Quat& q);
 
 PBR_SHARED Quat operator*(float scalar, const Quat& q);
 
-PBR_SHARED float dot(const Quat& q1, const Quat& q2);
+PBR_SHARED float Dot(const Quat& q1, const Quat& q2);
+PBR_SHARED Quat Normalize(const Quat& q);
 
-PBR_SHARED Quat normalize(const Quat& q);
-PBR_SHARED Quat slerp(float t, const Quat& q1, const Quat& q2);
-
-PBR_SHARED Vector3 rotate(const Quat& q, const Vector3& v);
+PBR_SHARED Quat Slerp(float t, const Quat& q1, const Quat& q2);
+PBR_SHARED Vector3 Rotate(const Quat& q, const Vector3& v);
+PBR_SHARED Quat AxisAngle(const Vector3& axis, float angle);
+PBR_SHARED Quat RotationAlign(const Vector3& from, const Vector3& to);
 
 } // namespace math
 } // namespace pbr

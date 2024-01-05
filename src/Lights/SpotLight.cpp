@@ -25,7 +25,7 @@ float SpotLight::outerCutOff() const {
 }
 
 Vec3 SpotLight::direction() const {
-    return normalize(rotate(_orientation, DefaultDir));
+    return normalize(Rotate(_orientation, DefaultDir));
 }
 
 void SpotLight::toData(LightData& data) const {
