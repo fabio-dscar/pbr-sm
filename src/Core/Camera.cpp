@@ -14,8 +14,8 @@ Camera::Camera(int32 width, int32 height, const Vec3& eye, const Vec3& at, const
     lookAt(eye, at, up);
 
     Vector3 viewDir = normalize(at - eye);
-    _pitch = asinf(-viewDir.y);
-    _yaw = atan2f(viewDir.x, -viewDir.z);
+    _pitch = std::asin(-viewDir.y);
+    _yaw = std::atan2(viewDir.x, -viewDir.z);
 }
 
 int32 Camera::width() const {
@@ -27,7 +27,7 @@ int32 Camera::height() const {
 }
 
 float Camera::aspect() const {
-    return (float)_width / (float)_height;
+    return static_cast<float>(_width) / _height;
 }
 
 float Camera::near() const {
@@ -52,7 +52,7 @@ Vec3 Camera::up() const {
 
 void Camera::lookAt(const Vec3& eye, const Vec3& at, const Vec3& up) {
     _position = eye;
-    _objToWorld = math::lookAt(eye, at, up);
+    _objToWorld = math::LookAt(eye, at, up);
 
     Mat4 matOrient = _objToWorld;
     matOrient.m14 = 0;
@@ -63,7 +63,7 @@ void Camera::lookAt(const Vec3& eye, const Vec3& at, const Vec3& up) {
 }
 
 void Camera::lookAt(const Vec3& at) {
-    _objToWorld = math::lookAt(position(), at, normalize(Vec3(0.01, 1.0, 0.0)));
+    _objToWorld = math::LookAt(position(), at, normalize(Vec3(0.01, 1.0, 0.0)));
 }
 
 const Mat4& Camera::viewMatrix() const {
@@ -84,13 +84,12 @@ void Camera::updateDimensions(int w, int h) {
 }
 
 void Camera::updateViewMatrix() {
-    Matrix4x4 rotX = rotationAxis(_pitch, Vector3(1, 0, 0));
-    Matrix4x4 rotY = rotationAxis(_yaw, Vector3(0, 1, 0));
+    Matrix4x4 rotX = RotationAxis(_pitch, {1, 0, 0});
+    Matrix4x4 rotY = RotationAxis(_yaw, {0, 1, 0});
 
     Matrix4x4 orientation = rotX * rotY;
 
-    _objToWorld = orientation * translation(-_position);
-    //_objToWorld = translation(-_position) * _orientation.toMatrix();
+    _objToWorld = orientation * Translation(-_position);
 }
 
 void Camera::updateOrientation(float dpdx, float dydx) {

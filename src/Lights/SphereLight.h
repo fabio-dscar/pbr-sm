@@ -9,8 +9,9 @@ class SphereLight : public Light {
 public:
     SphereLight() = default;
     SphereLight(const Color& emission, float intensity, const Vec3& position,
-                float radius)
-        : Light(emission, intensity, position), _radius(radius) {}
+                float radius);
+    SphereLight(const Color& emission, float intensity, const Mat4& toWorld,
+                float radius);
 
     void toData(LightData& data) const override;
 

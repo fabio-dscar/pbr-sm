@@ -18,18 +18,19 @@ std::optional<ObjFile> pbr::LoadObjFile(const fs::path& filePath) {
     std::vector<tinyobj::material_t> materials;
     std::string err;
 
-    ObjFile objFile;
-    objFile.objName = filePath.filename();
-
     if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, filePath.c_str())) {
         LOG_ERROR("Failed to load obj file {}: {}", filePath.string(), err);
         return std::nullopt;
     }
 
-    unsigned int count = 0;
+    ObjFile objFile;
+    objFile.objName = filePath.filename();
+
+    auto& vertices = objFile.vertices;
+    auto& indices = objFile.indices;
     for (const auto& shape : shapes) {
         for (const auto& index : shape.mesh.indices) {
-            Vertex vertex = {};
+            Vertex& vertex = vertices.emplace_back();
 
             vertex.position = {attrib.vertices[3 * index.vertex_index + 0],
                                attrib.vertices[3 * index.vertex_index + 1],
@@ -46,9 +47,7 @@ std::optional<ObjFile> pbr::LoadObjFile(const fs::path& filePath) {
                              1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
             }
 
-            objFile.vertices.push_back(vertex);
-            objFile.indices.push_back(count);
-            count++;
+            indices.push_back(indices.size());
         }
     }
 

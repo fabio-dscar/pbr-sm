@@ -6,6 +6,7 @@
 #include <SphereLight.h>
 #include <TubeLight.h>
 
+#include <Transform.h>
 #include <ParameterMap.h>
 
 using namespace pbr;
@@ -40,13 +41,17 @@ std::unique_ptr<Light> pbr::CreateLight(const ParameterMap& params) {
 
     auto intensity = params.lookup("intensity", 1.0f);
     auto emission = params.lookup("emission", Color{1.0});
+
     auto pos = params.lookup("position", Vec3{0.0});
+    auto toWorld = params.lookup("toWorld", math::Translation(pos));
 
     if (type == "point") {
-        return std::make_unique<PointLight>(emission, intensity, pos);
+        return std::make_unique<PointLight>(emission, intensity, toWorld);
     } else if (type == "directional") {
-        auto dir = params.lookup("dir", Vec3{0, -1, 0});
-        return std::make_unique<DirectionalLight>(emission, intensity, dir);
+        auto dir = params.lookup<Vec3>("dir");
+        if (dir.has_value())
+            return std::make_unique<DirectionalLight>(emission, intensity, *dir);
+        return std::make_unique<DirectionalLight>(emission, intensity, toWorld);
     } else if (type == "spot") {
         auto cutoff = Radians(params.lookup("cutoff", 36.5f));
         auto outerCutoff = Radians(params.lookup("outerCutoff", 40.0f));
@@ -56,10 +61,12 @@ std::unique_ptr<Light> pbr::CreateLight(const ParameterMap& params) {
     // Area lights
     auto radius = params.lookup("radius", 0.2f);
     if (type == "sphere") {
-        return std::make_unique<SphereLight>(emission, intensity, pos, radius);
+        return std::make_unique<SphereLight>(emission, intensity, toWorld, radius);
     } else if (type == "tube") {
-        return std::make_unique<TubeLight>(emission, intensity, pos, radius);
+        return std::make_unique<TubeLight>(emission, intensity, toWorld, radius);
     }
+
+    LOG_ERROR("Unknwon light type.");
 
     return nullptr;
 }

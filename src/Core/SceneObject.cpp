@@ -5,14 +5,12 @@
 using namespace pbr;
 
 SceneObject::SceneObject(const Vec3& position)
-    :  _orientation(), _position(position), _objToWorld() { }
+    : _orientation(), _position(position), _objToWorld() {}
 
 SceneObject::SceneObject(const Mat4& objToWorld)
     : _orientation(), _objToWorld(objToWorld) {
 
-    _position = Vec3(_objToWorld.m14,
-                     _objToWorld.m24,
-                     _objToWorld.m34);
+    _position = Vec3(_objToWorld.m14, _objToWorld.m24, _objToWorld.m34);
 }
 
 const Vec3& SceneObject::position() const {
@@ -36,9 +34,7 @@ sref<SceneObject> SceneObject::parent() const {
 }
 
 void SceneObject::updateMatrix() {
-    _objToWorld = translation(_position) *
-                  Mat4(_orientation) *
-                  math::scale(_scale);
+    _objToWorld = Translation(_position) * Mat4(_orientation) * Scale(_scale);
 }
 
 void SceneObject::setPosition(const Vec3& position) {

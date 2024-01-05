@@ -8,6 +8,7 @@
 #include <variant>
 
 using namespace pbr::math;
+using namespace std::literals;
 
 namespace pbr {
 

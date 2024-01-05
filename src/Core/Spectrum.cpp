@@ -103,9 +103,9 @@ float RGBSpectrum::min() const {
 }
 
 void RGBSpectrum::clamp(float low, float high) {
-    r = math::clamp(r, low, high);
-    g = math::clamp(g, low, high);
-    b = math::clamp(b, low, high);
+    r = math::Clamp(r, low, high);
+    g = math::Clamp(g, low, high);
+    b = math::Clamp(b, low, high);
 }
 
 bool RGBSpectrum::isBlack() const {
@@ -134,9 +134,9 @@ RGBSpectrum pbr::operator*(float scalar, const RGBSpectrum& rgb) {
 }
 
 RGBSpectrum pbr::clamp(const RGBSpectrum& rgb, float low, float high) {
-    float r = math::clamp(rgb.r, low, high);
-    float g = math::clamp(rgb.g, low, high);
-    float b = math::clamp(rgb.b, low, high);
+    float r = math::Clamp(rgb.r, low, high);
+    float g = math::Clamp(rgb.g, low, high);
+    float b = math::Clamp(rgb.b, low, high);
     return {r, g, b};
 }
 
