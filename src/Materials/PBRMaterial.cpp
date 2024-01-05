@@ -25,12 +25,12 @@ PBRMaterial::PBRMaterial(const Color& diff, float metallic, float roughness)
 }
 
 void PBRMaterial::init() {
-    _prog = Resource.getShader("pbr")->id();
-    _brdfTex = Resource.getTexture("brdf")->rrid();
+    _prog = Resource.get<Program>("pbr")->id();
+    _brdfTex = Resource.get<Texture>("brdf")->rrid();
 
-    RRID nullTex = Resource.getTexture("null")->rrid();
-    RRID whiteTex = Resource.getTexture("white")->rrid();
-    RRID planarTex = Resource.getTexture("planar")->rrid();
+    RRID nullTex = Resource.get<Texture>("null")->rrid();
+    RRID whiteTex = Resource.get<Texture>("white")->rrid();
+    RRID planarTex = Resource.get<Texture>("planar")->rrid();
 
     _diffuseTex = whiteTex;
     _normalTex = nullTex;

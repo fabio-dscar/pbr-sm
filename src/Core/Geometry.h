@@ -3,7 +3,7 @@
 
 #include <PBR.h>
 #include <PBRMath.h>
-#include <Bounds.h>
+#include <BBox.h>
 
 using namespace pbr::math;
 

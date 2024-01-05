@@ -14,7 +14,7 @@ Skybox::Skybox(RRID cubeProg, RRID cubeTex)
     : _cubeProg(cubeProg), _geoId(-1), _cubeTex(cubeTex) {}
 
 Skybox::Skybox(const std::string& folder) {
-    _cubeProg = Resource.getShader("skybox")->id();
+    _cubeProg = Resource.get<Program>("skybox")->id();
 
     TexSampler cubeSampler;
     cubeSampler.setFilterMode(FILTER_LINEAR, FILTER_LINEAR);
@@ -22,11 +22,11 @@ Skybox::Skybox(const std::string& folder) {
 
     Cubemap cube(folder + "/cube.cube");
     _cubeTex = RHI.createCubemap(cube, cubeSampler);
-    Resource.addTexture("sky-" + folder, RHI.getTexture(_cubeTex));
+    Resource.add<Texture>("sky-" + folder, RHI.getTexture(_cubeTex));
 
     Cubemap irradianceCube(folder + "/irradiance.cube");
     _irradianceTex = RHI.createCubemap(irradianceCube, cubeSampler);
-    Resource.addTexture("irradiance-" + folder, RHI.getTexture(_irradianceTex));
+    Resource.add<Texture>("irradiance-" + folder, RHI.getTexture(_irradianceTex));
 
     TexSampler ggxSampler;
     ggxSampler.setFilterMode(FILTER_LINEAR_MIP_LINEAR, FILTER_LINEAR);
@@ -34,11 +34,11 @@ Skybox::Skybox(const std::string& folder) {
 
     Cubemap ggxCube(folder + "/ggx.cube");
     _ggxTex = RHI.createCubemap(ggxCube, ggxSampler);
-    Resource.addTexture("ggx-" + folder, RHI.getTexture(_ggxTex));
+    Resource.add<Texture>("ggx-" + folder, RHI.getTexture(_ggxTex));
 }
 
 void Skybox::initialize() {
-    _geoId = Resource.getGeometry("unitCube")->rrid();
+    _geoId = Resource.get<Geometry>("unitCube")->rrid();
 }
 
 void Skybox::draw() const {
@@ -69,7 +69,7 @@ RRID Skybox::ggxTex() const {
 Skybox pbr::CreateSkybox(const ParameterMap& params) {
     auto parentDir = params.lookup("parentdir", ""s);
     auto optFolder = params.lookup<std::string>("folder");
-    
+
     CHECK(optFolder.has_value());
 
     auto folder = *optFolder;

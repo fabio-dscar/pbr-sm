@@ -42,23 +42,8 @@ void Mesh::prepare() {
     RHI.uploadGeometry(*_geometry);
 }
 
-void Mesh::draw() {
-    assert(_material != nullptr);
-
-    updateMatrix();
-
-    _material->use();
-
-    RHI.setMatrix4(MODEL_MATRIX, objToWorld());
-    RHI.setMatrix3(NORMAL_MATRIX, normalMatrix());
-
-    _material->uploadData();
-
-    RHI.drawGeometry(_geometry->rrid());
-}
-
 BBox3 Mesh::bbox() const {
-    return transform(objToWorld(), _bbox);
+    return Transform(objToWorld(), _bbox);
 }
 
 BSphere Mesh::bSphere() const {

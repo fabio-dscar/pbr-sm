@@ -1,56 +1,69 @@
 #ifndef __PBR_RESOURCES_H__
 #define __PBR_RESOURCES_H__
 
-#include <unordered_map>
-
 #include <PBR.h>
 
-// Macro to syntax sugar the singleton getter
-// ex: Resource.getTexture("albedo");
-#define Resource Resources::get()
+#define Resource Resources::inst()
 
 namespace pbr {
 
-    class Shape;
-    class Geometry;
-    class Program;
-    class Texture;
+class Geometry;
+class Program;
+class Texture;
 
-    template<class KT, class T> 
-    using map = std::unordered_map<KT, T>;
+template<class KT, class T>
+using map = std::unordered_map<KT, T>;
 
-    class Resources {
-    public:
-        static Resources& get();
+class Resources {
+public:
+    static Resources& inst() {
+        static Resources _inst;
+        return _inst;
+    }
 
-        void initialize();
+    template<typename T>
+    void add(const std::string& name, sref<T> res) {
+        if constexpr (std::is_same<Texture, T>())
+            addResource(name, std::move(res), _textures);
+        else if constexpr (std::is_same<Program, T>())
+            addResource(name, std::move(res), _shaders);
+        else if constexpr (std::is_same<Geometry, T>())
+            addResource(name, std::move(res), _geometry);
+    }
 
-        void addGeometry(const std::string& name, const sref<Geometry>& geometry);
-        void addShape   (const std::string& name, const sref<Shape>& shape);
-        void addShader  (const std::string& name, const sref<Program>& shader);
-        void addTexture (const std::string& name, const sref<Texture>& texture);
+    template<typename T>
+    sref<T> get(const std::string& name) {
+        if constexpr (std::is_same<Texture, T>())
+            return getResource(name, _textures);
+        else if constexpr (std::is_same<Program, T>())
+            return getResource(name, _shaders);
+        else if constexpr (std::is_same<Geometry, T>())
+            return getResource(name, _geometry);
+    }
 
-        bool deleteGeometry(const std::string& name);
-        bool deleteShape   (const std::string& name);
-        bool deleteShader  (const std::string& name);
-        bool deleteTexture (const std::string& name);
+private:
+    template<typename T>
+    void addResource(const std::string& name, sref<T> res,
+                     map<std::string, sref<T>>& resMap) {
+        resMap.emplace(name, std::move(res));
+    }
 
-        Geometry* getGeometry(const std::string& name);
-        Shape*    getShape   (const std::string& name);
-        Program*  getShader  (const std::string& name);
-        Texture*  getTexture (const std::string& name);
+    template<typename T>
+    sref<T> getResource(const std::string& name,
+                        const map<std::string, sref<T>>& resMap) const {
+        auto it = resMap.find(name);
+        if (it != resMap.end())
+            return it->second;
+        return nullptr;
+    }
 
-        void cleanup();
+    Resources() = default;
 
-    private:
-        Resources() = default;
+    map<std::string, sref<Geometry>> _geometry;
+    map<std::string, sref<Program>> _shaders;
+    map<std::string, sref<Texture>> _textures;
+};
 
-        map<std::string, sref<Geometry>> _geometry;
-        map<std::string, sref<Shape>>    _shapes;
-        map<std::string, sref<Program>>  _shaders;
-        map<std::string, sref<Texture>>  _textures;
-    };
-
-}
+} // namespace pbr
 
 #endif

@@ -16,10 +16,12 @@
 #include <memory>
 #include <string>
 #include <cstring>
-#include <vector>
 #include <iomanip>
 #include <cassert>
 #include <format>
+#include <vector>
+#include <array>
+#include <unordered_map>
 
 #include <Check.h>
 

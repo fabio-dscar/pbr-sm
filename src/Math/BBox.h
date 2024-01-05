@@ -1,5 +1,5 @@
-#ifndef __PBR_BOUNDS_H__
-#define __PBR_BOUNDS_H__
+#ifndef __PBR_BBOX_H__
+#define __PBR_BBOX_H__
 
 #include <PBRMath.h>
 
@@ -41,12 +41,12 @@ private:
     Vec3 _max{FLOAT_INFINITY};
 };
 
-PBR_SHARED BBox3 expand(const BBox3& box, const Vec3& pt);
-PBR_SHARED BBox3 expand(const BBox3& box1, const BBox3& box2);
-PBR_SHARED BBox3 intersection(const BBox3& box1, const BBox3& box2);
-PBR_SHARED bool overlaps(const BBox3& box1, const BBox3& box2);
+PBR_SHARED BBox3 Expand(const BBox3& box, const Vec3& pt);
+PBR_SHARED BBox3 Expand(const BBox3& box1, const BBox3& box2);
+PBR_SHARED BBox3 Intersection(const BBox3& box1, const BBox3& box2);
+PBR_SHARED bool Overlaps(const BBox3& box1, const BBox3& box2);
 
-PBR_SHARED BBox3 transform(const Matrix4x4& mat, const BBox3& box);
+PBR_SHARED BBox3 Transform(const Matrix4x4& mat, const BBox3& box);
 
 class PBR_SHARED BSphere {
 public:
@@ -67,7 +67,7 @@ private:
     float _radius = FLOAT_INFINITY;
 };
 
-PBR_SHARED BSphere transform(const Matrix4x4& mat, const BSphere& bSphere);
+PBR_SHARED BSphere Transform(const Matrix4x4& mat, const BSphere& bSphere);
 
 } // namespace math
 } // namespace pbr

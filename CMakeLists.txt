@@ -26,7 +26,6 @@ set(RT_PBR_SOURCES
   src/Core/Geometry.cpp
   src/Core/Mesh.cpp
   src/Core/Perspective.cpp
-  src/Core/Resources.cpp
   src/Core/Scene.cpp
   src/Core/SceneObject.cpp
   src/Core/Shape.cpp
@@ -55,7 +54,7 @@ set(RT_PBR_SOURCES
   src/Materials/Material.cpp
   src/Materials/PBRMaterial.cpp
 
-  src/Math/Bounds.cpp
+  src/Math/BBox.cpp
   src/Math/Hash.cpp
   src/Math/Matrix2x2.cpp
   src/Math/Matrix3x3.cpp

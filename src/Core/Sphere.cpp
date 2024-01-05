@@ -15,24 +15,7 @@ Sphere::Sphere(const Mat4& objToWorld, float radius)
 
 void Sphere::prepare() {
     this->setScale(_radius, _radius, _radius);
-    _geoId = Resource.getGeometry("unitSphere")->rrid();
-}
-
-void Sphere::draw() {
-    assert(_material != nullptr);
-
-    updateMatrix();
-
-    _material->use();
-
-    RHI.setMatrix4(MODEL_MATRIX, objToWorld());
-    RHI.setMatrix3(NORMAL_MATRIX, normalMatrix());
-
-    _material->uploadData();
-
-    RHI.drawGeometry(_geoId);
-
-    RHI.useProgram(0);
+    _geometry = Resource.get<Geometry>("unitSphere");
 }
 
 BBox3 Sphere::bbox() const {

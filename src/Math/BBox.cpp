@@ -1,4 +1,4 @@
-#include <Bounds.h>
+#include <BBox.h>
 
 #include <Ray.h>
 
@@ -110,25 +110,25 @@ bool BBox3::intersectRay(const Ray& ray, float* t) const {
     return true;
 }
 
-BBox3 math::expand(const BBox3& box, const Vec3& pt) {
+BBox3 math::Expand(const BBox3& box, const Vec3& pt) {
     return {min(box.min(), pt), max(box.max(), pt)};
 }
 
-BBox3 math::expand(const BBox3& box1, const BBox3& box2) {
+BBox3 math::Expand(const BBox3& box1, const BBox3& box2) {
     return {min(box1.min(), box2.min()), max(box1.max(), box2.max())};
 }
 
-BBox3 math::intersection(const BBox3& box1, const BBox3& box2) {
+BBox3 math::Intersection(const BBox3& box1, const BBox3& box2) {
     return {max(box1.min(), box2.min()), min(box1.max(), box2.max())};
 }
 
-bool math::overlaps(const BBox3& box1, const BBox3& box2) {
+bool math::Overlaps(const BBox3& box1, const BBox3& box2) {
     return (box1[1].x >= box2[0].x) && (box1[0].x <= box2[1].x) &&
            (box1[1].y >= box2[0].y) && (box1[0].y <= box2[1].y) &&
            (box1[1].z >= box2[0].z) && (box1[0].z <= box2[1].z);
 }
 
-BBox3 math::transform(const Matrix4x4& mat, const BBox3& box) {
+BBox3 math::Transform(const Matrix4x4& mat, const BBox3& box) {
     BBox3 ret(FLOAT_INFINITY, -FLOAT_INFINITY);
 
     ret.expand(mat * Vec4(box[0].x, box[0].y, box[0].z, 1.0f));
@@ -187,6 +187,6 @@ bool BSphere::intersectRay(const Ray& ray, float* t) const {
     return false;
 }
 
-BSphere math::transform(const Matrix4x4& mat, const BSphere& bSphere) {
+BSphere math::Transform(const Matrix4x4& mat, const BSphere& bSphere) {
     return {mat * Vec4(bSphere.center(), 1.0f), bSphere.radius()};
 }

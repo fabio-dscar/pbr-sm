@@ -1,5 +1,6 @@
 #include <Shape.h>
 
+#include <RenderInterface.h>
 #include <Geometry.h>
 #include <Material.h>
 
@@ -31,4 +32,17 @@ void Shape::setMaterial(const sref<Material>& mat) {
 
 void Shape::updateMaterial(const Skybox& skybox) {
     _material->update(skybox);
+}
+
+void Shape::draw() {
+    updateMatrix();
+
+    _material->use();
+
+    RHI.setMatrix4(MODEL_MATRIX, objToWorld());
+    RHI.setMatrix3(NORMAL_MATRIX, normalMatrix());
+
+    _material->uploadData();
+
+    RHI.drawGeometry(_geometry->rrid());
 }

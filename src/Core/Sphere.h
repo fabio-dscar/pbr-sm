@@ -13,7 +13,6 @@ public:
     Sphere(const Mat4& objToWorld, float radius);
 
     void prepare() override;
-    void draw() override;
 
     BBox3 bbox() const override;
     BSphere bSphere() const override;

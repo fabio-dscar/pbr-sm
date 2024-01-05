@@ -2,7 +2,7 @@
 #define __PBR_SCENE_H__
 
 #include <PBR.h>
-#include <Bounds.h>
+#include <BBox.h>
 #include <optional>
 
 using namespace pbr::math;

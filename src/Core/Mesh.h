@@ -12,7 +12,6 @@ public:
     Mesh(const std::shared_ptr<Geometry>& geometry, const Mat4& objToWorld);
 
     void prepare() override;
-    void draw() override;
 
     BBox3 bbox() const override;
     BSphere bSphere() const override;

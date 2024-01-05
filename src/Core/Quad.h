@@ -10,7 +10,6 @@ namespace pbr {
 class Quad : public Shape {
 public:
     void prepare() override;
-    void draw() override;
 
     BBox3 bbox() const override;
     BSphere bSphere() const override;

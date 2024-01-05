@@ -1,7 +1,7 @@
 #ifndef __PBR_SHAPE_H__
 #define __PBR_SHAPE_H__
 
-#include <Bounds.h>
+#include <BBox.h>
 #include <SceneObject.h>
 
 using namespace pbr::math;
@@ -32,7 +32,7 @@ public:
     virtual ~Shape() = default;
 
     virtual void prepare() = 0;
-    virtual void draw() = 0;
+    virtual void draw();
 
     const sref<Material>& material() const;
     const sref<Geometry>& geometry() const;
