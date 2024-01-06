@@ -14,10 +14,15 @@ namespace pbr {
 class Shape;
 class Material;
 class OParameterMap;
+class Image;
+struct ImageFormat;
 
 namespace util {
 
 std::optional<std::string> ReadTextFile(const fs::path& filePath);
+
+std::unique_ptr<Image> LoadImage(const fs::path& filePath);
+void SaveImage(const fs::path& filePath, const Image& image);
 
 RRID LoadTexture(const fs::path& path);
 std::unique_ptr<Shape> LoadSceneObject(const std::string& folder);

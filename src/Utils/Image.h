@@ -2,252 +2,152 @@
 #define __PBR_IMAGE_H__
 
 #include <PBR.h>
-#include <PBRMath.h>
+#include <variant>
+#include <half/half.hpp>
 
 namespace pbr {
 
-enum class ImageType : uint32 {
-    IMGTYPE_1D = 0,
-    IMGTYPE_2D = 1,
-    IMGTYPE_3D = 2,
-    IMGTYPE_CUBE = 3,
-    IMGTYPE_UNKNOWN = 10
+using Half = half_float::half;
+
+enum class PixelFormat : std::uint32_t { U8, F16, F32 };
+
+struct ImageFormat {
+    PixelFormat pFmt = PixelFormat::F32;
+    int width = 0, height = 0;
+    int nChannels = 0;
 };
 
-enum class ImageComponent : uint32 {
-    UBYTE = 0,
-    BYTE = 1,
-    USHORT = 2,
-    SHORT = 3,
-    UINT = 4,
-    INT = 5,
-    FLOAT = 6,
-    HALF = 7,
-
-    UNKNOWN = 8
+struct Extents {
+    int toX = 0, toY = 0;
+    int fromX = 0, fromY = 0;
+    int sizeX, sizeY;
 };
 
-enum class ImageFormat : uint32 {
-    IMGFMT_UNKNOWN = 0,
+int ComponentSize(PixelFormat pFmt);
 
-    // Unsigned IMGFMTs
-    IMGFMT_R8 = 1,
-    IMGFMT_RG8 = 2,
-    IMGFMT_RGB8 = 3,
-    IMGFMT_RGBA8 = 4,
+inline int ResizeLvl(int dim, int lvl) {
+    return std::max(dim >> lvl, 1);
+}
 
-    IMGFMT_R16 = 5,
-    IMGFMT_RG16 = 6,
-    IMGFMT_RGB16 = 7,
-    IMGFMT_RGBA16 = 8,
+// Total pixels across levels
+inline std::size_t TotalPixels(ImageFormat fmt, int levels = 1) {
+    std::size_t totalPx = 0;
+    for (int l = 0; l < levels; ++l)
+        totalPx += ResizeLvl(fmt.width, l) * ResizeLvl(fmt.height, l);
+    return totalPx;
+}
 
-    // Signed IMGFMTs
-    IMGFMT_R8S = 9,
-    IMGFMT_RG8S = 10,
-    IMGFMT_RGB8S = 11,
-    IMGFMT_RGBA8S = 12,
+inline std::size_t ImageSize(ImageFormat fmt, int levels = 1) {
+    return TotalPixels(fmt, levels) * ComponentSize(fmt.pFmt) * fmt.nChannels;
+}
 
-    IMGFMT_R16S = 13,
-    IMGFMT_RG16S = 14,
-    IMGFMT_RGB16S = 15,
-    IMGFMT_RGBA16S = 16,
-
-    // Float IMGFMTs
-    IMGFMT_R16F = 17,
-    IMGFMT_RG16F = 18,
-    IMGFMT_RGB16F = 19,
-    IMGFMT_RGBA16F = 20,
-
-    IMGFMT_R32F = 21,
-    IMGFMT_RG32F = 22,
-    IMGFMT_RGB32F = 23,
-    IMGFMT_RGBA32F = 24,
-
-    // Signed integer IMGFMTs
-    IMGFMT_R16I = 25,
-    IMGFMT_RG16I = 26,
-    IMGFMT_RGB16I = 27,
-    IMGFMT_RGBA16I = 28,
-
-    IMGFMT_R32I = 29,
-    IMGFMT_RG32I = 30,
-    IMGFMT_RGB32I = 31,
-    IMGFMT_RGBA32I = 32,
-
-    // Unsigned integer IMGFMTs
-    IMGFMT_R16UI = 33,
-    IMGFMT_RG16UI = 34,
-    IMGFMT_RGB16UI = 35,
-    IMGFMT_RGBA16UI = 36,
-
-    IMGFMT_R32UI = 37,
-    IMGFMT_RG32UI = 38,
-    IMGFMT_RGB32UI = 39,
-    IMGFMT_RGBA32UI = 40,
-
-    // Packed IMGFMTs
-    IMGFMT_RGBE8 = 41,
-    IMGFMT_RGB9E5 = 42,
-    IMGFMT_RG11B10F = 43,
-    IMGFMT_RGB565 = 44,
-    IMGFMT_RGBA4 = 45,
-    IMGFMT_RGB10A2 = 46,
-
-    // Depth IMGFMTs
-    IMGFMT_D16 = 47,
-    IMGFMT_D24 = 48,
-    IMGFMT_D24S8 = 49,
-    IMGFMT_D32F = 50,
-
-    // Compressed IMGFMTs
-    IMGFMT_DXT1 = 51,
-    IMGFMT_DXT3 = 52,
-    IMGFMT_DXT5 = 53,
-    IMGFMT_ATI1N = 54,
-    IMGFMT_ATI2N = 55,
-    IMGFMT_BC7 = 56
-};
-
-uint32 formatToNumChannels(ImageFormat format);
-uint32 formatToBytesPerChannel(ImageFormat format);
-ImageComponent formatToImgComp(ImageFormat format);
-uint32 mipDimension(uint32 baseDim, uint32 level);
-
+// Mipmapped image
 class Image {
 public:
-    using enum pbr::ImageFormat;
-    using enum pbr::ImageComponent;
-    using enum pbr::ImageType;
+    using PixelVal = std::array<float, 4>;
 
     Image() = default;
-    explicit Image(const std::string& filePath);
+    Image(ImageFormat format, int levels);
+    Image(ImageFormat format, PixelVal fillVal, int levels = 1);
+    Image(ImageFormat format, const std::byte* imgPtr, int levels = 1);
+    Image(ImageFormat format, const float* imgPtr, int levels = 1);
+    Image(ImageFormat format, Image&& srcImg);
 
-    void init(ImageFormat format, uint32 width, uint32 height, uint32 depth,
-              uint32 numLevels = 1);
+    Image convertTo(ImageFormat newFmt, int nLvls = 1) const;
 
-    bool loadImage(const std::string& filePath);
+    void copy(const Image& srcImg) { *this = srcImg.convertTo(fmt); }
+    void copy(const Image& srcImg, int toLvl, int fromLvl = 0);
+    void copy(Extents ext, const Image& srcImg, int toLvl = 0, int fromLvl = 0);
 
-    // Loads image from memory
-    bool loadImage(ImageFormat format, uint32 width, uint32 height, uint32 depth,
-                   const uint8* data, uint32 numLevels = 1);
+    PixelVal pixel(int x, int y, int lvl = 0) const;
+    void setPixel(const PixelVal& px, int x, int y, int lvl = 0);
 
-    // Loads a mipmap level from memory
-    bool loadImage(const uint8* data, uint32 lvl);
+    float channel(int x, int y, int c, int lvl = 0) const;
+    void setChannel(float val, int x, int y, int c, int lvl = 0);
 
-    bool saveImage(const std::string& filePath, uint32 lvl = 0) const;
-    bool saveMipMap(const std::string& filePath) const;
+    void flipXY();
 
-    ImageType type() const;
-    ImageFormat format() const;
-    ImageComponent compType() const;
+    const std::byte* data(int lvl = 0) const {
+        std::size_t prevLvlSize = ImageSize(fmt, lvl);
+        return &getPtr()[prevLvlSize];
+    }
 
-    bool hasMipMap() const;
-    uint32 numLevels() const;
+    ImageFormat format(int level = 0) const {
+        auto w = ResizeLvl(fmt.width, level);
+        auto h = ResizeLvl(fmt.height, level);
+        return {fmt.pFmt, w, h, fmt.nChannels};
+    }
 
-    int32 width() const;
-    int32 height() const;
-    int32 depth() const;
+    std::size_t size(int lvl) const { return ImageSize(format(lvl)); }
+    std::size_t size() const { return ImageSize(fmt, levels); }
 
-    uint8* data(uint32 lvl = 0) const;
-
-    bool flipX();
-    bool flipY();
-    bool toGrayscale();
-    bool toneMap(float exposure = 1.0f);
-
-    uint32 size(uint32 lvl = 0) const;
-    uint32 totalSize() const;
-    uint32 numChannels() const;
+    int numLevels() const { return levels; }
 
 private:
-    bool loadPNG(const std::string& filePath);
-    bool loadIMG(const std::string& filePath);
+    void fill(PixelVal val);
+    void resizeBuffer();
+    std::size_t pixelOffset(int x, int y, int lvl = 0) const;
 
-    bool saveIMG(const std::string& filePath) const;
-    bool savePNG(const std::string& filePath, uint32 lvl = 0) const;
+    const std::byte* getPtr() const;
+    std::byte* getPtr();
 
-    ImageFormat _format = IMGFMT_UNKNOWN;
-    ImageType _type = IMGTYPE_UNKNOWN;
-    int32 _width = 0;
-    int32 _height = 0;
-    int32 _depth = 0;
-    uint32 _numLevels = 0;
+    std::vector<std::uint8_t> p8;
+    std::vector<Half> p16;
+    std::vector<float> p32;
 
-    std::unique_ptr<uint8[]> _data = nullptr;
+    ImageFormat fmt;
+    int levels = 1;
 };
 
-enum CubemapFace : uint32 {
-    CUBE_X_POS = 0,
-    CUBE_X_NEG = 1,
-    CUBE_Y_POS = 2,
-    CUBE_Y_NEG = 3,
-    CUBE_Z_POS = 4,
-    CUBE_Z_NEG = 5
-};
-
-class Cubemap {
+class CubeImage {
 public:
-    Cubemap() = default;
-    explicit Cubemap(const std::string& filePath);
+    CubeImage() = default;
+    CubeImage(ImageFormat fmt, int levels) : levels(levels) {
+        for (auto& img : faces)
+            img = {fmt, levels};
+    }
 
-    void init(ImageFormat format, uint32 width, uint32 height, uint32 numLevels = 1);
+    const Image& operator[](int idx) const { return faces[idx]; }
+    Image& operator[](int idx) { return faces[idx]; }
 
-    bool loadCubemap(const std::string& filePath);
-    bool loadCubemap(const std::string paths[6]);
-    bool loadCubemap(ImageFormat format, uint32 width, uint32 height, const uint8* data,
-                     uint32 numLevels = 1);
-    bool loadFace(CubemapFace face, const uint8* data, uint32 lvl);
-
-    bool saveCubemap(const std::string& filePath);
-
-    uint8* data(CubemapFace face, uint32 lvl = 0) const;
-
-    ImageType type() const;
-    ImageFormat format() const;
-    ImageComponent compType() const;
-
-    int32 width() const;
-    int32 height() const;
-
-    const Image* faces() const;
-    const Image* face(CubemapFace face) const;
-    Image* face(CubemapFace face);
-
-    uint32 size(CubemapFace face, uint32 lvl = 0) const;
-    uint32 totalSize() const;
-    uint32 numChannels() const;
-
-    bool hasMipMap() const;
-    uint32 numLevels() const;
+    int numLevels() const { return levels; }
+    ImageFormat imgFormat(int lvl = 0) const { return faces[0].format(lvl); }
 
 private:
-    bool loadCUBE(const std::string& filePath);
-    bool saveCUBE(const std::string& filePath) const;
-
-    Image _faces[6];
+    std::array<Image, 6> faces;
+    int levels = 1;
 };
 
-struct IMGHeader {
-    char id[4];
-    uint32 fmt;
-    uint32 width;
-    uint32 height;
-    uint32 depth;
-    uint32 compSize;
-    uint32 totalSize;
-    uint32 levels;
-}; // 32 Bytes
+// Non owning reference to an image (including all levels) or just one image level
+class ImageView {
+public:
+    ImageView(const Image& image);
+    ImageView(const Image& image, int lvl);
 
-struct CUBEHeader {
-    char id[4];
-    uint32 fmt;
-    uint32 width;
-    uint32 height;
-    uint32 compSize;
-    uint32 totalSize;
-    uint32 levels;
-}; // 28 Bytes
+    ImageFormat format(int lvl = 0) const { return img->format(viewLevel + lvl); }
+
+    const std::byte* data() const { return start; }
+    std::size_t size() const { return viewSize; }
+
+    Image convertTo(ImageFormat newFmt, int lvl = 0) const;
+
+    const Image* image() const { return img; }
+
+    int level() const { return viewLevel; }
+    int numLevels() const { return nLevels; }
+
+private:
+    const Image* img;
+    const std::byte* start;
+    std::size_t viewSize;
+
+    int nLevels = 1;
+    int viewLevel = 0;
+};
+
+std::unique_ptr<std::byte[]> ExtractChannel(const Image& image, int c, int lvl = 0);
+std::unique_ptr<std::byte[]> ExtractChannel(const ImageView imgView, int c, int lvl = 0);
 
 } // namespace pbr
 
-#endif
+#endif // __PBR_IMAGE_H__

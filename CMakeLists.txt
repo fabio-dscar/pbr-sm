@@ -66,6 +66,7 @@ set(RT_PBR_SOURCES
   src/Math/Vector3.cpp
   src/Math/Vector4.cpp
 
+  src/Utils/OImage.cpp
   src/Utils/Image.cpp
   src/Utils/LoadXML.cpp
   src/Utils/Utils.cpp
@@ -78,6 +79,7 @@ set(RT_PBR_SOURCES
   
   ext/pugixml/pugixml.cpp
   ext/lodepng/lodepng.cpp
+  ext/lodepng/lodepng_util.cpp
   ext/mikktspace/mikktspace.c
   ${IMGUI_SOURCES}
 )
