@@ -33,7 +33,6 @@ set(RT_PBR_SOURCES
   src/Core/Spectrum.cpp
   src/Core/Sphere.cpp
   src/Core/Quad.cpp
-  src/Core/Texture.cpp
 
   src/Graphics/Renderer.cpp
   src/Graphics/RenderInterface.cpp
@@ -41,6 +40,7 @@ set(RT_PBR_SOURCES
   src/Graphics/RingBuffer.cpp
   src/Graphics/VertexArrays.cpp
   src/Graphics/Shader.cpp
+  src/Graphics/Texture.cpp
 
   src/GUI/GUI.cpp
 
@@ -66,13 +66,10 @@ set(RT_PBR_SOURCES
   src/Math/Vector3.cpp
   src/Math/Vector4.cpp
 
-  src/Utils/OImage.cpp
   src/Utils/Image.cpp
-  src/Utils/LoadXML.cpp
   src/Utils/Utils.cpp
   src/Utils/Log.cpp
   src/Utils/SceneLoader.cpp
-  src/Utils/_ParameterMap.cpp
 
   src/Loaders/ObjLoader.cpp
   src/Loaders/GltfLoader.cpp

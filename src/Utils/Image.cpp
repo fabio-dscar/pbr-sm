@@ -180,6 +180,16 @@ std::size_t Image::pixelOffset(int x, int y, int lvl) const {
     return nPixels + (y * ResizeLvl(fmt.width, lvl) + x);
 }
 
+const std::byte* Image::data(int lvl) const {
+    std::size_t prevLvlSize = ImageSize(fmt, lvl);
+    return &getPtr()[prevLvlSize];
+}
+
+std::byte* Image::data(int lvl) {
+    std::size_t prevLvlSize = ImageSize(fmt, lvl);
+    return &getPtr()[prevLvlSize];
+}
+
 const std::byte* Image::getPtr() const {
     using enum PixelFormat;
     switch (fmt.pFmt) {
@@ -208,7 +218,7 @@ std::byte* Image::getPtr() {
     }
 }
 
-void Image::flipXY() {
+void Image::flipY() {
     Image flipImg{format(), levels};
 
     for (int lvl = 0; lvl < levels; ++lvl) {
@@ -216,7 +226,7 @@ void Image::flipXY() {
 
         for (int x = 0; x < lvlFmt.width; ++x) {
             for (int y = 0; y < lvlFmt.height; ++y) {
-                auto px = pixel(lvlFmt.width - 1 - x, lvlFmt.height - 1 - y, lvl);
+                auto px = pixel(x, lvlFmt.height - 1 - y, lvl);
                 flipImg.setPixel(px, x, y, lvl);
             }
         }

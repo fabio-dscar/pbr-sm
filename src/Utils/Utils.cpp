@@ -1,13 +1,11 @@
 #include <Utils.h>
 
 #include <Image.h>
-#include <OImage.h>
 
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 
-#include <LoadXML.h>
 #include <Mesh.h>
 #include <PBRMaterial.h>
 #include <RenderInterface.h>
@@ -40,7 +38,6 @@ std::unique_ptr<Image> LoadPNGImage(const fs::path& filePath) {
               filePath.string());
 
     lodepng::State state;
-    lodepng_state_init(&state);
     state.info_raw = pngInfo.color;
 
     unsigned width, height;
@@ -48,8 +45,6 @@ std::unique_ptr<Image> LoadPNGImage(const fs::path& filePath) {
     if (error)
         FATAL("Error decoding png file {}. {}", filePath.string(),
               lodepng_error_text(error));
-
-    lodepng_state_cleanup(&state);
 
     int numChannels = 0;
     switch (state.info_png.color.colortype) {
@@ -66,7 +61,7 @@ std::unique_ptr<Image> LoadPNGImage(const fs::path& filePath) {
                     .height = static_cast<int>(height),
                     .nChannels = numChannels};
 
-    return std::make_unique<Image>(fmt, reinterpret_cast<std::byte*>(png.data()));
+    return std::make_unique<Image>(fmt, reinterpret_cast<std::byte*>(image.data()));
 }
 // clang-format on
 
@@ -111,7 +106,7 @@ std::unique_ptr<Image> LoadImgFormatImage(const fs::path& filePath) {
     std::ifstream file(filePath, std::ios::in | std::ios::binary);
     if (file.fail()) {
         perror(filePath.c_str());
-        return {};
+        return nullptr;
     }
 
     ImgHeader header;
@@ -146,6 +141,48 @@ void SaveImgFormatImage(const fs::path& filePath, const Image& image) {
     file.write(reinterpret_cast<const char*>(image.data()), header.totalSize);
 }
 
+struct CubeHeader {
+    std::uint8_t id[4] = {'C', 'U', 'B', 'E'};
+    std::uint32_t fmt;
+    std::int32_t width;
+    std::int32_t height;
+    std::uint32_t compSize;
+    std::int32_t numChannels;
+    std::uint32_t totalSize;
+    std::int32_t levels;
+};
+
+std::unique_ptr<CubeImage> LoadCubeFormatCube(const fs::path& filePath) {
+    std::ifstream file(filePath, std::ios::in | std::ios::binary | std::ios::ate);
+    if (file.fail())
+        FATAL("Failed to open cubemap file {}", filePath.string());
+
+    auto fileSize = file.tellg();
+    if (fileSize == -1)
+        FATAL("Failed to compute file size for {}", filePath.string());
+    file.seekg(0, std::ios::beg);
+
+    CubeHeader header;
+    file.read(reinterpret_cast<char*>(&header), sizeof(CubeHeader));
+
+    const ImageFormat faceFmt{.pFmt = static_cast<PixelFormat>(header.fmt),
+                              .width = header.width,
+                              .height = header.height,
+                              .nChannels = header.numChannels};
+
+    CHECK_EQ(static_cast<std::size_t>(fileSize),
+             sizeof(CubeHeader) + ImageSize(faceFmt, header.levels) * 6);
+
+    const auto faceSize = header.totalSize / 6;
+
+    auto cubePtr = std::make_unique<CubeImage>(faceFmt, header.levels);
+    auto& cube = *cubePtr;
+    for (int face = 0; face < 6; ++face)
+        file.read(reinterpret_cast<char*>(cube[face].data()), faceSize);
+
+    return cubePtr;
+}
+
 } // namespace
 
 std::optional<std::string> util::ReadTextFile(const fs::path& filePath) {
@@ -176,7 +213,7 @@ std::unique_ptr<Image> util::LoadImage(const fs::path& filePath) {
     FATAL("Unsupported format {}", ext);
 }
 
-void SaveImage(const fs::path& filePath, const Image& image) {
+void util::SaveImage(const fs::path& filePath, const Image& image) {
     auto ext = filePath.extension().string();
     if (ext == ".png")
         SavePNGImage(filePath, image);
@@ -186,64 +223,28 @@ void SaveImage(const fs::path& filePath, const Image& image) {
         FATAL("Unsupported format.");
 }
 
-std::unique_ptr<Shape> util::LoadSceneObject(const std::string& folder) {
-    fs::path objRoot = std::format("Objects/{}", folder);
-
-    fs::path objFile{objRoot / std::format("{}.obj", folder)};
-    auto obj = std::make_unique<Mesh>(objFile);
-
-    LoadXML loader(objRoot / "material.xml");
-    auto mat = BuildMaterial(objRoot, loader.getMap());
-    mat->prepare();
-
-    obj->prepare();
-    obj->setMaterial(std::move(mat));
-
-    return obj;
+std::unique_ptr<CubeImage> util::LoadCubemap(const fs::path& filePath) {
+    auto ext = filePath.extension().string();
+    if (ext == ".cube")
+        return LoadCubeFormatCube(filePath);
+    else
+        FATAL("Unsupported format.");
 }
 
 RRID util::LoadTexture(const fs::path& path) {
     if (!fs::exists(path)) {
         LOG_ERROR("Couldn't find texture {}. Assigning 'unset' texture.", path.string());
-        return Resource.get<Texture>("null")->rrid();
+        return Resource.get<Texture>("null")->id();
     }
 
-    TmpImage image(path);
-    return RHI.createTextureImmutable(image, TexSampler{});
+    return CreateNamedTexture(path.string(), path)->id();
+
+    // TmpImage image(path);
+    // return RHI.createTextureImmutable(image, ETexSampler{});
 }
 
-std::unique_ptr<Material> util::BuildMaterial(const fs::path& objRoot,
-                                              const OParameterMap& map) {
-    auto mat = std::make_unique<PBRMaterial>();
-
-    if (auto tex = map.getTexture("diffuse"))
-        mat->setDiffuse(LoadTexture(objRoot / tex.value()));
-    else
-        mat->setDiffuse(map.getRGB("diffuse").value_or(Color{0.5f}));
-
-    if (auto tex = map.getTexture("normal"))
-        mat->setNormal(LoadTexture(objRoot / tex.value()));
-
-    mat->setReflectivity(map.getFloat("specular").value_or(0.5f));
-
-    if (auto tex = map.getTexture("roughness"))
-        mat->setRoughness(LoadTexture(objRoot / tex.value()));
-    else
-        mat->setRoughness(map.getFloat("roughness").value_or(0.2f));
-
-    if (auto tex = map.getTexture("metallic"))
-        mat->setMetallic(LoadTexture(objRoot / tex.value()));
-    else
-        mat->setMetallic(map.getFloat("metallic").value_or(0.5f));
-
-    if (auto tex = map.getTexture("ao"))
-        mat->setOcclusion(LoadTexture(objRoot / tex.value()));
-
-    if (auto tex = map.getTexture("emissive"))
-        mat->setEmissive(LoadTexture(objRoot / tex.value()));
-
-    if (auto tex = map.getTexture("clearnormal"))
-        mat->setEmissive(LoadTexture(objRoot / tex.value()));
-
-    return mat;
+void GLAPIENTRY util::OpenGLErrorCallback(GLenum, GLenum type, GLuint, GLenum severity,
+                                          GLsizei, const GLchar* message, const void*) {
+    std::cerr << std::format("[OPENGL] Type = 0x{:x}, Severity = 0x{:x}, Message = {}\n",
+                             type, severity, message);
 }

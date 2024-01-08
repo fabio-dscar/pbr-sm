@@ -65,12 +65,10 @@ public:
     float channel(int x, int y, int c, int lvl = 0) const;
     void setChannel(float val, int x, int y, int c, int lvl = 0);
 
-    void flipXY();
+    void flipY();
 
-    const std::byte* data(int lvl = 0) const {
-        std::size_t prevLvlSize = ImageSize(fmt, lvl);
-        return &getPtr()[prevLvlSize];
-    }
+    const std::byte* data(int lvl = 0) const;
+    std::byte* data(int lvl = 0);
 
     ImageFormat format(int level = 0) const {
         auto w = ResizeLvl(fmt.width, level);
@@ -85,6 +83,7 @@ public:
 
 private:
     void fill(PixelVal val);
+
     void resizeBuffer();
     std::size_t pixelOffset(int x, int y, int lvl = 0) const;
 
@@ -111,7 +110,7 @@ public:
     Image& operator[](int idx) { return faces[idx]; }
 
     int numLevels() const { return levels; }
-    ImageFormat imgFormat(int lvl = 0) const { return faces[0].format(lvl); }
+    ImageFormat format(int lvl = 0) const { return faces[0].format(lvl); }
 
 private:
     std::array<Image, 6> faces;
