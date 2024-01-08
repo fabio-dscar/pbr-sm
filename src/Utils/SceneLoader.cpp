@@ -17,22 +17,23 @@ struct TagInfo {
 };
 
 const std::unordered_map<std::string, TagInfo> TagInfoMap{
-    {"float", {Tag::Float}},
-    {"string", {Tag::String}},
-    {"vec3", {Tag::Vec3}},
-    {"rgb", {Tag::Rgb}},
-    {"transform", {Tag::Transform, {"name"s}}},
-    {"scene", {Tag::Scene, {}, true}},
-    {"camera", {Tag::Camera, {"type"s}, true}},
-    {"skybox", {Tag::Skybox, {}, true}},
-    {"light", {Tag::Light, {"type"s}, true}},
-    {"material", {Tag::Material, {"type"s}}},
-    {"texture", {Tag::Texture}},
-    {"mesh", {Tag::Mesh, {"type"s}, true}},
-    {"rotation", {Tag::Rotation, {"axis"s, "value"s}}},
-    {"scale", {Tag::Scale, {"value"s}}},
-    {"lookat", {Tag::LookAt, {"eye"s, "up"s, "at"s}}},
-    {"translation", {Tag::Translation, {"value"s}}}};
+    {"float",       {Tag::Float}                         },
+    {"string",      {Tag::String}                        },
+    {"vec3",        {Tag::Vec3}                          },
+    {"rgb",         {Tag::Rgb}                           },
+    {"transform",   {Tag::Transform, {"name"s}}          },
+    {"scene",       {Tag::Scene, {}, true}               },
+    {"camera",      {Tag::Camera, {"type"s}, true}       },
+    {"skybox",      {Tag::Skybox, {}, true}              },
+    {"light",       {Tag::Light, {"type"s}, true}        },
+    {"material",    {Tag::Material, {"type"s}}           },
+    {"texture",     {Tag::Texture}                       },
+    {"mesh",        {Tag::Mesh, {"type"s}, true}         },
+    {"rotation",    {Tag::Rotation, {"axis"s, "value"s}} },
+    {"scale",       {Tag::Scale, {"value"s}}             },
+    {"lookat",      {Tag::LookAt, {"eye"s, "up"s, "at"s}}},
+    {"translation", {Tag::Translation, {"value"s}}       }
+};
 
 std::optional<TagInfo> GetTagFromString(const std::string& tagName) {
     auto it = TagInfoMap.find(tagName);
@@ -80,9 +81,11 @@ void SceneLoader::instantiateScene() {
         case Tag::Skybox:
             entry.map.insert("parentdir", parentDir.string());
             skyboxes.emplace_back(CreateSkybox(entry.map));
+            break;
         case Tag::Mesh:
             entry.map.insert("parentdir", parentDir.string());
             scene->addShape(CreateMesh(entry.map));
+            break;
         default:
             break;
         }

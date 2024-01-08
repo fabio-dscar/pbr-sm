@@ -6,6 +6,7 @@
 namespace pbr {
 
 class Skybox;
+class ParameterMap;
 
 class PBR_SHARED Material {
 public:
@@ -21,6 +22,8 @@ public:
 protected:
     RRID _prog = -1;
 };
+
+std::shared_ptr<Material> CreateMaterial(const ParameterMap& params);
 
 } // namespace pbr
 

@@ -12,8 +12,8 @@ namespace pbr {
 
 struct ObjFile {
     std::string objName;
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
+    std::vector<Vertex> vertices{};
+    std::vector<unsigned int> indices{};
 };
 
 PBR_SHARED std::optional<ObjFile> LoadObjFile(const fs::path& filePath);

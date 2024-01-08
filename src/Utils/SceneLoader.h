@@ -45,6 +45,8 @@ public:
 
     std::unique_ptr<Scene> parse(const fs::path& filePath);
 
+    std::vector<Skybox> getSkyboxes() const { return skyboxes; }
+
 private:
     struct MapEntry {
         Tag tag = Tag::Unknown;
@@ -74,7 +76,7 @@ private:
 
     std::vector<Mat4> stack = {};
     std::vector<MapEntry> maps = {};
-    
+
     std::vector<Skybox> skyboxes;
     std::unique_ptr<Scene> scene = nullptr;
 };

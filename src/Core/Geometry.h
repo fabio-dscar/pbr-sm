@@ -17,7 +17,7 @@ struct Vertex {
 
     bool operator==(const Vertex& v) const {
         return position == v.position && normal == v.normal && uv == v.uv &&
-               tangent == tangent;
+               tangent == v.tangent;
     }
 };
 

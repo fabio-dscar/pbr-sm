@@ -8,7 +8,6 @@ namespace pbr {
 class Mesh : public Shape {
 public:
     Mesh(const std::string& objFile);
-    Mesh(const std::string& objFile, const Mat4& objToWorld);
     Mesh(const std::shared_ptr<Geometry>& geometry, const Mat4& objToWorld);
 
     void prepare() override;

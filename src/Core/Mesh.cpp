@@ -5,6 +5,7 @@
 #include <RenderInterface.h>
 #include <Resources.h>
 #include <Material.h>
+#include <PBRMaterial.h>
 #include <ParameterMap.h>
 
 #include <filesystem>
@@ -18,16 +19,6 @@ Mesh::Mesh(const std::string& objPath) : Shape() {
 
     _geometry = std::make_shared<Geometry>(std::move((*objFile).vertices),
                                            std::move((*objFile).indices));
-}
-
-Mesh::Mesh(const std::string& objPath, const Mat4& objToWorld) : Shape(objToWorld) {
-    // _geometry = std::make_shared<Geometry>();
-
-    // ObjFile objFile;
-    // loadObj(objPath, objFile);
-    // fromObjFile(*_geometry, objFile);
-
-    // Resource.addGeometry(objFile.objName, _geometry);
 }
 
 Mesh::Mesh(const std::shared_ptr<Geometry>& geometry, const Mat4& objToWorld)
@@ -66,12 +57,26 @@ std::unique_ptr<Shape> pbr::CreateMesh(const ParameterMap& params) {
 
     auto fullPath = parentDir / *fileName;
 
-    auto geo = std::make_shared<Geometry>();
-    // ObjFile objFile;
-    // loadObj(fullPath, objFile);
-    // fromObjFile(*geo, objFile);
+    auto objFile = LoadObjFile(fullPath);
+    if (!objFile.has_value())
+        return nullptr;
+
+    auto geo = std::make_shared<Geometry>(std::move((*objFile).vertices),
+                                          std::move((*objFile).indices));
+
+    std::shared_ptr<Material> mat = std::make_shared<PBRMaterial>();
+    auto mapref = params.lookup<ParameterMap*>("material", nullptr);
+    auto map = mapref ? *mapref : ParameterMap{};
+
+    map.insert("parentdir", parentDir.string());
+    mat = CreateMaterial(map);
+    mat->prepare();
 
     auto toWorld = params.lookup("toWorld", Mat4{});
 
-    return std::make_unique<Mesh>(geo, toWorld);
+    auto mesh = std::make_unique<Mesh>(geo, toWorld);
+    mesh->prepare();
+    mesh->setMaterial(mat);
+
+    return mesh;
 }

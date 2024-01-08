@@ -23,21 +23,21 @@ public:
 
     template<typename T>
     void add(const std::string& name, sref<T> res) {
-        if constexpr (std::is_same<Texture, T>())
+        if constexpr (std::is_same_v<Texture, T>)
             addResource(name, std::move(res), _textures);
-        else if constexpr (std::is_same<Program, T>())
+        else if constexpr (std::is_same_v<Program, T>)
             addResource(name, std::move(res), _shaders);
-        else if constexpr (std::is_same<Geometry, T>())
+        else if constexpr (std::is_same_v<Geometry, T>)
             addResource(name, std::move(res), _geometry);
     }
 
     template<typename T>
     sref<T> get(const std::string& name) {
-        if constexpr (std::is_same<Texture, T>())
+        if constexpr (std::is_same_v<Texture, T>)
             return getResource(name, _textures);
-        else if constexpr (std::is_same<Program, T>())
+        else if constexpr (std::is_same_v<Program, T>)
             return getResource(name, _shaders);
-        else if constexpr (std::is_same<Geometry, T>())
+        else if constexpr (std::is_same_v<Geometry, T>)
             return getResource(name, _geometry);
     }
 

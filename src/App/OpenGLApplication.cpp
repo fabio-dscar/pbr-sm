@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include <format>
+#include <Utils.h>
 
 using namespace pbr;
 
@@ -67,8 +68,13 @@ void OpenGLApplication::init() {
     int glver = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
     if (glver == 0)
         FATAL("Failed to load OpenGL functions.");
-    
+
     glfwSwapInterval(1);
+
+#ifdef DEBUG
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(util::OpenGLErrorCallback, 0);
+#endif
 
     // Print system info
     auto renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));

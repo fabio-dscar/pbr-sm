@@ -8,36 +8,17 @@
 
 #include <ParameterMap.h>
 
+#include <Utils.h>
+
 using namespace pbr;
 
 Skybox::Skybox(RRID cubeProg, RRID cubeTex)
     : _cubeProg(cubeProg), _geoId(-1), _cubeTex(cubeTex) {}
 
-Skybox::Skybox(const std::string& folder) {
+Skybox::Skybox(const Texture& cube, const Texture& irr, const Texture& spec)
+    : _cubeTex(cube.id()), _irradianceTex(irr.id()), _ggxTex(spec.id()) {
+
     _cubeProg = Resource.get<Program>("skybox")->id();
-
-    TexSampler cubeSampler;
-    cubeSampler.setFilterMode(FILTER_LINEAR, FILTER_LINEAR);
-    cubeSampler.setWrapMode(WRAP_CLAMP_EDGE, WRAP_CLAMP_EDGE, WRAP_CLAMP_EDGE);
-
-    Cubemap cube(folder + "/cube.cube");
-    _cubeTex = RHI.createCubemap(cube, cubeSampler);
-    Resource.add<Texture>("sky-" + folder, RHI.getTexture(_cubeTex));
-
-    Cubemap irradianceCube(folder + "/irradiance.cube");
-    _irradianceTex = RHI.createCubemap(irradianceCube, cubeSampler);
-    Resource.add<Texture>("irradiance-" + folder, RHI.getTexture(_irradianceTex));
-
-    TexSampler ggxSampler;
-    ggxSampler.setFilterMode(FILTER_LINEAR_MIP_LINEAR, FILTER_LINEAR);
-    ggxSampler.setWrapMode(WRAP_CLAMP_EDGE, WRAP_CLAMP_EDGE, WRAP_CLAMP_EDGE);
-
-    Cubemap ggxCube(folder + "/ggx.cube");
-    _ggxTex = RHI.createCubemap(ggxCube, ggxSampler);
-    Resource.add<Texture>("ggx-" + folder, RHI.getTexture(_ggxTex));
-}
-
-void Skybox::initialize() {
     _geoId = Resource.get<Geometry>("unitCube")->rrid();
 }
 
@@ -45,7 +26,9 @@ void Skybox::draw() const {
     RHI.useProgram(_cubeProg);
 
     glActiveTexture(GL_TEXTURE5);
-    RHI.bindTexture(_cubeTex);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, _cubeTex);
+
+    // RHI.bindTexture(_cubeTex);
 
     glCullFace(GL_FRONT);
     RHI.drawGeometry(_geoId);
@@ -67,11 +50,18 @@ RRID Skybox::ggxTex() const {
 }
 
 Skybox pbr::CreateSkybox(const ParameterMap& params) {
-    auto parentDir = params.lookup("parentdir", ""s);
+    fs::path parentDir = params.lookup("parentdir", ""s);
     auto optFolder = params.lookup<std::string>("folder");
 
     CHECK(optFolder.has_value());
 
-    auto folder = *optFolder;
-    // TODO: Load cubemaps
+    auto folder = optFolder.value();
+    auto fullPath = parentDir / folder;
+
+    auto cube = CreateNamedCubemap(folder + "_cube", fullPath / "cube.cube");
+    auto irr = CreateNamedCubemap(folder + "_irradiance", fullPath / "irradiance.cube");
+    auto spec = CreateNamedCubemap(folder + "_ggx", fullPath / "ggx.cube",
+                                   {.min = Filter::LinearMipLinear});
+
+    return {*cube, *irr, *spec};
 }
