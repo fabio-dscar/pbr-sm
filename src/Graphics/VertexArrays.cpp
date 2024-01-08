@@ -17,16 +17,20 @@ VertexArrays::VertexArrays(VertexArrays&& rhs)
 
 void VertexArrays::addVertexBuffer(const Buffer& buffer,
                                    std::span<BufferLayoutEntry> layout,
+                                   std::size_t offset, std::size_t stride,
                                    unsigned int numVertices) {
     numVerts = numVertices;
-    vertexBuffers.push_back(buffer.id());
+    auto bindIndex = vertexBuffers.size();
+    vertexBuffers.emplace_back(
+        offset, stride, std::vector<BufferLayoutEntry>{layout.begin(), layout.end()});
+
+    glVertexArrayVertexBuffer(handle, bindIndex, buffer.id(), offset, stride);
 
     for (const auto& entry : layout) {
         glEnableVertexArrayAttrib(handle, entry.index);
-        glVertexArrayVertexBuffer(handle, entry.index, buffer.id(), entry.offset,
-                                  entry.stride);
+        glVertexArrayAttribBinding(handle, entry.index, bindIndex);
         glVertexArrayAttribFormat(handle, entry.index, entry.numElems,
-                                  ToOglType(entry.type), GL_FALSE, 0);
+                                  ToOglType(entry.type), GL_FALSE, entry.offset);
     }
 }
 

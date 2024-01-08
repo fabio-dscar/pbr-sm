@@ -1,7 +1,6 @@
 #ifndef __PBR_MATH_H__
 #define __PBR_MATH_H__
 
-// Includes for math objects
 #include <PBR.h>
 #include <Vector2.h>
 #include <Vector3.h>
@@ -40,8 +39,8 @@ static constexpr Float PIOVER2 = 1.57079632679489661923;
 static constexpr Float PIOVER4 = 0.78539816339744830961;
 static constexpr Float SQRTINVPI = 0.56418958354775628694;
 static constexpr Float SQRT2 = 1.41421356237309504880;
+static constexpr Float INVSQRT2 = 0.7071067811865475244;
 static constexpr Float INVLOG2 = 1.44269504088896338700;
-
 
 template<typename T, typename U, typename R = std::common_type_t<T, U>>
 inline constexpr R Max(T x, U y) {

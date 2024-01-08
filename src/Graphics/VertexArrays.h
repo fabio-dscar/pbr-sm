@@ -15,6 +15,12 @@ struct BufferLayoutEntry {
     std::size_t offset = 0;
 };
 
+struct VertexBufferEntry {
+    std::size_t offset = 0; // offset to start
+    std::size_t stride = 0;
+    std::vector<BufferLayoutEntry> attribs;
+};
+
 struct ElementBuffer {
     unsigned int handle = 0;
     unsigned int numIndices = 0;
@@ -35,6 +41,7 @@ public:
     unsigned int id() const { return handle; }
 
     void addVertexBuffer(const Buffer& buffer, std::span<BufferLayoutEntry> layout,
+                         std::size_t offset, std::size_t stride,
                          unsigned int numVertices);
     void addElementBuffer(const Buffer& buffer, unsigned int numIndices,
                           AttribType type = AttribType::UInt);
@@ -45,7 +52,7 @@ public:
     unsigned int handle = 0;
     ElementBuffer elementBuffer = {};
     unsigned int numVerts = 0;
-    std::vector<unsigned int> vertexBuffers;
+    std::vector<VertexBufferEntry> vertexBuffers;
 };
 
 } // namespace pbr

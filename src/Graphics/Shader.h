@@ -1,7 +1,6 @@
 #ifndef __PBR_SHADER_H__
 #define __PBR_SHADER_H__
 
-#include <glad/glad.h>
 #include <PBR.h>
 
 #include <filesystem>
@@ -11,15 +10,7 @@ namespace fs = std::filesystem;
 
 namespace pbr {
 
-enum ShaderType {
-    VERTEX_SHADER = GL_VERTEX_SHADER,
-    FRAGMENT_SHADER = GL_FRAGMENT_SHADER,
-    GEOMETRY_SHADER = GL_GEOMETRY_SHADER,
-    COMPUTE_SHADER = GL_COMPUTE_SHADER
-};
-
-static const std::string DefaultVer = "450 core\n\n";
-static const fs::path ShaderFolder = "./glsl";
+enum class ShaderType : unsigned int;
 
 class PBR_SHARED ShaderSource {
 public:

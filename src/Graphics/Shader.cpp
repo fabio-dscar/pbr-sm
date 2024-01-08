@@ -1,12 +1,25 @@
 #include <Shader.h>
 
-#include <RenderInterface.h>
+#include <glad/glad.h>
 #include <Utils.h>
-
 #include <regex>
 
 using namespace pbr;
 using namespace pbr::util;
+
+namespace {
+
+const std::string DefaultVer = "450 core\n\n";
+const fs::path ShaderFolder = "./glsl";
+
+} // namespace
+
+enum class pbr::ShaderType : unsigned int {
+    Vertex = GL_VERTEX_SHADER,
+    Fragment = GL_FRAGMENT_SHADER,
+    Geometry = GL_GEOMETRY_SHADER,
+    Compute = GL_COMPUTE_SHADER
+};
 
 ShaderSource::ShaderSource(const std::string& name, ShaderType type,
                            const std::string& src)
@@ -70,7 +83,7 @@ uint32 ShaderSource::id() const {
 }
 
 void ShaderSource::compile(const std::string& defines) {
-    handle = glCreateShader(type);
+    handle = glCreateShader(static_cast<GLenum>(type));
     if (handle == 0)
         FATAL("Could not create shader {}", name);
 
@@ -143,14 +156,15 @@ std::string pbr::GetProgramError(unsigned int handle) {
 }
 
 ShaderSource pbr::LoadShaderFile(const fs::path& filePath) {
-    ShaderType type = FRAGMENT_SHADER;
+    using enum ShaderType;
+    ShaderType type = Fragment;
 
     // Deduce type from extension, if possible
     auto ext = filePath.extension();
     if (ext == ".frag" || ext == ".fs")
-        type = FRAGMENT_SHADER;
+        type = Fragment;
     else if (ext == ".vert" || ext == ".vs")
-        type = VERTEX_SHADER;
+        type = Vertex;
     else
         FATAL("Couldn't deduce type for shader: {}", filePath.string());
 

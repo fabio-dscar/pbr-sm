@@ -29,9 +29,6 @@ inline bool HasFlag(BufferFlag lhs, BufferFlag rhs) {
     return lflag & rflag;
 }
 
-// In nanoseconds
-static constexpr unsigned long FenceTimeout = 1.0 / 30.0 * 1e9;
-
 class Buffer {
 public:
     Buffer() = default;
