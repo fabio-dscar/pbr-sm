@@ -66,10 +66,8 @@ std::unique_ptr<Shape> pbr::CreateMesh(const ParameterMap& params) {
 
     std::shared_ptr<Material> mat = std::make_shared<PBRMaterial>();
     auto mapref = params.lookup<ParameterMap*>("material", nullptr);
-    auto map = mapref ? *mapref : ParameterMap{};
-
-    map.insert("parentdir", parentDir.string());
-    mat = CreateMaterial(map);
+    if (mapref)
+        mat = CreateMaterial(*mapref);
     mat->prepare();
 
     auto toWorld = params.lookup("toWorld", Mat4{});
@@ -77,6 +75,7 @@ std::unique_ptr<Shape> pbr::CreateMesh(const ParameterMap& params) {
     auto mesh = std::make_unique<Mesh>(geo, toWorld);
     mesh->prepare();
     mesh->setMaterial(mat);
+    mesh->updateMatrix();
 
     return mesh;
 }

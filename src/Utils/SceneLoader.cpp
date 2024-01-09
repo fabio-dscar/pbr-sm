@@ -61,61 +61,51 @@ std::unique_ptr<Scene> SceneLoader::parse(const fs::path& filePath) {
 
     parentDir = filePath.parent_path();
 
-    parseXml(root.value());
-    instantiateScene();
+    scene = std::make_unique<pbr::Scene>();
+
+    ParseContext ctx{.tag = Tag::Scene};
+    parseXml(root.value(), ctx);
 
     return std::move(scene);
 }
 
-void SceneLoader::instantiateScene() {
-    scene = std::make_unique<pbr::Scene>();
-
-    for (auto& entry : maps) {
-        switch (entry.tag) {
-        case Tag::Camera:
-            scene->addCamera(CreateCamera(entry.map));
-            break;
-        case Tag::Light:
-            scene->addLight(CreateLight(entry.map));
-            break;
-        case Tag::Skybox:
-            entry.map.insert("parentdir", parentDir.string());
-            skyboxes.emplace_back(CreateSkybox(entry.map));
-            break;
-        case Tag::Mesh:
-            entry.map.insert("parentdir", parentDir.string());
-            scene->addShape(CreateMesh(entry.map));
-            break;
-        default:
-            break;
-        }
+void SceneLoader::instantiate(ParseContext& ctx) {
+    switch (ctx.tag) {
+    case Tag::Camera:
+        scene->addCamera(CreateCamera(ctx.entry));
+        break;
+    case Tag::Light:
+        scene->addLight(CreateLight(ctx.entry));
+        break;
+    case Tag::Skybox:
+        skyboxes.emplace_back(CreateSkybox(ctx.entry));
+        break;
+    case Tag::Mesh:
+        ctx.entry.insert("material", &ctx.material);
+        scene->addShape(CreateMesh(ctx.entry));
+        break;
+    default:
+        break;
     }
 }
 
-SceneLoader::MapEntry* SceneLoader::parseChildren(Tag tag, const XMLElement& xmlEl) {
-    auto newEntry = createMapEntry(tag);
+void SceneLoader::parseChildren(const XMLElement& xmlEl, ParseContext& ctx) {
     auto type = xmlEl.attr<std::string>("type");
-    newEntry->map.insert("type", type);
+    ctx.entry.insert("type", type);
     for (const auto& el : xmlEl.children())
-        parseXml(el, newEntry);
-    return newEntry;
+        parseXml(el, ctx);
 }
 
-void SceneLoader::multStack(const Mat4& mat) {
-    auto idx = stack.size() - 1;
-    stack[idx] = mat * stack[idx];
-}
-
-void SceneLoader::parseXml(const XMLElement& xmlEl, MapEntry* entry) {
+void SceneLoader::parseXml(const XMLElement& xmlEl, ParseContext& ctx) {
     auto elName = xmlEl.name();
     auto tag = GetTagFromString(elName);
     if (!tag.has_value())
         THROW("Unknown element {}.", elName);
 
     TagInfo tagInfo = *tag;
-    if (tagInfo.topLevel && entry)
+    if (tagInfo.topLevel && ctx.tag != Tag::Scene)
         THROW("<{}> can't be used as a nested element.", elName);
-    else if (!tagInfo.topLevel && !entry)
+    else if (!tagInfo.topLevel && ctx.tag == Tag::Scene)
         THROW("<{}> can't be used as a top level element in the scene description.",
               elName);
 
@@ -123,85 +113,103 @@ void SceneLoader::parseXml(const XMLElement& xmlEl, MapEntry* entry) {
 
     switch (tagInfo.tag) {
     case Tag::Scene:
+        QCHECK(ctx.tag == Tag::Scene);
         for (const auto& el : xmlEl.children())
-            parseXml(el);
+            parseXml(el, ctx);
         break;
     case Tag::String:
     case Tag::Texture:
-        parseSimple<std::string>(xmlEl, *entry);
+        parseSimple<std::string>(xmlEl, ctx.entry);
         break;
     case Tag::Float:
-        parseSimple<float>(xmlEl, *entry);
+        parseSimple<float>(xmlEl, ctx.entry);
         break;
     case Tag::Vec3:
-        parseSimple<Vec3>(xmlEl, *entry);
+        parseSimple<Vec3>(xmlEl, ctx.entry);
         break;
     case Tag::Rgb:
-        parseSimple<Color>(xmlEl, *entry);
+        parseSimple<Color>(xmlEl, ctx.entry);
         break;
     case Tag::Material:
         {
-            QCHECK(entry->tag == Tag::Mesh);
-            auto newEntry = parseChildren(Tag::Material, xmlEl);
-            entry->map.insert<ParameterMap*>("material", &(newEntry->map));
+            QCHECK(ctx.tag == Tag::Mesh);
+            ParseContext matCtx{.tag = Tag::Material};
+            parseChildren(xmlEl, matCtx);
+            matCtx.entry.insert("parentdir", parentDir.string());
+            ctx.material = std::move(matCtx.entry);
         }
         break;
     case Tag::Camera:
-        parseChildren(Tag::Camera, xmlEl);
+        {
+            ParseContext camCtx{.tag = Tag::Camera};
+            parseChildren(xmlEl, camCtx);
+            instantiate(camCtx);
+        }
         break;
     case Tag::Light:
-        parseChildren(Tag::Light, xmlEl);
+        {
+            ParseContext lightCtx{.tag = Tag::Light};
+            parseChildren(xmlEl, lightCtx);
+            instantiate(lightCtx);
+        }
         break;
     case Tag::Skybox:
-        parseChildren(Tag::Skybox, xmlEl);
+        {
+            ParseContext skyCtx{.tag = Tag::Skybox};
+            parseChildren(xmlEl, skyCtx);
+            skyCtx.entry.insert("parentdir", parentDir.string());
+            instantiate(skyCtx);
+        }
         break;
     case Tag::Mesh:
-        parseChildren(Tag::Mesh, xmlEl);
+        {
+            ParseContext meshCtx{.tag = Tag::Mesh};
+            parseChildren(xmlEl, meshCtx);
+            meshCtx.entry.insert("parentdir", parentDir.string());
+            instantiate(meshCtx);
+        }
         break;
     case Tag::Transform:
         {
+            ParseContext tformCtx{.tag = Tag::Transform};
             auto name = xmlEl.attr<std::string>("name");
             auto val = xmlEl.attr<Mat4>("value"); // Some value or identity mat
 
-            // Push starting matrix and accumulate transformations
-            stack.push_back(val);
-
+            tformCtx.transform = val;
             for (const auto& el : xmlEl.children())
-                parseXml(el);
-
-            entry->map.insert(name, stack.back());
-            stack.pop_back();
+                parseXml(el, tformCtx);
+            ctx.entry.insert(name, tformCtx.transform);
         }
         break;
     case Tag::Scale:
         {
             auto s = xmlEl.attr<Vec3>("value");
-            multStack(Scale(s));
+            ctx.transform = Scale(s) * ctx.transform;
         }
         break;
     case Tag::Translation:
         {
             auto t = xmlEl.attr<Vec3>("value");
-            multStack(Translation(t));
+            ctx.transform = Translation(t) * ctx.transform;
         }
         break;
     case Tag::Rotation:
         {
             auto axis = xmlEl.attr<Vec3>("axis");
             auto degs = xmlEl.attr<float>("value");
-            multStack(RotationAxis(Radians(degs), axis));
+            ctx.transform = RotationAxis(Radians(degs), axis) * ctx.transform;
         }
         break;
     case Tag::LookAt:
         {
             auto eye = xmlEl.attr<Vec3>("eye");
-            entry->map.insert("eye", eye);
+            ctx.entry.insert("eye", eye);
 
             auto at = xmlEl.attr<Vec3>("at");
-            entry->map.insert("at", at);
+            ctx.entry.insert("at", at);
 
             auto up = xmlEl.attr<Vec3>("up");
-            entry->map.insert("up", up);
+            ctx.entry.insert("up", up);
         }
         break;
     default:

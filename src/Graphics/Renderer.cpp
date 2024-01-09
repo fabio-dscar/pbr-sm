@@ -73,7 +73,7 @@ void Renderer::uploadUniformBuffer(const Scene& scene, const Camera& camera) {
     const auto& lights = scene.lights();
 
     auto numLights = Min(NumLights, lights.size());
-    for (uint32 l = 0; l < numLights; ++l)
+    for (std::size_t l = 0; l < numLights; ++l)
         lights[l]->toData(ld[l]);
 }
 

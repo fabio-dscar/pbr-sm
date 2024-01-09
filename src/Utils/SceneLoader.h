@@ -41,41 +41,31 @@ enum class Tag {
 
 class SceneLoader {
 public:
-    SceneLoader() { stack.push_back(Mat4{}); }
-
     std::unique_ptr<Scene> parse(const fs::path& filePath);
 
     std::vector<Skybox> getSkyboxes() const { return skyboxes; }
 
 private:
-    struct MapEntry {
+    struct ParseContext {
         Tag tag = Tag::Unknown;
-        ParameterMap map = {};
+        ParameterMap entry = {};
+        ParameterMap material = {};
+        Mat4 transform = {};
     };
 
-    void instantiateScene();
-
-    MapEntry* createMapEntry(Tag tag) {
-        maps.emplace_back(tag);
-        return &maps.back();
-    }
+    void instantiate(ParseContext& ctx);
 
     template<typename T>
-    void parseSimple(const XMLElement xmlEl, MapEntry& entry) {
+    void parseSimple(const XMLElement xmlEl, ParameterMap& map) {
         auto name = xmlEl.attr<std::string>("name");
         auto val = xmlEl.attr<T>("value");
-        entry.map.insert(name, val);
+        map.insert(name, val);
     }
 
-    void parseXml(const XMLElement& xmlEl, MapEntry* entry = nullptr);
-    MapEntry* parseChildren(Tag tag, const XMLElement& xmlEl);
-
-    void multStack(const Mat4& mat);
+    void parseXml(const XMLElement& xmlEl, ParseContext& ctx);
+    void parseChildren(const XMLElement& xmlEl, ParseContext& ctx);
 
     fs::path parentDir = {};
-
-    std::vector<Mat4> stack = {};
-    std::vector<MapEntry> maps = {};
 
     std::vector<Skybox> skyboxes;
     std::unique_ptr<Scene> scene = nullptr;

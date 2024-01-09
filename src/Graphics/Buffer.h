@@ -3,10 +3,12 @@
 
 #include <glad/glad.h>
 #include <PBR.h>
+#include <Utils.h>
 
 namespace pbr {
 
 enum class BufferType : unsigned int { Array = 0, Element = 1, Uniform = 2 };
+
 enum class BufferFlag : unsigned int {
     None = 0,
     Dynamic = GL_DYNAMIC_STORAGE_BIT,
@@ -17,16 +19,10 @@ enum class BufferFlag : unsigned int {
     ClientStorage = GL_CLIENT_STORAGE_BIT
 };
 
-inline BufferFlag operator|(BufferFlag lhs, BufferFlag rhs) {
-    auto lflag = static_cast<unsigned int>(lhs);
-    auto rflag = static_cast<unsigned int>(rhs);
-    return static_cast<BufferFlag>(lflag | rflag);
-}
+constexpr bool EnableBitmaskOperators(BufferFlag);
 
 inline bool HasFlag(BufferFlag lhs, BufferFlag rhs) {
-    auto lflag = static_cast<unsigned int>(lhs);
-    auto rflag = static_cast<unsigned int>(rhs);
-    return lflag & rflag;
+    return (lhs & rhs) != BufferFlag::None;
 }
 
 class Buffer {
