@@ -6,8 +6,6 @@
 
 namespace pbr {
 
-class Shape;
-
 enum class LightType : int {
     None = 0,
     Point = 1,
@@ -17,9 +15,7 @@ enum class LightType : int {
     Tube = 5
 };
 
-inline int ToInt(LightType type) {
-    return static_cast<int>(type);
-}
+consteval bool EnumHasConversion(LightType);
 
 // Light data for shader blocks
 // CARE: data is properly aligned to std140, do not change
@@ -41,7 +37,6 @@ public:
     virtual ~Light() = default;
 
     bool isOn() const;
-    bool castShadows() const;
     float intensity() const;
     Color emission() const;
 
@@ -51,7 +46,6 @@ protected:
     Color _emission{1.0f}; // Normalized emission
     float _intensity = 1.0f;
     bool _on = true;
-    bool _shadows = true;
 };
 
 std::unique_ptr<Light> CreateLight(const ParameterMap& params);

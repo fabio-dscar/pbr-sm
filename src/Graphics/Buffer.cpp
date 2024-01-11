@@ -11,7 +11,7 @@ const std::array OglBufferTarget = {GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER,
                                     GL_UNIFORM_BUFFER};
 
 constexpr nanoseconds FenceTimeout = 33ms;
-}
+} // namespace
 
 Buffer::Buffer(BufferType type, std::size_t size, BufferFlag flags, const void* data) {
     create(type, size, flags, data);
@@ -32,7 +32,7 @@ Buffer::~Buffer() {
 
 void Buffer::create(BufferType type, std::size_t pSize, BufferFlag pFlags,
                     const void* data) {
-    target = OglBufferTarget[static_cast<unsigned int>(type)];
+    target = OglBufferTarget[ToUnderlying(type)];
     flags = pFlags;
     size = pSize;
     glCreateBuffers(1, &handle);

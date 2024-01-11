@@ -1,5 +1,7 @@
 #include <VertexArrays.h>
 
+#include <glad/glad.h>
+
 using namespace pbr;
 
 namespace {
@@ -10,6 +12,16 @@ auto ToOglType(AttribType type) {
 }
 
 } // namespace
+
+VertexArrays::VertexArrays() {
+    glCreateVertexArrays(1, &handle);
+}
+
+VertexArrays::~VertexArrays() {
+    if (handle != 0) {
+        glDeleteVertexArrays(1, &handle);
+    }
+}
 
 VertexArrays::VertexArrays(VertexArrays&& rhs)
     : handle(std::exchange(rhs.handle, 0)), elementBuffer(rhs.elementBuffer),

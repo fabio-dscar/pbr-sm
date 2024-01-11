@@ -1,11 +1,14 @@
-#include <glad/glad.h>
+#ifndef __PBR_VERTEXARRAYS_H__
+#define __PBR_VERTEXARRAYS_H__
+
 #include <PBR.h>
 
 #include <Buffer.h>
 
 namespace pbr {
 
-enum class AttribType { Byte = 0, Short = 1, UInt = 2, Float = 3 };
+enum class AttribType : int { Byte = 0, Short = 1, UInt = 2, Float = 3 };
+constexpr bool EnumHasConversion(AttribType);
 
 struct BufferLayoutEntry {
     unsigned int index = 0;
@@ -29,12 +32,8 @@ struct ElementBuffer {
 
 class VertexArrays {
 public:
-    VertexArrays() { glCreateVertexArrays(1, &handle); }
-    ~VertexArrays() {
-        if (handle != 0) {
-            glDeleteVertexArrays(1, &handle);
-        }
-    }
+    VertexArrays();
+    ~VertexArrays();
 
     VertexArrays(VertexArrays&& rhs);
 
@@ -56,3 +55,5 @@ public:
 };
 
 } // namespace pbr
+
+#endif // __PBR_VERTEXARRAYS_H__

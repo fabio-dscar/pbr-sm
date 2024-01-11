@@ -8,6 +8,7 @@
 namespace pbr {
 
 enum class BufferType : unsigned int { Array = 0, Element = 1, Uniform = 2 };
+constexpr bool EnumHasConversion(BufferType);
 
 enum class BufferFlag : unsigned int {
     None = 0,
@@ -19,6 +20,7 @@ enum class BufferFlag : unsigned int {
     ClientStorage = GL_CLIENT_STORAGE_BIT
 };
 
+constexpr bool EnumHasConversion(BufferFlag);
 constexpr bool EnableBitmaskOperators(BufferFlag);
 
 inline bool HasFlag(BufferFlag lhs, BufferFlag rhs) {

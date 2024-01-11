@@ -12,3 +12,4 @@ AllowShortFunctionsOnASingleLine: Inline
 IncludeBlocks: Preserve
 SortIncludes: Never
 IndentCaseBlocks: true
+AlignArrayOfStructures: Left

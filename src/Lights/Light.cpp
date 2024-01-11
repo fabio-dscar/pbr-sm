@@ -24,10 +24,6 @@ bool Light::isOn() const {
     return _on;
 }
 
-bool Light::castShadows() const {
-    return _shadows;
-}
-
 float Light::intensity() const {
     return _intensity;
 }
@@ -66,7 +62,5 @@ std::unique_ptr<Light> pbr::CreateLight(const ParameterMap& params) {
         return std::make_unique<TubeLight>(emission, intensity, toWorld, radius);
     }
 
-    LOG_ERROR("Unknwon light type.");
-
-    return nullptr;
+    FATAL("Unknwon light type '{}'.", type);
 }
