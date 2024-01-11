@@ -16,7 +16,6 @@ struct RayHitInfo;
 
 class Material;
 class Geometry;
-class Skybox;
 
 enum ShapeUniform : uint32 {
     MODEL_MATRIX = 20,
@@ -48,7 +47,6 @@ public:
     void updateMatrix() override;
 
     void setMaterial(const sref<Material>& mat);
-    void updateMaterial(const Skybox& skybox);
 
     RRID _prog;
 

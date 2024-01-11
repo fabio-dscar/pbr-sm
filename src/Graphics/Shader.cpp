@@ -6,6 +6,7 @@
 
 using namespace pbr;
 using namespace pbr::util;
+using namespace pbr::math;
 
 namespace {
 
@@ -133,6 +134,18 @@ void Program::cleanShaders() {
     for (auto sid : sourceHandles)
         if (glIsShader(sid) == GL_TRUE)
             glDeleteShader(sid);
+}
+
+void Program::setFloat(int loc, float val) const {
+    glProgramUniform1f(handle, loc, val);
+}
+
+void Program::setVector3(int loc, const Vec3& val) const {
+    glProgramUniform3f(handle, loc, val.x, val.y, val.z);
+}
+
+void Program::setSampler(int loc, int val) const {
+    glProgramUniform1i(handle, loc, val);
 }
 
 std::string pbr::GetShaderLog(unsigned int handle) {

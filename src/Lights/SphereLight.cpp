@@ -1,5 +1,7 @@
 #include <SphereLight.h>
 
+#include <Utils.h>
+
 using namespace pbr;
 
 SphereLight::SphereLight(const Color& emission, float intensity, const Vec3& position,
@@ -10,7 +12,8 @@ SphereLight::SphereLight(const Color& emission, float intensity, const Mat4& toW
     : Light(emission, intensity, toWorld), _radius(radius) {}
 
 void SphereLight::toData(LightData& data) const {
-    data.type = _on ? ToInt(LightType::Sphere) : ToInt(LightType::None);
+    using enum LightType;
+    data.type = _on ? ToUnderlying(Sphere) : ToUnderlying(None);
     data.emission = _intensity * _emission;
     data.position = position();
     data.auxA = _radius;

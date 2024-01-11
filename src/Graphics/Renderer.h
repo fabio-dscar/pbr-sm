@@ -58,7 +58,7 @@ public:
     ToneMap toneMap() const { return _toneMap; }
     void setToneMap(ToneMap toneMap) { _toneMap = toneMap; }
 
-    const float* toneParams() const;
+    const std::array<float, 7>& toneParams() const;
     void setToneParams(std::span<float, 7> toneParams);
 
     void setSkyboxDraw(bool state);

@@ -52,9 +52,6 @@ void Scene::addLight(const sref<Light>& light) {
 
 void Scene::setEnvironment(const Skybox& skybox) {
     _skybox = &skybox;
-
-    for (auto& shape : _shapes)
-        shape->updateMaterial(skybox);
 }
 
 const std::vector<sref<Camera>>& Scene::cameras() const {

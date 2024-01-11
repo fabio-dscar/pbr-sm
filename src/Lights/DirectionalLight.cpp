@@ -1,6 +1,7 @@
 #include <DirectionalLight.h>
 
 #include <Transform.h>
+#include <Utils.h>
 
 using namespace pbr;
 
@@ -31,7 +32,8 @@ Vec3 DirectionalLight::direction() const {
 }
 
 void DirectionalLight::toData(LightData& data) const {
-    data.type = _on ? ToInt(LightType::Directional) : ToInt(LightType::None);
+    using enum LightType;
+    data.type = _on ? ToUnderlying(Directional) : ToUnderlying(None);
     data.emission = _intensity * _emission;
     data.position = direction();
 }

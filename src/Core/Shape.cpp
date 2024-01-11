@@ -30,10 +30,6 @@ void Shape::setMaterial(const sref<Material>& mat) {
     _material = mat;
 }
 
-void Shape::updateMaterial(const Skybox& skybox) {
-    _material->update(skybox);
-}
-
 void Shape::draw() {
     updateMatrix();
 

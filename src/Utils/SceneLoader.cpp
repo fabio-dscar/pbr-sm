@@ -96,6 +96,14 @@ void SceneLoader::parseChildren(const XMLElement& xmlEl, ParseContext& ctx) {
         parseXml(el, ctx);
 }
 
+void SceneLoader::parseAndInstantiate(Tag tag, const XMLElement& xmlEl) {
+    ParseContext ctx{.tag = tag};
+    if (tag == Tag::Mesh || tag == Tag::Skybox)
+        ctx.entry.insert("parentDir", parentDir.string());
+    parseChildren(xmlEl, ctx);
+    instantiate(ctx);
+}
+
 void SceneLoader::parseXml(const XMLElement& xmlEl, ParseContext& ctx) {
     auto elName = xmlEl.name();
     auto tag = GetTagFromString(elName);
@@ -140,34 +148,10 @@ void SceneLoader::parseXml(const XMLElement& xmlEl, ParseContext& ctx) {
         }
         break;
     case Tag::Camera:
-        {
-            ParseContext camCtx{.tag = Tag::Camera};
-            parseChildren(xmlEl, camCtx);
-            instantiate(camCtx);
-        }
-        break;
     case Tag::Light:
-        {
-            ParseContext lightCtx{.tag = Tag::Light};
-            parseChildren(xmlEl, lightCtx);
-            instantiate(lightCtx);
-        }
-        break;
     case Tag::Skybox:
-        {
-            ParseContext skyCtx{.tag = Tag::Skybox};
-            parseChildren(xmlEl, skyCtx);
-            skyCtx.entry.insert("parentdir", parentDir.string());
-            instantiate(skyCtx);
-        }
-        break;
     case Tag::Mesh:
-        {
-            ParseContext meshCtx{.tag = Tag::Mesh};
-            parseChildren(xmlEl, meshCtx);
-            meshCtx.entry.insert("parentdir", parentDir.string());
-            instantiate(meshCtx);
-        }
+        parseAndInstantiate(tagInfo.tag, xmlEl);
         break;
     case Tag::Transform:
         {

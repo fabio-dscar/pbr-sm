@@ -34,12 +34,12 @@ private:
     void changeSkybox(int id);
     void takeSnapshot();
     void pickObject(int x, int y);
-    void initSkyboxes();
     void changeToneMap(int id);
 
     Scene _scene;
     Renderer _renderer;
     std::vector<Skybox> _skyboxes;
+    std::string _skyboxOpts;
 
     Color _diffuse;
 
@@ -49,7 +49,7 @@ private:
 
     float _gamma;
     float _exposure;
-    float _toneParams[7];
+    std::array<float, 7> _toneParams;
     ToneMap _toneMap;
     float _metallic;
     float _roughness;
@@ -58,7 +58,6 @@ private:
     float _clearCoatRough;
 
     int _fps = 0;
-
     int _skybox = 0;
     bool _showGUI = true;
     bool _showSky = true;

@@ -2,6 +2,7 @@
 #define __PBR_SHADER_H__
 
 #include <PBR.h>
+#include <PBRMath.h>
 
 #include <filesystem>
 #include <span>
@@ -39,10 +40,15 @@ public:
     explicit Program(const std::string& name) : name(name) {}
     ~Program();
 
-    void addShader(const ShaderSource& src);
     unsigned int id() const { return handle; }
     void link();
+
+    void addShader(const ShaderSource& src);
     void cleanShaders();
+
+    void setFloat(int loc, float val) const;
+    void setVector3(int loc, const math::Vec3& val) const;
+    void setSampler(int loc, int val) const;
 
 private:
     std::vector<unsigned int> sourceHandles;

@@ -9,7 +9,9 @@ using namespace pbr::math;
 
 namespace pbr {
 
-enum PBRUniform {
+class Texture;
+
+enum PBRUniform : int {
     DIFFUSE_MAP = 1,
     NORMAL_MAP = 2,
     METALLIC_MAP = 3,
@@ -34,8 +36,7 @@ public:
     PBRMaterial();
     PBRMaterial(const Color& diff, float metallic, float roughness);
 
-    void prepare() override;
-    void update(const Skybox& skybox) override;
+    void prepare() override {}
     void uploadData() const override;
 
     void setDiffuse(RRID diffTex);
@@ -54,12 +55,7 @@ public:
     void setClearCoatRoughness(float roughness);
 
     void setOcclusion(RRID occlusionTex);
-
     void setEmissive(RRID emissiveTex);
-
-    void setIrradianceTex(RRID id);
-    void setBrdfTex(RRID id);
-    void setGGXTex(RRID id);
 
     float metallic() const;
     float roughness() const;
@@ -72,24 +68,12 @@ public:
     RRID normalTex() const;
     RRID metallicTex() const;
     RRID roughTex() const;
+    RRID emissiveTex() const;
 
 private:
     void init();
 
-    std::vector<uint32> _texHandles;
-
-    RRID _diffuseTex;
-    RRID _normalTex;
-    RRID _metallicTex;
-    RRID _roughTex;
-    RRID _aoTex;
-    RRID _emissiveTex;
-    RRID _clearCoatNormTex;
-
-    // PBR maps
-    RRID _irradianceTex;
-    RRID _brdfTex;
-    RRID _ggxTex;
+    std::array<RRID, 7> _maps;
 
     Color _diffuse;
     float _f0 = 0.5f;

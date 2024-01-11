@@ -1,5 +1,7 @@
 #include <PointLight.h>
 
+#include <Utils.h>
+
 using namespace pbr;
 
 PointLight::PointLight(const Color& emission, float intensity)
@@ -12,7 +14,8 @@ PointLight::PointLight(const Color& emission, float intensity, const Mat4& toWor
     : Light(emission, intensity, toWorld) {}
 
 void PointLight::toData(LightData& data) const {
-    data.type = _on ? ToInt(LightType::Point) : ToInt(LightType::None);
+    using enum LightType;
+    data.type = _on ? ToUnderlying(Point) : ToUnderlying(None);
     data.emission = _intensity * _emission;
     data.position = position();
 }

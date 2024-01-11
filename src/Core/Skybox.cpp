@@ -15,11 +15,16 @@ using namespace pbr;
 Skybox::Skybox(RRID cubeProg, RRID cubeTex)
     : _cubeProg(cubeProg), _geoId(-1), _cubeTex(cubeTex) {}
 
-Skybox::Skybox(const Texture& cube, const Texture& irr, const Texture& spec)
-    : _cubeTex(cube.id()), _irradianceTex(irr.id()), _ggxTex(spec.id()) {
+Skybox::Skybox(const std::string& name, const Texture& cube, const Texture& irr,
+               const Texture& spec)
+    : _name(name), _cubeTex(cube.id()), _irradianceTex(irr.id()), _ggxTex(spec.id()) {
 
     _cubeProg = Resource.get<Program>("skybox")->id();
     _geoId = Resource.get<Geometry>("unitCube")->rrid();
+}
+
+void Skybox::set() const {
+    RHI.bindTextures(8, 2, std::array{_irradianceTex, _ggxTex});
 }
 
 void Skybox::draw() const {
@@ -57,11 +62,12 @@ Skybox pbr::CreateSkybox(const ParameterMap& params) {
 
     auto folder = optFolder.value();
     auto fullPath = parentDir / folder;
+    std::string fname = fullPath.filename();
 
-    auto cube = CreateNamedCubemap(folder + "_cube", fullPath / "cube.cube");
-    auto irr = CreateNamedCubemap(folder + "_irradiance", fullPath / "irradiance.cube");
-    auto spec = CreateNamedCubemap(folder + "_ggx", fullPath / "ggx.cube",
+    auto cube = CreateNamedCubemap(fname + "_cube", fullPath / "cube.cube");
+    auto irr = CreateNamedCubemap(fname + "_irradiance", fullPath / "irradiance.cube");
+    auto spec = CreateNamedCubemap(fname + "_specular", fullPath / "specular.cube",
                                    {.min = Filter::LinearMipLinear});
 
-    return {*cube, *irr, *spec};
+    return {fname, *cube, *irr, *spec};
 }

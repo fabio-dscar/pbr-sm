@@ -1,5 +1,7 @@
 #include <SpotLight.h>
 
+#include <Utils.h>
+
 using namespace pbr;
 
 namespace {
@@ -29,7 +31,8 @@ Vec3 SpotLight::direction() const {
 }
 
 void SpotLight::toData(LightData& data) const {
-    data.type = _on ? ToInt(LightType::Spot) : ToInt(LightType::None);
+    using enum LightType;
+    data.type = _on ? ToUnderlying(Spot) : ToUnderlying(None);
     data.emission = _intensity * _emission;
     data.position = position();
     data.auxA = std::cos(_cutoff);

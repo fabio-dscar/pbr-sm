@@ -56,7 +56,7 @@ private:
     void instantiate(ParseContext& ctx);
 
     template<typename T>
-    void parseSimple(const XMLElement xmlEl, ParameterMap& map) {
+    void parseSimple(const XMLElement xmlEl, ParameterMap& map) const {
         auto name = xmlEl.attr<std::string>("name");
         auto val = xmlEl.attr<T>("value");
         map.insert(name, val);
@@ -64,6 +64,7 @@ private:
 
     void parseXml(const XMLElement& xmlEl, ParseContext& ctx);
     void parseChildren(const XMLElement& xmlEl, ParseContext& ctx);
+    void parseAndInstantiate(Tag tag, const XMLElement& xmlEl);
 
     fs::path parentDir = {};
 

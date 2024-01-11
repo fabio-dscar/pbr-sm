@@ -1,5 +1,7 @@
 #include <TubeLight.h>
 
+#include <Utils.h>
+
 using namespace pbr;
 
 namespace {
@@ -16,7 +18,8 @@ TubeLight::TubeLight(const Color& emission, float intensity, const Mat4& toWorld
     : Light(emission, intensity, toWorld), _radius(radius) {}
 
 void TubeLight::toData(LightData& data) const {
-    data.type = _on ? ToInt(LightType::Tube) : ToInt(LightType::None);
+    using enum LightType;
+    data.type = _on ? ToUnderlying(Tube) : ToUnderlying(None);
     data.emission = _intensity * _emission;
     data.position = objToWorld() * EndPointA;
     data.auxB = objToWorld() * EndPointB;

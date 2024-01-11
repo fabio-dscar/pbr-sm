@@ -1,5 +1,3 @@
-#include "Renderer.h"
-#include "imgui.h"
 #include <PBRApp.h>
 
 #include <GLFW/glfw3.h>
@@ -36,36 +34,20 @@
 #include <TubeLight.h>
 #include <Quad.h>
 
+#include <ParameterMap.h>
+#include <SceneLoader.h>
+#include <Shader.h>
+
 using namespace pbr;
+using namespace pbr::util;
 
 PBRApp::PBRApp(const std::string& title, int width, int height)
     : OpenGLApplication(title, width, height) {}
 
-void initializeEngine() {
-    // Initialize resource manager
-    Resource.initialize();
-
-    // Initialize render hardware interface
-    RHI.initialize();
-}
-
-void PBRApp::initSkyboxes() {
-    // std::vector<std::string> folders = {"Pinetree", "Ruins", "WalkOfFame",
-    //                                     "WinterForest"};
-    std::vector<std::string> folders = {"Aero", "Fireplace", "Photostudio", "Newport",
-                                        "Pillars"};
-
-    for (const std::string& str : folders)
-        _skyboxes.emplace_back("PBR/" + str);
-
-    for (Skybox& sky : _skyboxes)
-        sky.initialize();
-}
-
 void PBRApp::prepare() {
-    std::cout << "\n[INFO] Initializing renderer...\n";
+    Print("Initializing renderer");
 
-    initializeEngine();
+    RHI.initialize();
 
     ImGui_Init(_width, _height);
 
@@ -73,127 +55,20 @@ void PBRApp::prepare() {
     _renderer.prepare();
     _exposure = _renderer.exposure();
     _gamma = _renderer.gamma();
-    std::memcpy(_toneParams, _renderer.toneParams(), sizeof(float) * 7);
+    _toneParams = _renderer.toneParams();
 
-    std::cout << "[INFO] Loading cubemaps..." << std::endl;
+    Print("Loading scene");
 
-    initSkyboxes();
+    SceneLoader loader{};
+    _scene = std::move(*loader.parse("test.xml"));
+    _skyboxes = loader.getSkyboxes();
+    _camera = _scene.cameras()[0];
+    reshape(_width, _height);
 
-    std::cout << "[INFO] Loading meshes and materials..." << std::endl;
+    for (const auto& sky : _skyboxes)
+        _skyboxOpts.append(sky.name() + '\0');
 
-    _camera =
-        std::make_shared<Perspective>(_width, _height, Vec3(-3, 3, -3), Vec3(0, 0, 0),
-                                      Vec3(0, 1, 0), 0.1f, 500.0f, 60.0f);
-    _scene.addCamera(_camera);
-
-    glShadeModel(GL_SMOOTH);
-
-    /*sref<Shape> obj = Utils::loadSceneObject("sphere");
-    obj->setPosition(Vec3(-20.0f, 0.0f, 0.0f));
-    obj->_prog = -1;
-    obj->updateMatrix();
-    _scene.addShape(obj);*/
-
-    sref<Shape> gun = Utils::loadSceneObject("gun");
-    gun->setScale(5.5f, 5.5f, 5.5f);
-    _scene.addShape(gun);
-
-    sref<Shape> prev = Utils::loadSceneObject("helmet");
-    prev->setScale(1.0f, 1.0f, 1.0f);
-    prev->setPosition(Vec3(20.0f, 0.0f, 0.0f));
-    _scene.addShape(prev);
-
-    // sref<Shape> spec = Utils::loadSceneObject("specular");
-    // spec->setScale(1.0f, 1.0f, 1.0f);
-    // spec->setPosition(Vec3(-10.0f, 0.0f, 0.0f));
-    // _scene.addShape(spec);
-
-    sref<Shape> rough = Utils::loadSceneObject("dmg_helmet");
-    rough->setScale(1.0f, 1.0f, 1.0f);
-    rough->setPosition(Vec3(10.0f, 0.0f, 0.0f));
-    _scene.addShape(rough);
-
-    sref<Shape> spec = Utils::loadSceneObject("sphere");
-    spec->setScale(1.0f, 1.0f, 1.0f);
-    spec->setPosition(Vec3(-10.0f, 0.0f, 0.0f));
-    _scene.addShape(spec);
-
-    /*sref<Shape> obj = std::make_shared<Sphere>(Vec3(-20.0f, 0.0f, 0.0f), 1.0f);
-    sref<PBRMaterial> m = std::make_shared<PBRMaterial>(Color(1.0, 0.0, 0.0), 0.0f,
-    0.20f); m->setNormal(static_cast<PBRMaterial*>(rough->material().get())->normalTex());
-    obj->setMaterial(m);
-    obj->prepare();
-    obj->setPosition(Vec3(-20.0f, 0.0f, 0.0f));
-    obj->updateMatrix();
-    obj->_prog = -1;
-    _scene.addShape(obj);*/
-
-    sref<Shape> obj = std::make_shared<Quad>();
-    sref<PBRMaterial> m =
-        std::make_shared<PBRMaterial>(Color(1.0, 0.0, 0.0), 0.0f, 0.20f);
-    m->setNormal(static_cast<PBRMaterial*>(spec->material().get())->normalTex());
-    obj->setMaterial(m);
-    m->prepare();
-    obj->prepare();
-    obj->setScale(45.0f, 1.0f, 45.0f);
-    obj->setPosition({0.0f, -1.0f, 0.0f});
-    _scene.addShape(obj);
-
-    /*sref<Light> light = std::make_shared<PointLight>(Color(1.0f), 200.0f);
-    light->setPosition(Vec3(-7.0f, 6.0f, 0.0f));
-    _scene.addLight(light);
-
-    sref<Light> light2 = std::make_shared<PointLight>(Color(1.0f, 0.0f, 1.0f), 200.0f);
-    light2->setPosition(Vec3(7.0f, 6.0f, 0.0f));
-    _scene.addLight(light2);
-
-    sref<Light> light3 = std::make_shared<PointLight>(Color(1.0f, 1.0f, 0.0f), 200.0f);
-    light3->setPosition(Vec3(-7.0f, -6.0f, 0.0f));
-    _scene.addLight(light3);
-
-    sref<Light> light4 = std::make_shared<PointLight>(Color(0.6f, 0.1f, 0.21f), 200.0f);
-    light4->setPosition(Vec3(18.0f, 6.0f, 0.0f));
-    _scene.addLight(light4);
-
-    sref<Light> light5 = std::make_shared<PointLight>(Color(0.3f, 0.1f, 0.8f), 200.0f);
-    light5->setPosition(Vec3(24.0f, 6.0f, 0.0f));
-    _scene.addLight(light5);*/
-
-    // sref<Light> light5 =
-    //     std::make_shared<SphereLight>(Color(1.0f, 1.0f, 1.0f), 4.0f, 1.5f);
-    // light5->setPosition({-10.0f, 4.5f, 0.0f});
-    // // light5->setOrientation(Quat(rotationX(radians(45))));
-    // _scene.addLight(light5);
-
-    sref<Light> light5 =
-        std::make_shared<TubeLight>(Color(1.0f, 1.0f, 1.0f), 8.0f, 0.25f);
-    light5->setPosition({-10.0f, 4.5f, 0.0f});
-    light5->setScale(6, 0, 0);
-    light5->updateMatrix();
-    // light5->setOrientation(Quat(rotationX(radians(45))));
-    _scene.addLight(light5);
-
-    /*sref<Light> light6 = std::make_shared<PointLight>(Color(1.0f, 1.0f, 1.0f), 1.6f);
-    light6->setPosition({0.0f, 4.5f, 0.0f});
-    // light5->setOr    // sref<Light> spot = std::make_shared<SpotLight>(Color(1.0f),
-    250.0f);
-    // spot->setPosition({-10.0f, 4.0f, 0.0f});
-    // _scene.addLight(spot);ientation(Quat(rotationX(radians(45))));
-    _scene.addLight(light6);*/
-
-    // sref<Light> spot = std::make_shared<SpotLight>(Color(1.0f), 250.0f);
-    // spot->setPosition({-10.0f, 4.0f, 0.0f});
-    // _scene.addLight(spot);
-
-    // sref<Light> dir = std::make_shared<DirectionalLight>(Color(1.0f), 10.0f);
-    // dir->setOrientation(Quat(rotationX(radians(45))));
-    // _scene.addLight(dir);
-
-    // sref<Light> pt = std::make_shared<PointLight>(Color(1.0f), 200.0f);
-    // pt->setPosition({-10, 4, 0});
-    // _scene.addLight(pt);
-
-    std::cout << "[INFO] Assets finished loading..." << std::endl;
+    Print("Finished loading assets");
 
     changeSkybox(_skybox);
 }
@@ -261,20 +136,6 @@ void PBRApp::update(float dt) {
     _renderer.setEnvIntensity(_envIntensity);
 
     _accum += dt;
-    /*sref<Light> l = *_scene.lights().begin();
-    l->setOrientation(Quat(rotationY(2 * PI * _accum * 0.5f)));
-    l->setPosition({std::cos(PI * _accum * 0.35f) * 20,
-                    /*1.0f + std::sin(PI * _accum * 1.2f) * 2.0f, */
-    // 3.5f, 3.0f});
-    /*l->updateMatrix();*/
-
-    sref<Light> l = *_scene.lights().begin();
-    l->setOrientation(Quat(rotationY(2 * PI * _accum * 0.65f)));
-    l->setPosition({std::cos(PI * _accum * 0.15f) * 20,
-                    /*1.0f + std::sin(PI * _accum * 1.2f) * 2.0f, */
-                    3.5, 0.0});
-    l->updateMatrix();
-    /*l->updateMatrix();*/
 }
 
 void PBRApp::cleanup() {}
@@ -320,15 +181,14 @@ void PBRApp::drawInterface() {
 
     ImGui::Begin("Environment");
     ImGui::Text("%d fps", _fps);
+    ImGui::Text("%f, %f, %f", _camera->position().x, _camera->position().y,
+                _camera->position().z);
     ImGui::Checkbox("Draw Skybox", &_showSky);
     ImGui::Checkbox("Perturb Normals", &_perturbNormals);
     ImGui::Checkbox("Env Lighting", &_envLighting);
     ImGui::SliderFloat("Env Intensity", &_envIntensity, 0.0f, 1.0f);
-    // if (ImGui::Combo("Current Environment", &_skybox,
-    //                  "Pinetree\0Ruins\0Walk of Fame\0Winter Forest\0"))
-    //     changeSkybox(_skybox);
-    if (ImGui::Combo("Current Environment", &_skybox,
-                     "Aero\0Fireplace\0Photostudio\0Newport\0Pillars\0"))
+
+    if (ImGui::Combo("Current Environment", &_skybox, _skyboxOpts.c_str()))
         changeSkybox(_skybox);
     ImGui::End();
 
@@ -370,7 +230,8 @@ void PBRApp::drawInterface() {
                         p[4] / p[5]) /
                        scale;
             },
-            _toneParams, 100, 0, NULL, FLOAT_MAXIMUM, FLOAT_MAXIMUM, ImVec2(320, 120));
+            _toneParams.data(), 100, 0, NULL, FLOAT_MAXIMUM, FLOAT_MAXIMUM,
+            ImVec2(320, 120));
 
         if (ImGui::Button("Restore defaults"))
             restoreToneDefaults();
@@ -380,7 +241,7 @@ void PBRApp::drawInterface() {
 
     // Selected object window
     if (_selectedShape != nullptr) {
-        RRID whiteTex = Resource.getTexture("white")->rrid();
+        RRID whiteTex = Resource.get<Texture>("white")->id();
 
         ImGui::Begin("Selected Object");
 
@@ -422,7 +283,10 @@ void PBRApp::drawInterface() {
 }
 
 void PBRApp::changeSkybox(int id) {
-    _scene.setEnvironment(_skyboxes[id]);
+    if (_skyboxes.size() > 0) {
+        _skyboxes[id].set();
+        _scene.setEnvironment(_skyboxes[id]);
+    }
 }
 
 void PBRApp::takeSnapshot() {
@@ -430,7 +294,7 @@ void PBRApp::takeSnapshot() {
     auto now = system_clock::now();
     auto timestamp = duration_cast<seconds>(now.time_since_epoch()).count();
 
-    auto img = RHI.getImage(0, 0, _width, _height);
-    img->flipY();
-    img->saveImage(std::format("snapshot_{}.png", timestamp));
+    auto img = ReadMainFramebuffer(0, 0, _width, _height);
+    img.flipY();
+    SaveImage(std::format("snapshot_{}.png", timestamp), img);
 }

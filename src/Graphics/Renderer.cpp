@@ -30,8 +30,8 @@ void Renderer::setToneParams(std::span<float, 7> toneParams) {
     std::copy(std::begin(toneParams), std::end(toneParams), std::begin(_toneParams));
 }
 
-const float* Renderer::toneParams() const {
-    return _toneParams.data();
+const std::array<float, 7>& Renderer::toneParams() const {
+    return _toneParams;
 }
 
 void Renderer::setSkyboxDraw(bool state) {
