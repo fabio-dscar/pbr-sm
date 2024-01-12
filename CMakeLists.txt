@@ -32,8 +32,6 @@ set(RT_PBR_SOURCES
     src/Core/Shape.cpp
     src/Core/Skybox.cpp
     src/Core/Spectrum.cpp
-    src/Core/Sphere.cpp
-    src/Core/Quad.cpp
     src/Graphics/Renderer.cpp
     src/Graphics/RenderInterface.cpp
     src/Graphics/Buffer.cpp

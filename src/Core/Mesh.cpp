@@ -13,18 +13,13 @@
 using namespace pbr;
 namespace fs = std::filesystem;
 
-Mesh::Mesh(const std::string& objPath) : Shape() {
-    auto objFile = LoadObjFile(objPath);
-    CHECK(objFile.has_value());
-
-    _geometry = std::make_shared<Geometry>(std::move((*objFile).vertices),
-                                           std::move((*objFile).indices));
-}
-
 Mesh::Mesh(const std::shared_ptr<Geometry>& geometry, const Mat4& objToWorld)
     : Shape(objToWorld) {
 
     _geometry = geometry;
+    _bbox = _geometry->bbox();
+
+    RHI.uploadGeometry(*_geometry);
 }
 
 void Mesh::prepare() {
@@ -49,33 +44,57 @@ bool Mesh::intersect(const Ray& ray, RayHitInfo& info) const {
     return false;
 }
 
-std::unique_ptr<Shape> pbr::CreateMesh(const ParameterMap& params) {
-    fs::path parentDir = params.lookup("parentdir", ""s);
-    auto fileName = params.lookup<std::string>("filename");
+namespace {
 
-    CHECK(fileName.has_value());
-
-    auto fullPath = parentDir / *fileName;
-
-    auto objFile = LoadObjFile(fullPath);
+std::unique_ptr<Geometry> FromObjFile(const fs::path& path) {
+    auto objFile = LoadObjFile(path);
     if (!objFile.has_value())
         return nullptr;
 
-    auto geo = std::make_shared<Geometry>(std::move((*objFile).vertices),
-                                          std::move((*objFile).indices));
+    return std::make_unique<Geometry>(std::move((*objFile).vertices),
+                                      std::move((*objFile).indices));
+}
+
+} // namespace
+
+std::unique_ptr<Shape> pbr::CreateMesh(const ParameterMap& params) {
+    auto typeOpt = params.lookup<std::string>("type");
+    CHECK(typeOpt.has_value());
+
+    std::shared_ptr<Geometry> geo = nullptr;
+
+    auto type = *typeOpt;
+    if (type == "obj") {
+        fs::path parentDir = params.lookup("parentdir", ""s);
+        auto fileName = params.lookup<std::string>("filename");
+        CHECK(fileName.has_value());
+
+        auto fullPath = parentDir / *fileName;
+        geo = FromObjFile(fullPath);
+    } else if (type == "sphere") {
+        auto widthSegments = params.lookup<unsigned int>("widthSegments", 128);
+        auto heightSegments = params.lookup<unsigned int>("heightSegments", 64);
+        geo = genUnitSphere(widthSegments, heightSegments);
+    } else if (type == "quad") {
+        geo = Resource.get<Geometry>("unitQuad");
+    } else {
+        FATAL("Unknown mesh type.");
+    }
+
+    if (!geo) {
+        LOG_ERROR("Couldn't load mesh's geometry.");
+        return nullptr;
+    }
 
     std::shared_ptr<Material> mat = std::make_shared<PBRMaterial>();
     auto mapref = params.lookup<ParameterMap*>("material", nullptr);
     if (mapref)
         mat = CreateMaterial(*mapref);
-    mat->prepare();
 
     auto toWorld = params.lookup("toWorld", Mat4{});
 
     auto mesh = std::make_unique<Mesh>(geo, toWorld);
-    mesh->prepare();
     mesh->setMaterial(mat);
-    mesh->updateMatrix();
 
     return mesh;
 }

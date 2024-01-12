@@ -3,15 +3,11 @@
 #include <GLFW/glfw3.h>
 #include <PBRMath.h>
 
-#include <chrono>
-#include <format>
 
 #include <Resources.h>
 #include <RenderInterface.h>
 
 #include <Shape.h>
-#include <Sphere.h>
-#include <Mesh.h>
 #include <Texture.h>
 #include <Skybox.h>
 
@@ -27,16 +23,10 @@
 #include <Utils.h>
 #include <Ray.h>
 
-#include <PointLight.h>
-#include <DirectionalLight.h>
-#include <SpotLight.h>
-#include <SphereLight.h>
-#include <TubeLight.h>
-#include <Quad.h>
-
-#include <ParameterMap.h>
 #include <SceneLoader.h>
-#include <Shader.h>
+
+#include <chrono>
+#include <format>
 
 using namespace pbr;
 using namespace pbr::util;

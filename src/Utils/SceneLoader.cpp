@@ -17,6 +17,7 @@ struct TagInfo {
 };
 
 const std::unordered_map<std::string, TagInfo> TagInfoMap{
+    {"uint",        {Tag::UInt}                          },
     {"float",       {Tag::Float}                         },
     {"string",      {Tag::String}                        },
     {"vec3",        {Tag::Vec3}                          },
@@ -128,6 +129,9 @@ void SceneLoader::parseXml(const XMLElement& xmlEl, ParseContext& ctx) {
     case Tag::String:
     case Tag::Texture:
         parseSimple<std::string>(xmlEl, ctx.entry);
+        break;
+    case Tag::UInt:
+        parseSimple<unsigned int>(xmlEl, ctx.entry);
         break;
     case Tag::Float:
         parseSimple<float>(xmlEl, ctx.entry);

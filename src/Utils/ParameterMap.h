@@ -14,7 +14,8 @@ namespace pbr {
 
 class ParameterMap;
 
-using ParameterType = std::variant<float, std::string, Vec3, Color, Mat4, ParameterMap*>;
+using ParameterType =
+    std::variant<unsigned int, float, std::string, Vec3, Color, Mat4, ParameterMap*>;
 
 class ParameterMap {
 public:

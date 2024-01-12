@@ -6,8 +6,12 @@
 
 using namespace pbr;
 
-Shape::Shape(const Vec3& position) : SceneObject(position) {}
-Shape::Shape(const Mat4& objToWorld) : SceneObject(objToWorld) {}
+Shape::Shape(const Vec3& position) : SceneObject(position) {
+    updateMatrix();
+}
+Shape::Shape(const Mat4& objToWorld) : SceneObject(objToWorld) {
+    updateMatrix();
+}
 
 const sref<Geometry>& Shape::geometry() const {
     return _geometry;

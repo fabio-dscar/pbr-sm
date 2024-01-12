@@ -131,20 +131,22 @@ void Geometry::computeTangents() {
         LOG_ERROR("Failed to compute tangents.");
 }
 
-std::unique_ptr<Geometry> pbr::genUnitSphere(uint32 widthSegments,
-                                             uint32 heightSegments) {
-    auto geo = std::make_unique<Geometry>();
+std::unique_ptr<Geometry> pbr::genUnitSphere(unsigned int widthSegments,
+                                             unsigned int heightSegments) {
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
 
-    uint32 index = 0;
-    Vertex vert;
+    unsigned count = 0;
 
-    std::vector<std::vector<uint32>> grid;
-    for (uint32 iy = 0; iy <= heightSegments; iy++) {
-        float v = iy / heightSegments;
+    std::vector<std::vector<unsigned>> grid;
+    for (unsigned iy = 0; iy <= heightSegments; iy++) {
+        float v = (float)iy / heightSegments;
 
-        std::vector<uint32> auxIdx;
-        for (uint32 ix = 0; ix <= widthSegments; ix++) {
-            float u = ix / widthSegments;
+        std::vector<unsigned> auxIdx;
+        for (unsigned ix = 0; ix <= widthSegments; ix++) {
+            float u = (float)ix / widthSegments;
+
+            Vertex vert;
 
             // Position
             vert.position.x = std::cos(u * 2.0f * PI) * std::sin(v * PI);
@@ -152,43 +154,41 @@ std::unique_ptr<Geometry> pbr::genUnitSphere(uint32 widthSegments,
             vert.position.z = std::sin(u * 2.0f * PI) * std::sin(v * PI);
 
             // Normal
-            vert.normal =
-                normalize(Vec3(vert.position.x, vert.position.y, vert.position.z));
+            vert.normal = normalize(vert.position);
 
             // Texture Coords
-            vert.uv = Vec2(u, 1 - v);
+            vert.uv = {u, 1 - v};
 
-            auxIdx.push_back(index++);
-
-            geo->addVertex(vert);
+            auxIdx.push_back(count++);
+            vertices.push_back(vert);
         }
 
         grid.push_back(auxIdx);
     }
 
-    for (uint32 iy = 0; iy < heightSegments; iy++) {
-        for (uint32 ix = 0; ix < widthSegments; ix++) {
+    for (unsigned iy = 0; iy < heightSegments; iy++) {
+        for (unsigned ix = 0; ix < widthSegments; ix++) {
 
-            uint32 a = grid[iy][ix + 1];
-            uint32 b = grid[iy][ix];
-            uint32 c = grid[iy + 1][ix];
-            uint32 d = grid[iy + 1][ix + 1];
+            unsigned a = grid[iy][ix + 1];
+            unsigned b = grid[iy][ix];
+            unsigned c = grid[iy + 1][ix];
+            unsigned d = grid[iy + 1][ix + 1];
 
             if (iy != 0) {
-                geo->addIndex(a);
-                geo->addIndex(b);
-                geo->addIndex(d);
+                indices.push_back(a);
+                indices.push_back(d);
+                indices.push_back(b);
             }
 
             if (iy != heightSegments - 1) {
-                geo->addIndex(b);
-                geo->addIndex(c);
-                geo->addIndex(d);
+                indices.push_back(b);
+                indices.push_back(d);
+                indices.push_back(c);
             }
         }
     }
 
-    return geo;
+    return std::make_unique<Geometry>(std::move(vertices), std::move(indices));
 }
 
 void Geometry::removeRedundantVerts() {
@@ -231,34 +231,15 @@ std::unique_ptr<Geometry> pbr::genUnitCube() {
 }
 
 PBR_SHARED std::unique_ptr<Geometry> pbr::genUnitQuad() {
-    auto geo = std::make_unique<Geometry>();
-
     Vec3 normal{0, 1, 0};
     Vec4 tangent{1, 0, 0, 1};
 
-    geo->addVertex({.position = {-0.5f, 0.0f, 0.5f},
-                    .normal = normal,
-                    .uv = {0.0f, 0.0f},
-                    .tangent = tangent});
-    geo->addVertex({.position = {0.5f, 0.0f, 0.5f},
-                    .normal = normal,
-                    .uv = {1.0f, 0.0f},
-                    .tangent = tangent});
-    geo->addVertex({.position = {-0.5f, 0.0f, -0.5f},
-                    .normal = normal,
-                    .uv = {0.0f, 1.0f},
-                    .tangent = tangent});
-    geo->addVertex({.position = {0.5f, 0.0f, -0.5f},
-                    .normal = normal,
-                    .uv = {1.0f, 1.0f},
-                    .tangent = tangent});
-
-    geo->addIndex(1);
-    geo->addIndex(2);
-    geo->addIndex(0);
-    geo->addIndex(1);
-    geo->addIndex(3);
-    geo->addIndex(2);
-
-    return geo;
+    return std::make_unique<Geometry>(
+        std::vector<Vertex>{
+            {{-0.5f, 0.0f, 0.5f},  normal, {0, 0}, tangent},
+            {{0.5f, 0.0f, 0.5f},   normal, {1, 0}, tangent},
+            {{-0.5f, 0.0f, -0.5f}, normal, {0, 1}, tangent},
+            {{0.5f, 0.0f, -0.5f},  normal, {1, 1}, tangent}
+    },
+        std::vector<unsigned>{1, 2, 0, 1, 3, 2});
 }

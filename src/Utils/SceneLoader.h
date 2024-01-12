@@ -21,6 +21,7 @@ namespace pbr {
 
 enum class Tag {
     Unknown,
+    UInt,
     Float,
     String,
     Vec3,

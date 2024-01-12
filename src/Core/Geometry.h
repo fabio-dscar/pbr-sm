@@ -9,6 +9,8 @@ using namespace pbr::math;
 
 namespace pbr {
 
+class VertexArrays;
+
 struct Vertex {
     Vec3 position;
     Vec3 normal;
@@ -57,6 +59,8 @@ public:
     BBox3 bbox() const;
     BSphere bSphere() const;
 
+    bool isUploaded() const { return _id != -1; }
+
 private:
     void computeTangents();
     void removeRedundantVerts();
@@ -64,14 +68,15 @@ private:
     RRID _id = -1;
     std::vector<uint32> _indices;
     std::vector<Vertex> _vertices;
+    std::shared_ptr<VertexArrays> _varrays;
 };
 
 inline void swap(Geometry& lhs, Geometry& rhs) noexcept {
     lhs.swap(rhs);
 }
 
-PBR_SHARED std::unique_ptr<Geometry> genUnitSphere(uint32 widthSegments,
-                                                   uint32 heightSegments);
+PBR_SHARED std::unique_ptr<Geometry> genUnitSphere(unsigned int widthSegments,
+                                                   unsigned int heightSegments);
 PBR_SHARED std::unique_ptr<Geometry> genUnitCube();
 PBR_SHARED std::unique_ptr<Geometry> genUnitQuad();
 
