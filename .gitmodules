@@ -1,6 +1,3 @@
-[submodule "ext/zlib"]
-	path = ext/zlib
-	url = https://github.com/madler/zlib
 [submodule "ext/lodepng"]
 	path = ext/lodepng
 	url = https://github.com/lvandeve/lodepng

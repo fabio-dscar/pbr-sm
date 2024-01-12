@@ -92,16 +92,13 @@ target_include_directories(
            ext/pugixml
            ext/mikktspace
            ${TINYOBJ_INCLUDE}
-           ${ZLIB_INCLUDE_DIRS}
            ${GLAD_INCLUDE}
            ${GLFW_INCLUDE_DIRS}
            ${SPDLOG_INCLUDE_DIRS}
            ${BACKWARD_INCLUDE_DIRS}
 )
 
-target_link_libraries(
-    pbr-sm PRIVATE OpenGL::GL glad glfw Backward::Interface spdlog ${ZLIB_LIBRARIES}
-)
+target_link_libraries(pbr-sm PRIVATE OpenGL::GL glad glfw Backward::Interface spdlog)
 
 add_custom_command(
     TARGET pbr-sm POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
