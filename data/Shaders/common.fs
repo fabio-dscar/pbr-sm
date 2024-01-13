@@ -25,8 +25,6 @@ layout(std140, binding = 0) uniform rendererBlock {
     float A, B, C, D, E, J, W;
 
     float envIntensity;
-    int perturbNormals;
-    int envLighting;
 };
 
 vec3 toLinearRGB(vec3 c, float gamma) { return pow(c, vec3(gamma)); }

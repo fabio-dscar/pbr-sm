@@ -83,24 +83,20 @@ bool BBox3::intersectRay(const Ray& ray, float* t) const {
     float tMin = ray.tMin();
     float tMax = ray.tMax();
 
-    Vec3 dir = ray.direction();
-    Vec3 origin = ray.origin();
-
-    float invDir, tNear, tFar;
+    const Vec3& dir = ray.direction();
+    const Vec3& orig = ray.origin();
 
     for (int axis = 0; axis < 3; axis++) {
-        invDir = 1.0 / dir[axis];
+        const float invDir = 1.0 / dir[axis];
 
-        tNear = (_min[axis] - origin[axis]) * invDir;
-        tFar = (_max[axis] - origin[axis]) * invDir;
+        float tNear = (_min[axis] - orig[axis]) * invDir;
+        float tFar = (_max[axis] - orig[axis]) * invDir;
 
         if (tNear > tFar)
             std::swap(tNear, tFar);
 
-        if (tNear > tMin)
-            tMin = tNear;
-        if (tFar < tMax)
-            tMax = tFar;
+        tMin = std::max(tMin, tNear);
+        tMax = std::min(tMax, tFar);
 
         if (tMin > tMax)
             return false;

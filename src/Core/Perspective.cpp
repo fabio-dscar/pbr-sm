@@ -4,8 +4,8 @@
 
 using namespace pbr;
 
-Perspective::Perspective(int32 width, int32 height, const Vec3& eye,
-                         const Vec3& at, const Vec3& up, float n, float f, float fov) 
+Perspective::Perspective(int width, int height, const Vec3& eye, const Vec3& at,
+                         const Vec3& up, float n, float f, float fov)
     : Camera(width, height, eye, at, up, n, f), _fov(fov) {
 
     _projMatrix = math::Perspective(fov, aspect(), n, f);

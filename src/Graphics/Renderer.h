@@ -18,7 +18,8 @@ enum BufferIndices : int {
     LIGHTS_BUFFER_IDX = 2
 };
 
-enum ToneMap : int { PARAMETRIC = 0, ACES = 1, ACES_BOOSTED = 2, ACES_FAST = 3 };
+enum class ToneMap : int { Parametric = 0, Aces = 1, BoostedAces = 2, FastAces = 3 };
+constexpr bool EnumHasConversion(ToneMap);
 
 // Buffer for shaders with renderer information
 struct RendererData {
@@ -30,8 +31,6 @@ struct RendererData {
     float A, B, C, D, E, F, W;
 
     float envIntensity;
-    int perturbNormals;
-    int envLighting;
 };
 
 static constexpr unsigned int NumLights = 5;
@@ -62,8 +61,6 @@ public:
     void setToneParams(std::span<float, 7> toneParams);
 
     void setSkyboxDraw(bool state);
-    void setPerturbNormals(bool state);
-    void setEnvLighting(bool state) { _envLighting = state; }
     void setEnvIntensity(float val) { _envIntensity = val; }
 
 private:
@@ -75,12 +72,10 @@ private:
 
     float _gamma = pbr::Gamma;
     float _exposure = 3.0f;
-    ToneMap _toneMap = PARAMETRIC;
+    ToneMap _toneMap = ToneMap::Parametric;
     std::array<float, 7> _toneParams = {0.15f, 0.5f, 0.1f, 0.2f, 0.02f, 0.3f, 11.2f};
 
     bool _drawSkybox = true;
-    bool _perturbNormals = true;
-    bool _envLighting = true;
     float _envIntensity = 1.0f;
 
     RingBuffer _uniformBuffer{};

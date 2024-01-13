@@ -5,19 +5,19 @@
 
 namespace pbr {
 
-    class Perspective : public Camera {
-    public:
-        Perspective(int32 width, int32 height, const Vec3& eye,
-                    const Vec3& at, const Vec3& up, float n, float f, float fov);
+class Perspective : public Camera {
+public:
+    Perspective(int width, int height, const Vec3& eye, const Vec3& at, const Vec3& up,
+                float n, float f, float fov);
 
-        float fov() const;
+    float fov() const;
 
-        void updateDimensions(int w, int h) override;
+    void updateDimensions(int w, int h) override;
 
-    private:
-        float _fov;
-    };
+private:
+    float _fov;
+};
 
-}
+} // namespace pbr
 
 #endif

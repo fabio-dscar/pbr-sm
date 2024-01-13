@@ -34,7 +34,7 @@ private:
     void changeSkybox(int id);
     void takeSnapshot();
     void pickObject(int x, int y);
-    void changeToneMap(int id);
+    void changeToneMap(ToneMap toneMap);
 
     Scene _scene;
     Renderer _renderer;
@@ -61,8 +61,6 @@ private:
     int _skybox = 0;
     bool _showGUI = true;
     bool _showSky = true;
-    bool _perturbNormals = true;
-    bool _envLighting = true;
     float _envIntensity = 1.0f;
 
     float _accum = 0.0f;

@@ -5,7 +5,6 @@
 
 namespace pbr {
 
-class Geometry;
 class Texture;
 
 class Skybox {

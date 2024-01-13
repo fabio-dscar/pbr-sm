@@ -238,9 +238,6 @@ RRID util::LoadTexture(const fs::path& path) {
     }
 
     return CreateNamedTexture(path.string(), path)->id();
-
-    // TmpImage image(path);
-    // return RHI.createTextureImmutable(image, ETexSampler{});
 }
 
 void GLAPIENTRY util::OpenGLErrorCallback(GLenum, GLenum type, GLuint, GLenum severity,

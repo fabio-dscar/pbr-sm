@@ -169,9 +169,6 @@ vec3 EvalSpecularIBL(vec3 R, float NdotV, vec3 F0, float roughness) {
 }
 
 vec3 EnvironmentLighting(in ShadingContext sc) {
-    if (envLighting == 0)
-        return vec3(0);
-
     vec3 diffuseColor = (1.0 - sc.metal) * sc.kd;
     vec3 irradiance = texture(irradianceTex, sc.N).rgb;
 

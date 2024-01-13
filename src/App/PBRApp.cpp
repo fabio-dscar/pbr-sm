@@ -3,7 +3,6 @@
 #include <GLFW/glfw3.h>
 #include <PBRMath.h>
 
-
 #include <Resources.h>
 #include <RenderInterface.h>
 
@@ -39,7 +38,7 @@ void PBRApp::prepare() {
 
     RHI.initialize();
 
-    ImGui_Init(_width, _height);
+    GuiInit(_width, _height);
 
     // Initialize renderer
     _renderer.prepare();
@@ -66,6 +65,7 @@ void PBRApp::prepare() {
 void PBRApp::reshape(int w, int h) {
     OpenGLApplication::reshape(w, h);
     _camera->updateDimensions(w, h);
+    GuiResize(w, h);
 }
 
 void PBRApp::tickPerSecond() {
@@ -121,8 +121,6 @@ void PBRApp::update(float dt) {
     _renderer.setGamma(_gamma);
     _renderer.setToneParams(_toneParams);
     _renderer.setSkyboxDraw(_showSky);
-    _renderer.setPerturbNormals(_perturbNormals);
-    _renderer.setEnvLighting(_envLighting);
     _renderer.setEnvIntensity(_envIntensity);
 
     _accum += dt;
@@ -162,29 +160,32 @@ void PBRApp::processMouseClick(int button, int action, int mods) {
         pickObject(_mouseX, _mouseY);
 }
 
-void PBRApp::changeToneMap(int id) {
-    _renderer.setToneMap(static_cast<ToneMap>(id));
+void PBRApp::changeToneMap(ToneMap toneMap) {
+    _renderer.setToneMap(toneMap);
 }
 
 void PBRApp::drawInterface() {
-    ImGui_NewFrame(_mouseX, _mouseY, _mouseBtns);
+    GuiBeginFrame(_mouseX, _mouseY, _mouseBtns);
 
+    ImGui::SetNextWindowPos({10, 10}, ImGuiCond_Once);
+    ImGui::SetNextWindowSize({477, 142}, ImGuiCond_Once);
     ImGui::Begin("Environment");
     ImGui::Text("%d fps", _fps);
     ImGui::Text("%f, %f, %f", _camera->position().x, _camera->position().y,
                 _camera->position().z);
     ImGui::Checkbox("Draw Skybox", &_showSky);
-    ImGui::Checkbox("Perturb Normals", &_perturbNormals);
-    ImGui::Checkbox("Env Lighting", &_envLighting);
     ImGui::SliderFloat("Env Intensity", &_envIntensity, 0.0f, 1.0f);
 
     if (ImGui::Combo("Current Environment", &_skybox, _skyboxOpts.c_str()))
         changeSkybox(_skybox);
     ImGui::End();
 
+    ImGui::SetNextWindowPos({10, 162}, ImGuiCond_Once);
+    ImGui::SetNextWindowSize({477, 436}, ImGuiCond_Once);
+
     ImGui::Begin("Tone Map");
 
-    if (ImGui::Combo("Tone Map", (int*)&_toneMap,
+    if (ImGui::Combo("Tone Map", reinterpret_cast<int*>(&_toneMap),
                      "Parametric\0ACES\0ACES Boosted\0ACES Fast\0"))
         changeToneMap(_toneMap);
 
@@ -196,7 +197,7 @@ void PBRApp::drawInterface() {
 
     ImGui::Separator();
 
-    if (_renderer.toneMap() == ToneMap::PARAMETRIC) {
+    if (_renderer.toneMap() == ToneMap::Parametric) {
         ImGui::SliderFloat("A", &_toneParams[0], 0.0f, 2.0f);
         ImGui::SliderFloat("B", &_toneParams[1], 0.0f, 2.0f);
         ImGui::SliderFloat("C", &_toneParams[2], 0.0f, 2.0f);
@@ -258,16 +259,6 @@ void PBRApp::drawInterface() {
 
         ImGui::End();
     }
-
-    ImGui::Begin("Information");
-    ImGui::TextWrapped(
-        "Press right click and move the mouse to orient the camera. WASD for movement.");
-    ImGui::TextWrapped("Press 'H' to toggle GUI visibility.");
-    ImGui::TextWrapped("Press 'P' to take a snapshot. Do not forget to hide the GUI by "
-                       "pressing 'H' first, if desired.");
-    ImGui::TextWrapped("By clicking the middle mouse button, it is possible to pick "
-                       "objects and change some of their parameters.");
-    ImGui::End();
 
     ImGui::Render();
 }

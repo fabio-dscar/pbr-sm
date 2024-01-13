@@ -4,17 +4,131 @@
 
 using namespace ImGui;
 
+namespace {
+
 GLint g_ShaderHandle;
 int g_AttribLocationTex, g_AttribLocationProjMtx, g_VertHandle, g_FragHandle;
 int g_AttribLocationPosition, g_AttribLocationUV, g_AttribLocationColor;
 unsigned int g_VaoHandle, g_VboHandle, g_ElementsHandle, g_FontTexture;
 
-//static float f = 1.0f;
+struct ImVec3 {
+    float x, y, z;
+    ImVec3(float _x = 0.0f, float _y = 0.0f, float _z = 0.0f) {
+        x = _x;
+        y = _y;
+        z = _z;
+    }
+};
 
-void SetupImGuiStyle2();
+void imgui_easy_theming(ImVec3 color_for_text, ImVec3 color_for_head,
+                        ImVec3 color_for_area, ImVec3 color_for_body,
+                        ImVec3 color_for_pops) {
+    ImGuiStyle& style = ImGui::GetStyle();
 
-void pbr::ImGui_RenderDrawLists(ImDrawData* draw_data) {
-    // Avoid rendering when minimized, scale coordinates for retina displays 
+    style.Alpha = 0.80f;
+
+    style.Colors[ImGuiCol_Text] =
+        ImVec4(color_for_text.x, color_for_text.y, color_for_text.z, 1.00f);
+    style.Colors[ImGuiCol_TextDisabled] =
+        ImVec4(color_for_text.x, color_for_text.y, color_for_text.z, 0.58f);
+    style.Colors[ImGuiCol_WindowBg] =
+        ImVec4(color_for_body.x, color_for_body.y, color_for_body.z, 0.95f);
+    style.Colors[ImGuiCol_ChildWindowBg] =
+        ImVec4(color_for_area.x, color_for_area.y, color_for_area.z, 0.58f);
+    style.Colors[ImGuiCol_Border] =
+        ImVec4(color_for_body.x, color_for_body.y, color_for_body.z, 0.00f);
+    style.Colors[ImGuiCol_BorderShadow] =
+        ImVec4(color_for_body.x, color_for_body.y, color_for_body.z, 0.00f);
+    style.Colors[ImGuiCol_FrameBg] =
+        ImVec4(color_for_area.x, color_for_area.y, color_for_area.z, 1.00f);
+    style.Colors[ImGuiCol_FrameBgHovered] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.78f);
+    style.Colors[ImGuiCol_FrameBgActive] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
+    style.Colors[ImGuiCol_TitleBg] =
+        ImVec4(color_for_area.x, color_for_area.y, color_for_area.z, 1.00f);
+    style.Colors[ImGuiCol_TitleBgCollapsed] =
+        ImVec4(color_for_area.x, color_for_area.y, color_for_area.z, 0.75f);
+    style.Colors[ImGuiCol_TitleBgActive] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
+    style.Colors[ImGuiCol_MenuBarBg] =
+        ImVec4(color_for_area.x, color_for_area.y, color_for_area.z, 0.47f);
+    style.Colors[ImGuiCol_ScrollbarBg] =
+        ImVec4(color_for_area.x, color_for_area.y, color_for_area.z, 1.00f);
+    style.Colors[ImGuiCol_ScrollbarGrab] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.21f);
+    style.Colors[ImGuiCol_ScrollbarGrabHovered] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.78f);
+    style.Colors[ImGuiCol_ScrollbarGrabActive] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
+    // style.Colors[ImGuiCol_ComboBg] = ImVec4(color_for_area.x, color_for_area.y,
+    // color_for_area.z, 1.00f);
+    style.Colors[ImGuiCol_CheckMark] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.80f);
+    style.Colors[ImGuiCol_SliderGrab] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.50f);
+    style.Colors[ImGuiCol_SliderGrabActive] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
+    style.Colors[ImGuiCol_Button] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.50f);
+    style.Colors[ImGuiCol_ButtonHovered] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.86f);
+    style.Colors[ImGuiCol_ButtonActive] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
+    style.Colors[ImGuiCol_Header] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.76f);
+    style.Colors[ImGuiCol_HeaderHovered] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.86f);
+    style.Colors[ImGuiCol_HeaderActive] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
+    style.Colors[ImGuiCol_Column] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.32f);
+    style.Colors[ImGuiCol_ColumnHovered] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.78f);
+    style.Colors[ImGuiCol_ColumnActive] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
+    style.Colors[ImGuiCol_ResizeGrip] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.15f);
+    style.Colors[ImGuiCol_ResizeGripHovered] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.78f);
+    style.Colors[ImGuiCol_ResizeGripActive] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
+    style.Colors[ImGuiCol_CloseButton] =
+        ImVec4(color_for_text.x, color_for_text.y, color_for_text.z, 0.16f);
+    style.Colors[ImGuiCol_CloseButtonHovered] =
+        ImVec4(color_for_text.x, color_for_text.y, color_for_text.z, 0.39f);
+    style.Colors[ImGuiCol_CloseButtonActive] =
+        ImVec4(color_for_text.x, color_for_text.y, color_for_text.z, 1.00f);
+    style.Colors[ImGuiCol_PlotLines] =
+        ImVec4(color_for_text.x, color_for_text.y, color_for_text.z, 0.63f);
+    style.Colors[ImGuiCol_PlotLinesHovered] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
+    style.Colors[ImGuiCol_PlotHistogram] =
+        ImVec4(color_for_text.x, color_for_text.y, color_for_text.z, 0.63f);
+    style.Colors[ImGuiCol_PlotHistogramHovered] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
+    style.Colors[ImGuiCol_TextSelectedBg] =
+        ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.63f);
+    style.Colors[ImGuiCol_PopupBg] =
+        ImVec4(color_for_pops.x, color_for_pops.y, color_for_pops.z, 0.92f);
+    style.Colors[ImGuiCol_ModalWindowDarkening] =
+        ImVec4(color_for_area.x, color_for_area.y, color_for_area.z, 0.73f);
+}
+
+void SetupImGuiStyle2() {
+    static ImVec3 color_for_text = ImVec3(236.f / 255.f, 240.f / 255.f, 241.f / 255.f);
+    static ImVec3 color_for_head = ImVec3(110.f / 255.f, 110.f / 255.f, 110.f / 255.f);
+    static ImVec3 color_for_area = ImVec3(60.f / 255.f, 60.f / 255.f, 60.f / 255.f);
+    static ImVec3 color_for_body = ImVec3(48.f / 255.f, 48.f / 255.f, 48.f / 255.f);
+    static ImVec3 color_for_pops = ImVec3(33.f / 255.f, 46.f / 255.f, 60.f / 255.f);
+    // static ImVec3 color_for_slider_button = ImVec3(255.f / 255.f, 144.f / 255.f, 37.f /
+    // 255.f);
+    imgui_easy_theming(color_for_text, color_for_head, color_for_area, color_for_body,
+                       color_for_pops);
+}
+
+void ImGui_RenderDrawLists(ImDrawData* draw_data) {
+    // Avoid rendering when minimized, scale coordinates for retina displays
     // (screen coordinates != framebuffer coordinates)
     ImGuiIO& io = ImGui::GetIO();
     int fb_width = (int)(io.DisplaySize.x * io.DisplayFramebufferScale.x);
@@ -24,29 +138,45 @@ void pbr::ImGui_RenderDrawLists(ImDrawData* draw_data) {
     draw_data->ScaleClipRects(io.DisplayFramebufferScale);
 
     // Backup GL state
-    GLenum last_active_texture; glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint*)&last_active_texture);
+    GLenum last_active_texture;
+    glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint*)&last_active_texture);
     glActiveTexture(GL_TEXTURE0);
-    GLint last_program; glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
-    GLint last_texture; glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
-    GLint last_sampler; glGetIntegerv(GL_SAMPLER_BINDING, &last_sampler);
-    GLint last_array_buffer; glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
-    GLint last_element_array_buffer; glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &last_element_array_buffer);
-    GLint last_vertex_array; glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
-    GLint last_polygon_mode[2]; glGetIntegerv(GL_POLYGON_MODE, last_polygon_mode);
-    GLint last_viewport[4]; glGetIntegerv(GL_VIEWPORT, last_viewport);
-    GLint last_scissor_box[4]; glGetIntegerv(GL_SCISSOR_BOX, last_scissor_box);
-    GLenum last_blend_src_rgb; glGetIntegerv(GL_BLEND_SRC_RGB, (GLint*)&last_blend_src_rgb);
-    GLenum last_blend_dst_rgb; glGetIntegerv(GL_BLEND_DST_RGB, (GLint*)&last_blend_dst_rgb);
-    GLenum last_blend_src_alpha; glGetIntegerv(GL_BLEND_SRC_ALPHA, (GLint*)&last_blend_src_alpha);
-    GLenum last_blend_dst_alpha; glGetIntegerv(GL_BLEND_DST_ALPHA, (GLint*)&last_blend_dst_alpha);
-    GLenum last_blend_equation_rgb; glGetIntegerv(GL_BLEND_EQUATION_RGB, (GLint*)&last_blend_equation_rgb);
-    GLenum last_blend_equation_alpha; glGetIntegerv(GL_BLEND_EQUATION_ALPHA, (GLint*)&last_blend_equation_alpha);
+    GLint last_program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
+    GLint last_texture;
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+    GLint last_sampler;
+    glGetIntegerv(GL_SAMPLER_BINDING, &last_sampler);
+    GLint last_array_buffer;
+    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
+    GLint last_element_array_buffer;
+    glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &last_element_array_buffer);
+    GLint last_vertex_array;
+    glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
+    GLint last_polygon_mode[2];
+    glGetIntegerv(GL_POLYGON_MODE, last_polygon_mode);
+    GLint last_viewport[4];
+    glGetIntegerv(GL_VIEWPORT, last_viewport);
+    GLint last_scissor_box[4];
+    glGetIntegerv(GL_SCISSOR_BOX, last_scissor_box);
+    GLenum last_blend_src_rgb;
+    glGetIntegerv(GL_BLEND_SRC_RGB, (GLint*)&last_blend_src_rgb);
+    GLenum last_blend_dst_rgb;
+    glGetIntegerv(GL_BLEND_DST_RGB, (GLint*)&last_blend_dst_rgb);
+    GLenum last_blend_src_alpha;
+    glGetIntegerv(GL_BLEND_SRC_ALPHA, (GLint*)&last_blend_src_alpha);
+    GLenum last_blend_dst_alpha;
+    glGetIntegerv(GL_BLEND_DST_ALPHA, (GLint*)&last_blend_dst_alpha);
+    GLenum last_blend_equation_rgb;
+    glGetIntegerv(GL_BLEND_EQUATION_RGB, (GLint*)&last_blend_equation_rgb);
+    GLenum last_blend_equation_alpha;
+    glGetIntegerv(GL_BLEND_EQUATION_ALPHA, (GLint*)&last_blend_equation_alpha);
     GLboolean last_enable_blend = glIsEnabled(GL_BLEND);
     GLboolean last_enable_cull_face = glIsEnabled(GL_CULL_FACE);
     GLboolean last_enable_depth_test = glIsEnabled(GL_DEPTH_TEST);
     GLboolean last_enable_scissor_test = glIsEnabled(GL_SCISSOR_TEST);
 
-    // Setup render state: alpha-blending enabled, no face culling, no depth testing, 
+    // Setup render state: alpha-blending enabled, no face culling, no depth testing,
     // scissor enabled, polygon fill
     glEnable(GL_BLEND);
     glBlendEquation(GL_FUNC_ADD);
@@ -58,12 +188,11 @@ void pbr::ImGui_RenderDrawLists(ImDrawData* draw_data) {
 
     // Setup viewport, orthographic projection matrix
     glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
-    const float ortho_projection[4][4] =
-    {
-        { 2.0f / io.DisplaySize.x, 0.0f,                   0.0f, 0.0f },
-        { 0.0f,                  2.0f / -io.DisplaySize.y, 0.0f, 0.0f },
-        { 0.0f,                  0.0f,                  -1.0f, 0.0f },
-        { -1.0f,                  1.0f,                   0.0f, 1.0f },
+    const float ortho_projection[4][4] = {
+        {2.0f / io.DisplaySize.x, 0.0f,                     0.0f,  0.0f},
+        {0.0f,                    2.0f / -io.DisplaySize.y, 0.0f,  0.0f},
+        {0.0f,                    0.0f,                     -1.0f, 0.0f},
+        {-1.0f,                   1.0f,                     0.0f,  1.0f},
     };
     glUseProgram(g_ShaderHandle);
     glUniform1i(g_AttribLocationTex, 0);
@@ -142,7 +271,7 @@ void pbr::ImGui_RenderDrawLists(ImDrawData* draw_data) {
               (GLsizei)last_scissor_box[3]);
 }
 
-bool pbr::ImGui_CreateFontsTexture() {
+bool ImGui_CreateFontsTexture() {
     // Build texture atlas
     ImGuiIO& io = ImGui::GetIO();
     unsigned char* pixels;
@@ -175,27 +304,26 @@ bool pbr::ImGui_CreateFontsTexture() {
     return true;
 }
 
-bool pbr::ImGui_CreateDeviceObjects() {
+bool ImGui_CreateDeviceObjects() {
     // Backup GL state
     GLint last_texture, last_array_buffer, last_vertex_array;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
     glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
 
-    const GLchar *vertex_shader =
-        "#version 330\n"
-        "uniform mat4 ProjMtx;\n"
-        "in vec2 Position;\n"
-        "in vec2 UV;\n"
-        "in vec4 Color;\n"
-        "out vec2 Frag_UV;\n"
-        "out vec4 Frag_Color;\n"
-        "void main()\n"
-        "{\n"
-        "	Frag_UV = UV;\n"
-        "	Frag_Color = Color;\n"
-        "	gl_Position = ProjMtx * vec4(Position.xy,0,1);\n"
-        "}\n";
+    const GLchar* vertex_shader = "#version 330\n"
+                                  "uniform mat4 ProjMtx;\n"
+                                  "in vec2 Position;\n"
+                                  "in vec2 UV;\n"
+                                  "in vec4 Color;\n"
+                                  "out vec2 Frag_UV;\n"
+                                  "out vec4 Frag_Color;\n"
+                                  "void main()\n"
+                                  "{\n"
+                                  "	Frag_UV = UV;\n"
+                                  "	Frag_Color = Color;\n"
+                                  "	gl_Position = ProjMtx * vec4(Position.xy,0,1);\n"
+                                  "}\n";
 
     const GLchar* fragment_shader =
         "#version 330\n"
@@ -254,7 +382,9 @@ bool pbr::ImGui_CreateDeviceObjects() {
     return true;
 }
 
-void pbr::ImGui_Init(float width, float height) {
+} // namespace
+
+void pbr::GuiInit(float width, float height) {
     ImGuiIO& io = ImGui::GetIO();
     io.DisplaySize.x = width;
     io.DisplaySize.y = height;
@@ -265,11 +395,11 @@ void pbr::ImGui_Init(float width, float height) {
     ImGui_CreateDeviceObjects();
 }
 
-void pbr::ImGui_NewFrame(int mouseX, int mouseY, bool mouseBtns[3]) {
+void pbr::GuiBeginFrame(int mouseX, int mouseY, bool mouseBtns[3]) {
     ImGuiIO& io = ImGui::GetIO();
     io.MousePos = ImVec2((float)mouseX, (float)mouseY);
 
-    //0 = left, 1 = right, 2 = middle + extras
+    // 0 = left, 1 = right, 2 = middle + extras
     io.MouseDown[0] = mouseBtns[0];
     io.MouseDown[1] = mouseBtns[2];
     io.MouseDown[2] = mouseBtns[1];
@@ -277,64 +407,8 @@ void pbr::ImGui_NewFrame(int mouseX, int mouseY, bool mouseBtns[3]) {
     ImGui::NewFrame();
 }
 
-struct ImVec3 { float x, y, z; ImVec3(float _x = 0.0f, float _y = 0.0f, float _z = 0.0f) { x = _x; y = _y; z = _z; } };
-
-void imgui_easy_theming(ImVec3 color_for_text, ImVec3 color_for_head, ImVec3 color_for_area, ImVec3 color_for_body, ImVec3 color_for_pops) {
-    ImGuiStyle& style = ImGui::GetStyle();
-
-    style.Alpha = 0.80f;
-
-    style.Colors[ImGuiCol_Text] = ImVec4(color_for_text.x, color_for_text.y, color_for_text.z, 1.00f);
-    style.Colors[ImGuiCol_TextDisabled] = ImVec4(color_for_text.x, color_for_text.y, color_for_text.z, 0.58f);
-    style.Colors[ImGuiCol_WindowBg] = ImVec4(color_for_body.x, color_for_body.y, color_for_body.z, 0.95f);
-    style.Colors[ImGuiCol_ChildWindowBg] = ImVec4(color_for_area.x, color_for_area.y, color_for_area.z, 0.58f);
-    style.Colors[ImGuiCol_Border] = ImVec4(color_for_body.x, color_for_body.y, color_for_body.z, 0.00f);
-    style.Colors[ImGuiCol_BorderShadow] = ImVec4(color_for_body.x, color_for_body.y, color_for_body.z, 0.00f);
-    style.Colors[ImGuiCol_FrameBg] = ImVec4(color_for_area.x, color_for_area.y, color_for_area.z, 1.00f);
-    style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.78f);
-    style.Colors[ImGuiCol_FrameBgActive] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
-    style.Colors[ImGuiCol_TitleBg] = ImVec4(color_for_area.x, color_for_area.y, color_for_area.z, 1.00f);
-    style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(color_for_area.x, color_for_area.y, color_for_area.z, 0.75f);
-    style.Colors[ImGuiCol_TitleBgActive] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
-    style.Colors[ImGuiCol_MenuBarBg] = ImVec4(color_for_area.x, color_for_area.y, color_for_area.z, 0.47f);
-    style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(color_for_area.x, color_for_area.y, color_for_area.z, 1.00f);
-    style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.21f);
-    style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.78f);
-    style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
-    //style.Colors[ImGuiCol_ComboBg] = ImVec4(color_for_area.x, color_for_area.y, color_for_area.z, 1.00f);
-    style.Colors[ImGuiCol_CheckMark] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.80f);
-    style.Colors[ImGuiCol_SliderGrab] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.50f);
-    style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
-    style.Colors[ImGuiCol_Button] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.50f);
-    style.Colors[ImGuiCol_ButtonHovered] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.86f);
-    style.Colors[ImGuiCol_ButtonActive] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
-    style.Colors[ImGuiCol_Header] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.76f);
-    style.Colors[ImGuiCol_HeaderHovered] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.86f);
-    style.Colors[ImGuiCol_HeaderActive] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
-    style.Colors[ImGuiCol_Column] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.32f);
-    style.Colors[ImGuiCol_ColumnHovered] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.78f);
-    style.Colors[ImGuiCol_ColumnActive] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
-    style.Colors[ImGuiCol_ResizeGrip] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.15f);
-    style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.78f);
-    style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
-    style.Colors[ImGuiCol_CloseButton] = ImVec4(color_for_text.x, color_for_text.y, color_for_text.z, 0.16f);
-    style.Colors[ImGuiCol_CloseButtonHovered] = ImVec4(color_for_text.x, color_for_text.y, color_for_text.z, 0.39f);
-    style.Colors[ImGuiCol_CloseButtonActive] = ImVec4(color_for_text.x, color_for_text.y, color_for_text.z, 1.00f);
-    style.Colors[ImGuiCol_PlotLines] = ImVec4(color_for_text.x, color_for_text.y, color_for_text.z, 0.63f);
-    style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
-    style.Colors[ImGuiCol_PlotHistogram] = ImVec4(color_for_text.x, color_for_text.y, color_for_text.z, 0.63f);
-    style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 1.00f);
-    style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(color_for_head.x, color_for_head.y, color_for_head.z, 0.63f);
-    style.Colors[ImGuiCol_PopupBg] = ImVec4(color_for_pops.x, color_for_pops.y, color_for_pops.z, 0.92f);
-    style.Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(color_for_area.x, color_for_area.y, color_for_area.z, 0.73f);
-}
-
-void SetupImGuiStyle2() {
-    static ImVec3 color_for_text = ImVec3(236.f / 255.f, 240.f / 255.f, 241.f / 255.f);
-    static ImVec3 color_for_head = ImVec3(110.f / 255.f, 110.f / 255.f, 110.f / 255.f);
-    static ImVec3 color_for_area = ImVec3(60.f / 255.f, 60.f / 255.f, 60.f / 255.f);
-    static ImVec3 color_for_body = ImVec3(48.f / 255.f, 48.f / 255.f, 48.f / 255.f);
-    static ImVec3 color_for_pops = ImVec3(33.f / 255.f, 46.f / 255.f, 60.f / 255.f);
-    //static ImVec3 color_for_slider_button = ImVec3(255.f / 255.f, 144.f / 255.f, 37.f / 255.f);
-    imgui_easy_theming(color_for_text, color_for_head, color_for_area, color_for_body, color_for_pops);
+void pbr::GuiResize(float width, float height) {
+    ImGuiIO& io = ImGui::GetIO();
+    io.DisplaySize.x = width;
+    io.DisplaySize.y = height;
 }

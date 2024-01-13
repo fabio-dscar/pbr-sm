@@ -23,7 +23,7 @@ std::optional<Shape*> Scene::intersect(const Ray& ray) {
     }
 
     if (!info.obj)
-        return {};
+        return std::nullopt;
 
     return static_cast<Shape*>(info.obj);
 }

@@ -26,7 +26,7 @@ struct Vertex {
 class PBR_SHARED Geometry {
 public:
     Geometry() = default;
-    Geometry(std::vector<Vertex>&& vertices, std::vector<uint32>&& indices);
+    Geometry(std::vector<Vertex>&& vertices, std::vector<unsigned int>&& indices);
 
     void swap(Geometry& rhs) noexcept {
         using std::swap;
@@ -39,22 +39,16 @@ public:
     void setRRID(RRID id);
 
     const std::vector<Vertex>& vertices() const;
-    const std::vector<uint32>& indices() const;
+    const std::vector<unsigned int>& indices() const;
 
     void addVertex(const Vertex& vertex);
-    void addIndex(uint32 idx);
+    void addIndex(unsigned int idx);
 
-    uint32 getNumFaces() { return _indices.size() / 3; }
+    unsigned int getNumFaces() { return _indices.size() / 3; }
 
-    Vertex getVertex(uint32 faceIdx, uint32 vertIdx) {
-        uint32 idx = _indices[faceIdx * 3 + vertIdx];
-        return _vertices[idx];
-    }
-
-    void addTangent(uint32 faceIdx, uint32 vertIdx, const Vec3& tan, float sign = 1.0f) {
-        uint32 idx = _indices[faceIdx * 3 + vertIdx];
-        _vertices[idx].tangent = {tan.x, tan.y, tan.z, sign};
-    }
+    const Vertex& getVertex(unsigned int faceIdx, unsigned int vertIdx) const;
+    void addTangent(unsigned int faceIdx, unsigned int vertIdx, const Vec3& tan,
+                    float sign = 1.0f);
 
     BBox3 bbox() const;
     BSphere bSphere() const;
@@ -66,8 +60,8 @@ private:
     void removeRedundantVerts();
 
     RRID _id = -1;
-    std::vector<uint32> _indices;
     std::vector<Vertex> _vertices;
+    std::vector<unsigned int> _indices;
     std::shared_ptr<VertexArrays> _varrays;
 };
 

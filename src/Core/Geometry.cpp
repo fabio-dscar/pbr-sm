@@ -51,6 +51,16 @@ void Geometry::addIndex(uint32 idx) {
     _indices.push_back(idx);
 }
 
+const Vertex& Geometry::getVertex(uint32 faceIdx, uint32 vertIdx) const {
+    uint32 idx = _indices[faceIdx * 3 + vertIdx];
+    return _vertices[idx];
+}
+
+void Geometry::addTangent(uint32 faceIdx, uint32 vertIdx, const Vec3& tan, float sign) {
+    uint32 idx = _indices[faceIdx * 3 + vertIdx];
+    _vertices[idx].tangent = {tan.x, tan.y, tan.z, sign};
+}
+
 const std::vector<Vertex>& Geometry::vertices() const {
     return _vertices;
 }
@@ -60,15 +70,10 @@ const std::vector<uint32>& Geometry::indices() const {
 }
 
 BBox3 Geometry::bbox() const {
-    Vec3 pMin(FLOAT_INFINITY);
-    Vec3 pMax(-FLOAT_INFINITY);
-
-    for (const Vertex& v : _vertices) {
-        pMin = math::min(v.position, pMin);
-        pMax = math::max(v.position, pMax);
-    }
-
-    return BBox3(pMin, pMax);
+    BBox3 bbox{};
+    for (const Vertex& v : _vertices)
+        bbox.expand(v.position);
+    return bbox;
 }
 
 BSphere Geometry::bSphere() const {
@@ -87,7 +92,7 @@ void Geometry::computeTangents() {
     auto getPosition = [](const SMikkTSpaceContext* pContext, float fvPosOut[],
                           const int iFace, const int iVert) {
         auto ptr = static_cast<Geometry*>(pContext->m_pUserData);
-        auto vertex = ptr->getVertex(iFace, iVert);
+        auto& vertex = ptr->getVertex(iFace, iVert);
         fvPosOut[0] = vertex.position.x;
         fvPosOut[1] = vertex.position.y;
         fvPosOut[2] = vertex.position.z;
@@ -96,7 +101,7 @@ void Geometry::computeTangents() {
     auto getNormal = [](const SMikkTSpaceContext* pContext, float fvNormOut[],
                         const int iFace, const int iVert) {
         auto ptr = static_cast<Geometry*>(pContext->m_pUserData);
-        auto vertex = ptr->getVertex(iFace, iVert);
+        auto& vertex = ptr->getVertex(iFace, iVert);
         fvNormOut[0] = vertex.normal.x;
         fvNormOut[1] = vertex.normal.y;
         fvNormOut[2] = vertex.normal.z;
@@ -105,7 +110,7 @@ void Geometry::computeTangents() {
     auto getTexCoord = [](const SMikkTSpaceContext* pContext, float fvTexcOut[],
                           const int iFace, const int iVert) {
         auto ptr = static_cast<Geometry*>(pContext->m_pUserData);
-        auto vertex = ptr->getVertex(iFace, iVert);
+        auto& vertex = ptr->getVertex(iFace, iVert);
         fvTexcOut[0] = vertex.uv.x;
         fvTexcOut[1] = vertex.uv.y;
     };
@@ -133,11 +138,8 @@ void Geometry::computeTangents() {
 
 std::unique_ptr<Geometry> pbr::genUnitSphere(unsigned int widthSegments,
                                              unsigned int heightSegments) {
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
-
     unsigned count = 0;
-
+    std::vector<Vertex> vertices;
     std::vector<std::vector<unsigned>> grid;
     for (unsigned iy = 0; iy <= heightSegments; iy++) {
         float v = (float)iy / heightSegments;
@@ -166,6 +168,7 @@ std::unique_ptr<Geometry> pbr::genUnitSphere(unsigned int widthSegments,
         grid.push_back(auxIdx);
     }
 
+    std::vector<unsigned int> indices;
     for (unsigned iy = 0; iy < heightSegments; iy++) {
         for (unsigned ix = 0; ix < widthSegments; ix++) {
 
@@ -194,16 +197,17 @@ std::unique_ptr<Geometry> pbr::genUnitSphere(unsigned int widthSegments,
 void Geometry::removeRedundantVerts() {
     Geometry other;
 
-    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+    std::unordered_map<Vertex, unsigned int> uniqueVerts{};
     for (const auto index : _indices) {
         auto vertex = _vertices[index];
 
-        if (uniqueVertices.count(vertex) == 0) {
-            uniqueVertices[vertex] = static_cast<uint32>(other._vertices.size());
+        if (uniqueVerts.count(vertex) == 0) {
+            unsigned int newIndex = other._vertices.size();
+            uniqueVerts[vertex] = newIndex;
             other.addVertex(vertex);
         }
 
-        other._indices.push_back(uniqueVertices[vertex]);
+        other._indices.push_back(uniqueVerts[vertex]);
     }
 
     this->swap(other);
@@ -216,23 +220,23 @@ std::unique_ptr<Geometry> pbr::genUnitCube() {
                         -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, 1.0f, 1.0f,
                         -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  1.0f, 1.0f};
 
-    uint32 indices[] = {0, 1, 2, 1, 0, 3, 4, 5, 7, 7, 6, 4, 6, 3, 0, 0, 4, 6,
-                        7, 2, 1, 2, 7, 5, 0, 2, 5, 5, 4, 0, 3, 7, 1, 7, 3, 6};
+    unsigned indices[] = {0, 1, 2, 1, 0, 3, 4, 5, 7, 7, 6, 4, 6, 3, 0, 0, 4, 6,
+                          7, 2, 1, 2, 7, 5, 0, 2, 5, 5, 4, 0, 3, 7, 1, 7, 3, 6};
 
-    for (uint32 i = 0; i < 8; i++) {
+    for (unsigned i = 0; i < 8; i++) {
         geo->addVertex({.position = Vec3(vertices[3 * i], vertices[3 * i + 1],
                                          vertices[3 * i + 2])});
     }
 
-    for (uint32 i = 0; i < 36; i++)
+    for (unsigned i = 0; i < 36; i++)
         geo->addIndex(indices[i]);
 
     return geo;
 }
 
 PBR_SHARED std::unique_ptr<Geometry> pbr::genUnitQuad() {
-    Vec3 normal{0, 1, 0};
-    Vec4 tangent{1, 0, 0, 1};
+    const Vec3 normal{0, 1, 0};
+    const Vec4 tangent{1, 0, 0, 1};
 
     return std::make_unique<Geometry>(
         std::vector<Vertex>{

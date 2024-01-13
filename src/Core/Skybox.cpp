@@ -8,8 +8,6 @@
 
 #include <ParameterMap.h>
 
-#include <Utils.h>
-
 using namespace pbr;
 
 Skybox::Skybox(RRID cubeProg, RRID cubeTex)

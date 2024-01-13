@@ -15,11 +15,11 @@ struct CameraData {
 
 class Camera : public SceneObject {
 public:
-    Camera(int32 width, int32 height, const Vec3& eye, const Vec3& at, const Vec3& up,
+    Camera(int width, int height, const Vec3& eye, const Vec3& at, const Vec3& up,
            float n, float f);
 
-    int32 width() const;
-    int32 height() const;
+    int width() const;
+    int height() const;
 
     float aspect() const;
     float near() const;
@@ -47,8 +47,8 @@ public:
 protected:
     Mat4 _projMatrix;
 
-    int32 _width;
-    int32 _height;
+    int _width;
+    int _height;
 
     float _far;
     float _near;

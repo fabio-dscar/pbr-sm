@@ -3,11 +3,7 @@
 #include <Resources.h>
 #include <Texture.h>
 #include <Shader.h>
-#include <Skybox.h>
 #include <RenderInterface.h>
-
-#include <span>
-#include <vector>
 
 using namespace pbr;
 

@@ -3,16 +3,11 @@
 
 #include <imgui.h>
 
-using namespace ImGui;
-
 namespace pbr {
 
-void ImGui_RenderDrawLists(ImDrawData* draw_data);
-bool ImGui_CreateFontsTexture();
-bool ImGui_CreateDeviceObjects();
-
-void ImGui_Init(float width, float height);
-void ImGui_NewFrame(int mouseX, int mouseY, bool mouseBtns[3]);
+void GuiInit(float width, float height);
+void GuiBeginFrame(int mouseX, int mouseY, bool mouseBtns[3]);
+void GuiResize(float width, float height);
 
 } // namespace pbr
 

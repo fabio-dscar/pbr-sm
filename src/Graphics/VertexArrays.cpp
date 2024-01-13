@@ -2,6 +2,8 @@
 
 #include <glad/glad.h>
 
+#include <Buffer.h>
+
 using namespace pbr;
 
 namespace {

@@ -38,16 +38,12 @@ void Renderer::setSkyboxDraw(bool state) {
     _drawSkybox = state;
 }
 
-void Renderer::setPerturbNormals(bool state) {
-    _perturbNormals = state ? 1 : 0;
-}
-
 void Renderer::uploadUniformBuffer(const Scene& scene, const Camera& camera) {
     // Renderer
     auto rd = _uniformBuffer.getBind<RendererData>(RENDERER_BUFFER_IDX);
     rd->gamma = _gamma;
     rd->exposure = _exposure;
-    rd->tonemap = _toneMap;
+    rd->tonemap = ToUnderlying(_toneMap);
 
     rd->A = _toneParams[0];
     rd->B = _toneParams[1];
@@ -58,8 +54,6 @@ void Renderer::uploadUniformBuffer(const Scene& scene, const Camera& camera) {
     rd->W = _toneParams[6];
 
     rd->envIntensity = _envIntensity;
-    rd->perturbNormals = _perturbNormals ? 1 : 0;
-    rd->envLighting = _envLighting ? 1 : 0;
 
     // Camera
     auto cd = _uniformBuffer.getBind<CameraData>(CAMERA_BUFFER_IDX);

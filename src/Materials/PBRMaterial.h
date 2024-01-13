@@ -9,8 +9,6 @@ using namespace pbr::math;
 
 namespace pbr {
 
-class Texture;
-
 enum PBRUniform : int {
     DIFFUSE_MAP = 1,
     NORMAL_MAP = 2,
