@@ -41,6 +41,7 @@ public:
     ~Program();
 
     unsigned int id() const { return handle; }
+    void use() const;
     void link();
 
     void addShader(const ShaderSource& src);

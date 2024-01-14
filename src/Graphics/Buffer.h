@@ -35,6 +35,10 @@ public:
     ~Buffer();
 
     Buffer(Buffer&& rhs);
+    Buffer& operator=(Buffer&& rhs);
+    
+    Buffer(const Buffer&) = delete;
+    Buffer& operator=(const Buffer&) = delete;
 
     unsigned int id() const { return handle; }
     void create(BufferType type, std::size_t size, BufferFlag flags, const void* data);

@@ -22,12 +22,14 @@ struct VertexBufferEntry {
     std::size_t offset = 0; // offset to start
     std::size_t stride = 0;
     std::vector<BufferLayoutEntry> attribs;
+    std::unique_ptr<Buffer> buffer = nullptr;
 };
 
 struct ElementBuffer {
     unsigned int handle = 0;
     unsigned int numIndices = 0;
     AttribType type = AttribType::UInt;
+    std::unique_ptr<Buffer> buffer = nullptr;
 };
 
 class VertexArrays {
@@ -36,13 +38,17 @@ public:
     ~VertexArrays();
 
     VertexArrays(VertexArrays&& rhs);
+    VertexArrays& operator=(VertexArrays&& rhs);
+
+    VertexArrays(const VertexArrays&) = delete;
+    VertexArrays& operator=(const VertexArrays&) = delete;
 
     unsigned int id() const { return handle; }
 
-    void addVertexBuffer(const Buffer& buffer, std::span<BufferLayoutEntry> layout,
+    void addVertexBuffer(Buffer&& buffer, std::span<BufferLayoutEntry> layout,
                          std::size_t offset, std::size_t stride,
                          unsigned int numVertices);
-    void addElementBuffer(const Buffer& buffer, unsigned int numIndices,
+    void addElementBuffer(Buffer&& buffer, unsigned int numIndices,
                           AttribType type = AttribType::UInt);
 
     void draw() const;

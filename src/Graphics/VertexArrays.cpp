@@ -26,19 +26,29 @@ VertexArrays::~VertexArrays() {
 }
 
 VertexArrays::VertexArrays(VertexArrays&& rhs)
-    : handle(std::exchange(rhs.handle, 0)), elementBuffer(rhs.elementBuffer),
+    : handle(std::exchange(rhs.handle, 0)), elementBuffer(std::move(rhs.elementBuffer)),
       numVerts(rhs.numVerts), vertexBuffers(std::move(rhs.vertexBuffers)) {}
 
-void VertexArrays::addVertexBuffer(const Buffer& buffer,
-                                   std::span<BufferLayoutEntry> layout,
+VertexArrays& VertexArrays::operator=(VertexArrays&& rhs) {
+    handle = std::exchange(rhs.handle, 0);
+    numVerts = std::exchange(rhs.numVerts, 0);
+    elementBuffer = std::move(rhs.elementBuffer);
+    vertexBuffers = std::move(rhs.vertexBuffers);
+    return *this;
+}
+
+void VertexArrays::addVertexBuffer(Buffer&& buffer, std::span<BufferLayoutEntry> layout,
                                    std::size_t offset, std::size_t stride,
                                    unsigned int numVertices) {
     numVerts = numVertices;
-    auto bindIndex = vertexBuffers.size();
-    vertexBuffers.emplace_back(
-        offset, stride, std::vector<BufferLayoutEntry>{layout.begin(), layout.end()});
+    const auto bufferHandle = buffer.id();
 
-    glVertexArrayVertexBuffer(handle, bindIndex, buffer.id(), offset, stride);
+    vertexBuffers.emplace_back(
+        offset, stride, std::vector<BufferLayoutEntry>{layout.begin(), layout.end()},
+        std::make_unique<Buffer>(std::move(buffer)));
+
+    const auto bindIndex = vertexBuffers.size();
+    glVertexArrayVertexBuffer(handle, bindIndex, bufferHandle, offset, stride);
 
     for (const auto& entry : layout) {
         glEnableVertexArrayAttrib(handle, entry.index);
@@ -48,9 +58,10 @@ void VertexArrays::addVertexBuffer(const Buffer& buffer,
     }
 }
 
-void VertexArrays::addElementBuffer(const Buffer& buffer, unsigned int numIndices,
+void VertexArrays::addElementBuffer(Buffer&& buffer, unsigned int numIndices,
                                     AttribType type) {
-    elementBuffer = {buffer.id(), numIndices, type};
+    elementBuffer = {buffer.id(), numIndices, type,
+                     std::make_unique<Buffer>(std::move(buffer))};
     glVertexArrayElementBuffer(handle, elementBuffer.handle);
 }
 

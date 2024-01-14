@@ -109,6 +109,10 @@ void Program::addShader(const ShaderSource& src) {
     sourceHandles.push_back(src.id());
 }
 
+void Program::use() const {
+    glUseProgram(handle);
+}
+
 void Program::link() {
     handle = glCreateProgram();
     if (handle == 0) {

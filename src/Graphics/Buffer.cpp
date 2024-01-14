@@ -18,8 +18,9 @@ Buffer::Buffer(BufferType type, std::size_t size, BufferFlag flags, const void* 
 }
 
 Buffer::Buffer(Buffer&& rhs)
-    : target(rhs.target), handle(std::exchange(rhs.handle, 0)), size(rhs.size),
-      flags(rhs.flags) {}
+    : target(std::exchange(rhs.target, 0)), handle(std::exchange(rhs.handle, 0)),
+      size(std::exchange(rhs.size, 0)),
+      flags(std::exchange(rhs.flags, BufferFlag::None)) {}
 
 Buffer::~Buffer() {
     if (handle != 0) {
@@ -28,6 +29,15 @@ Buffer::~Buffer() {
 
         glDeleteBuffers(1, &handle);
     }
+}
+
+Buffer& Buffer::operator=(Buffer&& rhs) {
+    target = std::exchange(rhs.target, 0);
+    handle = std::exchange(rhs.handle, 0);
+    ptr = std::exchange(rhs.ptr, nullptr);
+    size = std::exchange(rhs.size, 0);
+    flags = std::exchange(rhs.flags, BufferFlag::None);
+    return *this;
 }
 
 void Buffer::create(BufferType type, std::size_t pSize, BufferFlag pFlags,
