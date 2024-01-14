@@ -9,13 +9,10 @@ class Mesh : public Shape {
 public:
     Mesh(const std::shared_ptr<Geometry>& geometry, const Mat4& objToWorld);
 
-    void prepare() override;
-
     BBox3 bbox() const override;
     BSphere bSphere() const override;
 
-    bool intersect(const Ray& ray) const override;
-    bool intersect(const Ray& ray, RayHitInfo& info) const override;
+    std::optional<float> intersect(const Ray& ray, float tMax) const override;
 
 private:
     BBox3 _bbox;

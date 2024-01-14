@@ -43,6 +43,5 @@ void Shape::draw() {
     RHI.setMatrix3(NORMAL_MATRIX, normalMatrix());
 
     _material->uploadData();
-
-    RHI.drawGeometry(_geometry->rrid());
+    _geometry->draw();
 }

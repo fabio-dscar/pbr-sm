@@ -17,10 +17,7 @@ struct RayHitInfo;
 class Material;
 class Geometry;
 
-enum ShapeUniform : uint32 {
-    MODEL_MATRIX = 20,
-    NORMAL_MATRIX = 21
-};
+enum ShapeUniform : uint32 { MODEL_MATRIX = 20, NORMAL_MATRIX = 21 };
 
 class Shape : public SceneObject {
 public:
@@ -30,7 +27,7 @@ public:
 
     virtual ~Shape() = default;
 
-    virtual void prepare() = 0;
+    virtual void prepare(){};
     virtual void draw();
 
     const sref<Material>& material() const;
@@ -41,14 +38,11 @@ public:
     virtual BBox3 bbox() const = 0;
     virtual BSphere bSphere() const = 0;
 
-    virtual bool intersect(const Ray& ray) const = 0;
-    virtual bool intersect(const Ray& ray, RayHitInfo& info) const = 0;
+    virtual std::optional<float> intersect(const Ray& ray, float tMax) const = 0;
 
     void updateMatrix() override;
 
     void setMaterial(const sref<Material>& mat);
-
-    RRID _prog;
 
 protected:
     sref<Geometry> _geometry = nullptr;

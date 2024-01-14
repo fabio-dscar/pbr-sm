@@ -18,6 +18,7 @@
 #include <PBRMaterial.h>
 
 #include <GUI.h>
+#include <imgui.h>
 
 #include <Utils.h>
 #include <Ray.h>
@@ -37,29 +38,29 @@ void PBRApp::prepare() {
     Print("Initializing renderer");
 
     RHI.initialize();
-
     GuiInit(_width, _height);
 
     // Initialize renderer
     _renderer.prepare();
-    _exposure = _renderer.exposure();
-    _gamma = _renderer.gamma();
-    _toneParams = _renderer.toneParams();
+    _rendererParams.exposure = _renderer.exposure();
+    _rendererParams.gamma = _renderer.gamma();
+    _rendererParams.toneParams = _renderer.toneParams();
 
     Print("Loading scene");
 
     SceneLoader loader{};
     _scene = std::move(*loader.parse("test.xml"));
     _skyboxes = loader.getSkyboxes();
-    _camera = _scene.cameras()[0];
-    reshape(_width, _height);
-
     for (const auto& sky : _skyboxes)
         _skyboxOpts.append(sky.name() + '\0');
+
+    if (_scene.cameras().size() > 0)
+        _camera = _scene.cameras().back();
 
     Print("Finished loading assets");
 
     changeSkybox(_skybox);
+    reshape(_width, _height);
 }
 
 void PBRApp::reshape(int w, int h) {
@@ -73,7 +74,7 @@ void PBRApp::tickPerSecond() {
     _frameCount = 0;
 }
 
-void PBRApp::drawScene() {
+void PBRApp::renderScene() {
     _scene.sortShapes(_camera->position());
     _renderer.render(_scene, *_camera);
 
@@ -82,24 +83,24 @@ void PBRApp::drawScene() {
 }
 
 void PBRApp::restoreToneDefaults() {
-    _gamma = 2.2f;
-    _exposure = 3.0f;
-    _toneParams[0] = 0.15f;
-    _toneParams[1] = 0.5f;
-    _toneParams[2] = 0.1f;
-    _toneParams[3] = 0.2f;
-    _toneParams[4] = 0.02f;
-    _toneParams[5] = 0.3f;
-    _toneParams[6] = 11.2f;
+    _rendererParams.gamma = 2.2f;
+    _rendererParams.exposure = 3.0f;
+    _rendererParams.toneParams[0] = 0.15f;
+    _rendererParams.toneParams[1] = 0.5f;
+    _rendererParams.toneParams[2] = 0.1f;
+    _rendererParams.toneParams[3] = 0.2f;
+    _rendererParams.toneParams[4] = 0.02f;
+    _rendererParams.toneParams[5] = 0.3f;
+    _rendererParams.toneParams[6] = 11.2f;
 }
 
 void PBRApp::update(float dt) {
-    if (isMousePressed(MouseButton::RIGHT)) {
+    if (isMousePressed(MouseButton::Right)) {
         _camera->updateOrientation(_mouseDy * dt * 0.55f, _mouseDx * dt * 0.55f);
         _camera->updateViewMatrix();
     }
 
-    Vector3 moveDir(0);
+    Vector3 moveDir{0};
     if (isKeyPressed('W')) {
         moveDir += -_camera->front();
     } else if (isKeyPressed('S')) {
@@ -117,13 +118,11 @@ void PBRApp::update(float dt) {
         _camera->updateViewMatrix();
     }
 
-    _renderer.setExposure(_exposure);
-    _renderer.setGamma(_gamma);
-    _renderer.setToneParams(_toneParams);
+    _renderer.setExposure(_rendererParams.exposure);
+    _renderer.setGamma(_rendererParams.gamma);
+    _renderer.setToneParams(_rendererParams.toneParams);
     _renderer.setSkyboxDraw(_showSky);
     _renderer.setEnvIntensity(_envIntensity);
-
-    _accum += dt;
 }
 
 void PBRApp::cleanup() {}
@@ -131,33 +130,34 @@ void PBRApp::cleanup() {}
 void PBRApp::processKeys(int key, int scancode, int action, int mods) {
     OpenGLApplication::processKeys(key, scancode, action, mods);
 
-    if (key == 'H' && action == GLFW_PRESS)
+    if (checkKey('H', KeyState::Pressed))
         _showGUI = !_showGUI;
-    else if (key == 'P' && action == GLFW_PRESS)
+    else if (checkKey('P', KeyState::Pressed))
         takeSnapshot();
+}
+
+void PBRApp::updateMaterial(Material* mat) {
+    _selMat = reinterpret_cast<PBRMaterial*>(mat);
+
+    _guiMat.diffuse = _selMat->diffuse();
+    _guiMat.metallic = _selMat->metallic();
+    _guiMat.roughness = _selMat->roughness();
+    _guiMat.f0 = _selMat->reflectivity();
+    _guiMat.clearCoat = _selMat->clearCoat();
+    _guiMat.clearCoatRough = _selMat->clearCoatRough();
 }
 
 void PBRApp::pickObject(int x, int y) {
     Ray ray = _camera->traceRay(Vec2(x, y));
-
-    if (auto shape = _scene.intersect(ray)) {
-        _selectedShape = shape.value();
-        PBRMaterial* pbrMat = (PBRMaterial*)_selectedShape->material().get();
-
-        _selMat = pbrMat;
-
-        _diffuse = pbrMat->diffuse();
-        _metallic = pbrMat->metallic();
-        _roughness = pbrMat->roughness();
-        _f0 = pbrMat->reflectivity();
-    }
+    if (auto shape = _scene.intersect(ray))
+        updateMaterial(shape.value()->material().get());
 }
 
 void PBRApp::processMouseClick(int button, int action, int mods) {
     OpenGLApplication::processMouseClick(button, action, mods);
 
-    if (isMousePressed(MouseButton::MIDDLE))
-        pickObject(_mouseX, _mouseY);
+    if (isMousePressed(MouseButton::Middle))
+        pickObject(_mouse.x, _mouse.y);
 }
 
 void PBRApp::changeToneMap(ToneMap toneMap) {
@@ -165,14 +165,12 @@ void PBRApp::changeToneMap(ToneMap toneMap) {
 }
 
 void PBRApp::drawInterface() {
-    GuiBeginFrame(_mouseX, _mouseY, _mouseBtns);
+    GuiBeginFrame(_mouse.x, _mouse.y, _mouse.buttons);
 
     ImGui::SetNextWindowPos({10, 10}, ImGuiCond_Once);
-    ImGui::SetNextWindowSize({477, 142}, ImGuiCond_Once);
+    ImGui::SetNextWindowSize({477, 124}, ImGuiCond_Once);
     ImGui::Begin("Environment");
-    ImGui::Text("%d fps", _fps);
-    ImGui::Text("%f, %f, %f", _camera->position().x, _camera->position().y,
-                _camera->position().z);
+    ImGui::Text("%g fps", _fps);
     ImGui::Checkbox("Draw Skybox", &_showSky);
     ImGui::SliderFloat("Env Intensity", &_envIntensity, 0.0f, 1.0f);
 
@@ -180,31 +178,32 @@ void PBRApp::drawInterface() {
         changeSkybox(_skybox);
     ImGui::End();
 
-    ImGui::SetNextWindowPos({10, 162}, ImGuiCond_Once);
+    ImGui::SetNextWindowPos({10, 144}, ImGuiCond_Once);
     ImGui::SetNextWindowSize({477, 436}, ImGuiCond_Once);
 
     ImGui::Begin("Tone Map");
 
-    if (ImGui::Combo("Tone Map", reinterpret_cast<int*>(&_toneMap),
+    if (ImGui::Combo("Tone Map", reinterpret_cast<int*>(&_rendererParams.toneMap),
                      "Parametric\0ACES\0ACES Boosted\0ACES Fast\0"))
-        changeToneMap(_toneMap);
+        changeToneMap(_rendererParams.toneMap);
 
     ImGui::TextWrapped(
         "Tone function parameters to control the shape of the tone curve.");
 
-    ImGui::SliderFloat("gamma", &_gamma, 0.0f, 4.0f);
-    ImGui::SliderFloat("exposure", &_exposure, 0.0f, 8.0f);
+    ImGui::SliderFloat("gamma", &_rendererParams.gamma, 0.0f, 4.0f);
+    ImGui::SliderFloat("exposure", &_rendererParams.exposure, 0.0f, 8.0f);
 
     ImGui::Separator();
 
     if (_renderer.toneMap() == ToneMap::Parametric) {
-        ImGui::SliderFloat("A", &_toneParams[0], 0.0f, 2.0f);
-        ImGui::SliderFloat("B", &_toneParams[1], 0.0f, 2.0f);
-        ImGui::SliderFloat("C", &_toneParams[2], 0.0f, 2.0f);
-        ImGui::SliderFloat("D", &_toneParams[3], 0.0f, 2.0f);
-        ImGui::SliderFloat("E", &_toneParams[4], 0.0f, 0.2f);
-        ImGui::SliderFloat("J", &_toneParams[5], 0.0f, 2.0f);
-        ImGui::SliderFloat("W", &_toneParams[6], 0.0f, 30.0f);
+        auto& toneParams = _rendererParams.toneParams;
+        ImGui::SliderFloat("A", &toneParams[0], 0.0f, 2.0f);
+        ImGui::SliderFloat("B", &toneParams[1], 0.0f, 2.0f);
+        ImGui::SliderFloat("C", &toneParams[2], 0.0f, 2.0f);
+        ImGui::SliderFloat("D", &toneParams[3], 0.0f, 2.0f);
+        ImGui::SliderFloat("E", &toneParams[4], 0.0f, 0.2f);
+        ImGui::SliderFloat("J", &toneParams[5], 0.0f, 2.0f);
+        ImGui::SliderFloat("W", &toneParams[6], 0.0f, 30.0f);
 
         ImGui::Separator();
 
@@ -221,8 +220,8 @@ void PBRApp::drawInterface() {
                         p[4] / p[5]) /
                        scale;
             },
-            _toneParams.data(), 100, 0, NULL, FLOAT_MAXIMUM, FLOAT_MAXIMUM,
-            ImVec2(320, 120));
+            toneParams.data(), 100, 0, NULL, FLOAT_MAXIMUM, FLOAT_MAXIMUM,
+            ImVec2{320, 120});
 
         if (ImGui::Button("Restore defaults"))
             restoreToneDefaults();
@@ -231,31 +230,32 @@ void PBRApp::drawInterface() {
     ImGui::End();
 
     // Selected object window
-    if (_selectedShape != nullptr) {
+    if (_selMat != nullptr) {
         RRID whiteTex = Resource.get<Texture>("white")->id();
 
         ImGui::Begin("Selected Object");
 
         if (_selMat->diffuseTex() == whiteTex)
-            if (ImGui::ColorEdit3("Diffuse", (float*)&_diffuse))
-                _selMat->setDiffuse(_diffuse);
+            if (ImGui::ColorEdit3("Diffuse", (float*)&_guiMat.diffuse))
+                _selMat->setDiffuse(_guiMat.diffuse);
 
-        if (ImGui::SliderFloat("Reflectivity", &_f0, 0.0f, 1.0f))
-            _selMat->setReflectivity(_f0);
+        if (ImGui::SliderFloat("Reflectivity", &_guiMat.f0, 0.0f, 1.0f))
+            _selMat->setReflectivity(_guiMat.f0);
 
         if (_selMat->metallicTex() == whiteTex)
-            if (ImGui::SliderFloat("Metallic", &_metallic, 0.0f, 1.0f))
-                _selMat->setMetallic(_metallic);
+            if (ImGui::SliderFloat("Metallic", &_guiMat.metallic, 0.0f, 1.0f))
+                _selMat->setMetallic(_guiMat.metallic);
 
         if (_selMat->roughTex() == whiteTex)
-            if (ImGui::SliderFloat("Roughness", &_roughness, 0.0f, 1.0f))
-                _selMat->setRoughness(_roughness);
+            if (ImGui::SliderFloat("Roughness", &_guiMat.roughness, 0.0f, 1.0f))
+                _selMat->setRoughness(_guiMat.roughness);
 
-        if (ImGui::SliderFloat("Clear Coat Roughness", &_clearCoatRough, 0.0f, 1.0f))
-            _selMat->setClearCoatRoughness(_clearCoatRough);
+        if (ImGui::SliderFloat("Clear Coat Roughness", &_guiMat.clearCoatRough, 0.0f,
+                               1.0f))
+            _selMat->setClearCoatRoughness(_guiMat.clearCoatRough);
 
-        if (ImGui::SliderFloat("Clear Coat", &_clearCoat, 0.0f, 1.0f))
-            _selMat->setClearCoat(_clearCoat);
+        if (ImGui::SliderFloat("Clear Coat", &_guiMat.clearCoat, 0.0f, 1.0f))
+            _selMat->setClearCoat(_guiMat.clearCoat);
 
         ImGui::End();
     }

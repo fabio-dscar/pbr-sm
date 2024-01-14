@@ -34,7 +34,7 @@ public:
     void intersect(const BBox3& box);
     bool isBounded() const;
 
-    bool intersectRay(const Ray& ray, float* t) const;
+    std::optional<float> intersectRay(const Ray& ray, float tMax) const;
 
 private:
     Vec3 _min{-FLOAT_INFINITY};

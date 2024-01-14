@@ -18,14 +18,6 @@ Mesh::Mesh(const std::shared_ptr<Geometry>& geometry, const Mat4& objToWorld)
 
     _geometry = geometry;
     _bbox = _geometry->bbox();
-
-    RHI.uploadGeometry(*_geometry);
-}
-
-void Mesh::prepare() {
-    _bbox = _geometry->bbox();
-
-    RHI.uploadGeometry(*_geometry);
 }
 
 BBox3 Mesh::bbox() const {
@@ -36,26 +28,9 @@ BSphere Mesh::bSphere() const {
     return _bbox.sphere();
 }
 
-bool Mesh::intersect(const Ray& ray) const {
-    return false;
+std::optional<float> Mesh::intersect(const Ray& ray, float tMax) const {
+    return bbox().intersectRay(ray, tMax);
 }
-
-bool Mesh::intersect(const Ray& ray, RayHitInfo& info) const {
-    return false;
-}
-
-namespace {
-
-std::unique_ptr<Geometry> FromObjFile(const fs::path& path) {
-    auto objFile = LoadObjFile(path);
-    if (!objFile.has_value())
-        return nullptr;
-
-    return std::make_unique<Geometry>(std::move((*objFile).vertices),
-                                      std::move((*objFile).indices));
-}
-
-} // namespace
 
 std::unique_ptr<Shape> pbr::CreateMesh(const ParameterMap& params) {
     auto typeOpt = params.lookup<std::string>("type");
@@ -70,7 +45,12 @@ std::unique_ptr<Shape> pbr::CreateMesh(const ParameterMap& params) {
         CHECK(fileName.has_value());
 
         auto fullPath = parentDir / *fileName;
-        geo = FromObjFile(fullPath);
+        auto objFile = LoadObjFile(fullPath);
+        if (!objFile.has_value())
+            return nullptr;
+
+        geo = std::make_unique<Geometry>(std::move((*objFile).vertices),
+                                         std::move((*objFile).indices));
     } else if (type == "sphere") {
         auto widthSegments = params.lookup<unsigned int>("widthSegments", 128);
         auto heightSegments = params.lookup<unsigned int>("heightSegments", 64);

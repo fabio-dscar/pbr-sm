@@ -39,7 +39,7 @@ public:
     void sortShapes(const Vec3& pos);
 
 private:
-    BBox3 _bbox{Vec3(0)};
+    BBox3 _bbox{Vec3{0}};
 
     std::vector<sref<Camera>> _cameras;
     std::vector<sref<Shape>> _shapes;

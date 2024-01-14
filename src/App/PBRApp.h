@@ -18,7 +18,7 @@ public:
     PBRApp(const std::string& title, int width, int height);
 
     void prepare() override;
-    void drawScene() override;
+    void renderScene() override;
     void update(float dt) override;
     void cleanup() override;
 
@@ -34,36 +34,41 @@ private:
     void changeSkybox(int id);
     void takeSnapshot();
     void pickObject(int x, int y);
+    void updateMaterial(Material* mat);
     void changeToneMap(ToneMap toneMap);
+
+    struct MaterialGuiParams {
+        Color diffuse;
+        float metallic;
+        float roughness;
+        float f0;
+        float clearCoat;
+        float clearCoatRough;
+    };
+
+    struct RendererGuiParams {
+        float gamma;
+        float exposure;
+        ToneMap toneMap;
+        std::array<float, 7> toneParams;
+    };
 
     Scene _scene;
     Renderer _renderer;
+
+    sref<Camera> _camera = nullptr;
+    PBRMaterial* _selMat = nullptr;
+    MaterialGuiParams _guiMat;
+    RendererGuiParams _rendererParams;
+
     std::vector<Skybox> _skyboxes;
     std::string _skyboxOpts;
-
-    Color _diffuse;
-
-    sref<Camera> _camera;
-    PBRMaterial* _selMat = nullptr;
-    Shape* _selectedShape = nullptr;
-
-    float _gamma;
-    float _exposure;
-    std::array<float, 7> _toneParams;
-    ToneMap _toneMap;
-    float _metallic;
-    float _roughness;
-    float _f0;
-    float _clearCoat;
-    float _clearCoatRough;
-
-    int _fps = 0;
     int _skybox = 0;
+
+    double _fps = 0;
     bool _showGUI = true;
     bool _showSky = true;
     float _envIntensity = 1.0f;
-
-    float _accum = 0.0f;
 };
 
 } // namespace pbr

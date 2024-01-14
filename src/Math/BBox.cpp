@@ -79,9 +79,8 @@ void BBox3::intersect(const BBox3& box) {
     _max = math::min(_max, box[1]);
 }
 
-bool BBox3::intersectRay(const Ray& ray, float* t) const {
+std::optional<float> BBox3::intersectRay(const Ray& ray, float tMax) const {
     float tMin = ray.tMin();
-    float tMax = ray.tMax();
 
     const Vec3& dir = ray.direction();
     const Vec3& orig = ray.origin();
@@ -99,11 +98,10 @@ bool BBox3::intersectRay(const Ray& ray, float* t) const {
         tMax = std::min(tMax, tFar);
 
         if (tMin > tMax)
-            return false;
+            return std::nullopt;
     }
 
-    *t = tMin;
-    return true;
+    return tMin;
 }
 
 BBox3 math::Expand(const BBox3& box, const Vec3& pt) {
@@ -171,13 +169,13 @@ bool BSphere::intersectRay(const Ray& ray, float* t) const {
     if (detSq >= 0.0) {
         float det = std::sqrt(detSq);
 
-        *t = -B - det;
-        if (ray.inRange(*t))
-            return true;
+        // *t = -B - det;
+        // if (ray.inRange(*t))
+        //     return true;
 
-        *t = -B + det;
-        if (ray.inRange(*t))
-            return true;
+        // *t = -B + det;
+        // if (ray.inRange(*t))
+        //     return true;
     }
 
     return false;
