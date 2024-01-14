@@ -25,12 +25,11 @@ constexpr bool EnumHasConversion(ToneMap);
 struct RendererData {
     float gamma;
     float exposure;
-    int tonemap;
-
-    // Tone curve control parameters
-    float A, B, C, D, E, F, W;
-
     float envIntensity;
+
+    // Tone control parameters
+    int tonemap;
+    float A, B, C, D, E, F, W;
 };
 
 static constexpr unsigned int NumLights = 5;

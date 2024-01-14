@@ -7,25 +7,17 @@
 using namespace pbr;
 
 std::optional<Shape*> Scene::intersect(const Ray& ray) {
-    RayHitInfo info;
-    float t;
-    info.dist = FLOAT_INFINITY;
-    info.obj = nullptr;
+    std::optional<Shape*> obj = std::nullopt;
 
+    float tMax = FLOAT_INFINITY;
     for (const auto& shape : _shapes) {
-        BBox3 bbox = shape->bbox();
-        if (bbox.intersectRay(ray, &t)) {
-            if (t < info.dist) {
-                info.dist = t;
-                info.obj = shape.get();
-            }
+        if (auto t = shape->intersect(ray, tMax)) {
+            tMax = std::min(tMax, *t);
+            obj = shape.get();
         }
     }
 
-    if (!info.obj)
-        return std::nullopt;
-
-    return static_cast<Shape*>(info.obj);
+    return obj;
 }
 
 void Scene::sortShapes(const Vec3& pos) {

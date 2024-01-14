@@ -11,6 +11,24 @@
 
 using namespace pbr;
 
+namespace {
+
+KeyState ActionToKeyState(int action) {
+    switch (action) {
+    case GLFW_PRESS:
+        return KeyState::Pressed;
+    case GLFW_RELEASE:
+        return KeyState::Released;
+    case GLFW_REPEAT:
+        return KeyState::Repeat;
+    default:
+        LOG_ERROR("Unknown key action {}.", action);
+        return KeyState::Released;
+    };
+}
+
+} // namespace
+
 OpenGLApplication::OpenGLApplication(const std::string& title, int width, int height)
     : _title(title), _width(width), _height(height) {}
 
@@ -104,7 +122,11 @@ void OpenGLApplication::init() {
 
 void OpenGLApplication::loop() {
     while (!glfwWindowShouldClose(_window)) {
+        updateTime();
         render();
+
+        _mouseDx = 0;
+        _mouseDy = 0;
 
         glfwSwapBuffers(_window);
         glfwPollEvents();
@@ -127,30 +149,24 @@ void OpenGLApplication::reshape(int w, int h) {
     glViewport(0, 0, w, h);
 }
 
-void OpenGLApplication::render() {
-    double timeSinceStart = glfwGetTime() * 1000.0f;
-    double deltaTime = timeSinceStart - _oldTimeSinceStart;
-    _oldTimeSinceStart = timeSinceStart;
+void OpenGLApplication::updateTime() {
+    const double timeSinceStart = glfwGetTime();
 
-    _secondCount += deltaTime;
-    if (_secondCount > 1000) {
+    _deltaTime = timeSinceStart - _time;
+    _time = timeSinceStart;
+
+    _secondsTimer += _deltaTime;
+    if (_secondsTimer > 1.0) {
         tickPerSecond();
-        _secondCount -= 1000;
+        _secondsTimer -= 1.0;
     }
 
-    float dt = deltaTime / 1000.0f;
-
-    // Limit the delta time to avoid large intervals
-    dt = std::min(dt, 0.25f);
-
-    update(dt);
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    drawScene();
     ++_frameCount;
+}
 
-    _mouseDx = 0;
-    _mouseDy = 0;
+void OpenGLApplication::render() {
+    update(std::min(_deltaTime, 0.25));
+    renderScene();
 }
 
 void OpenGLApplication::processMouseMotion(double x, double y) {
@@ -158,35 +174,40 @@ void OpenGLApplication::processMouseMotion(double x, double y) {
 }
 
 void OpenGLApplication::processKeys(int key, int scancode, int action, int mods) {
-    if (key >= 255)
-        return;
+    CHECK(key < MaxKeyNum);
 
-    if (action == GLFW_PRESS || action == GLFW_REPEAT)
-        _keys[key] = true;
-    else
-        _keys[key] = false;
+    auto keyState = ActionToKeyState(action);
+    _keyboard.keys[key] = keyState;
 }
 
 void OpenGLApplication::processMouseClick(int button, int action, int mods) {
     if (button > 2)
         return;
 
-    if (action == GLFW_PRESS)
-        _mouseBtns[button] = true;
-    else
-        _mouseBtns[button] = false;
-
-    _clickX = _mouseX;
-    _clickY = _mouseY;
+    auto state = ActionToKeyState(action);
+    _mouse.buttons[button] = state;
 }
 
 void OpenGLApplication::updateMouse(double x, double y) {
-    double dx = -x + _mouseX;
-    double dy = y - _mouseY;
+    double dx = -x + _mouse.x;
+    double dy = y - _mouse.y;
 
-    _mouseX = x;
-    _mouseY = y;
+    _mouse.x = x;
+    _mouse.y = y;
 
     _mouseDx = (_mouseDx + dx) / 2.0f;
     _mouseDy = (_mouseDy + dy) / 2.0f;
+}
+
+bool OpenGLApplication::isMousePressed(MouseButton button) const {
+    return _mouse.buttons[ToUnderlying(button)] == KeyState::Pressed;
+}
+
+bool OpenGLApplication::isKeyPressed(int key) const {
+    return _keyboard.keys[key] == KeyState::Pressed ||
+           _keyboard.keys[key] == KeyState::Repeat;
+}
+
+bool OpenGLApplication::checkKey(int key, KeyState state) const {
+    return _keyboard.keys[key] == state;
 }

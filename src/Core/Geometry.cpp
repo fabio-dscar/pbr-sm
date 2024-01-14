@@ -10,6 +10,8 @@
 
 #include <format>
 
+#include <RenderInterface.h>
+
 using namespace pbr;
 using namespace pbr::math;
 using namespace std::filesystem;
@@ -33,14 +35,17 @@ Geometry::Geometry(std::vector<Vertex>&& vertices, std::vector<uint32>&& indices
 
     computeTangents();
     removeRedundantVerts();
+    upload();
 }
 
-RRID Geometry::rrid() const {
-    return _id;
+void Geometry::upload() {
+    if (!isUploaded()) {
+        _varrays = CreateVertexArrays(*this);
+    }
 }
 
-void Geometry::setRRID(RRID id) {
-    _id = id;
+void Geometry::draw() const {
+    _varrays->draw();
 }
 
 void Geometry::addVertex(const Vertex& vertex) {
@@ -70,7 +75,7 @@ const std::vector<uint32>& Geometry::indices() const {
 }
 
 BBox3 Geometry::bbox() const {
-    BBox3 bbox{};
+    BBox3 bbox{{FLOAT_INFINITY}, {-FLOAT_INFINITY}};
     for (const Vertex& v : _vertices)
         bbox.expand(v.position);
     return bbox;
@@ -230,6 +235,8 @@ std::unique_ptr<Geometry> pbr::genUnitCube() {
 
     for (unsigned i = 0; i < 36; i++)
         geo->addIndex(indices[i]);
+
+    geo->upload();
 
     return geo;
 }

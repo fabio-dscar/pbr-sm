@@ -19,12 +19,9 @@ const int TONEMAP_ACES_FAST = 3;
 layout(std140, binding = 0) uniform rendererBlock {
     float gamma;
     float exposure;
-    int toneMapType;
-
-    // Tone map params
-    float A, B, C, D, E, J, W;
-
     float envIntensity;
+    int toneMapType;
+    float A, B, C, D, E, J, W;
 };
 
 vec3 toLinearRGB(vec3 c, float gamma) { return pow(c, vec3(gamma)); }

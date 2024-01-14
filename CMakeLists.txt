@@ -54,7 +54,6 @@ set(RT_PBR_SOURCES
     src/Math/Matrix3x3.cpp
     src/Math/Matrix4x4.cpp
     src/Math/Quat.cpp
-    src/Math/Ray.cpp
     src/Math/Transform.cpp
     src/Math/Vector2.cpp
     src/Math/Vector3.cpp

@@ -1,6 +1,9 @@
 #include <GUI.h>
 
 #include <glad/glad.h>
+#include <imgui.h>
+
+#include <Utils.h>
 
 using namespace ImGui;
 
@@ -395,14 +398,14 @@ void pbr::GuiInit(float width, float height) {
     ImGui_CreateDeviceObjects();
 }
 
-void pbr::GuiBeginFrame(int mouseX, int mouseY, bool mouseBtns[3]) {
+void pbr::GuiBeginFrame(double mouseX, double mouseY, std::span<KeyState, 3> buttons) {
     ImGuiIO& io = ImGui::GetIO();
-    io.MousePos = ImVec2((float)mouseX, (float)mouseY);
+    io.MousePos = ImVec2(mouseX, mouseY);
 
     // 0 = left, 1 = right, 2 = middle + extras
-    io.MouseDown[0] = mouseBtns[0];
-    io.MouseDown[1] = mouseBtns[2];
-    io.MouseDown[2] = mouseBtns[1];
+    io.MouseDown[0] = ToUnderlying(buttons[0]);
+    io.MouseDown[1] = ToUnderlying(buttons[2]);
+    io.MouseDown[2] = ToUnderlying(buttons[1]);
 
     ImGui::NewFrame();
 }

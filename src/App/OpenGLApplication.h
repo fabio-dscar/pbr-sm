@@ -7,7 +7,22 @@ struct GLFWwindow;
 
 namespace pbr {
 
-enum MouseButton { LEFT = 0, RIGHT = 1, MIDDLE = 2 };
+// enum MouseButton { LEFT = 0, RIGHT = 1, MIDDLE = 2 };
+enum class MouseButton : int { Left = 0, Right = 1, Middle = 2 };
+enum class KeyState : int { Released = 0, Pressed = 1, Repeat = 2 };
+constexpr bool EnumHasConversion(MouseButton);
+constexpr bool EnumHasConversion(KeyState);
+
+struct MouseState {
+    double x = 0.0;
+    double y = 0.0;
+    std::array<KeyState, 3> buttons = {KeyState::Released};
+};
+
+constexpr int MaxKeyNum = 512;
+struct KeyboardState {
+    std::array<KeyState, MaxKeyNum> keys = {KeyState::Released};
+};
 
 class OpenGLApplication {
 public:
@@ -21,7 +36,7 @@ public:
 
     virtual void cleanup() = 0;
     virtual void prepare() = 0;
-    virtual void drawScene() = 0;
+    virtual void renderScene() = 0;
     virtual void tickPerSecond() = 0;
     virtual void update(float dt) = 0;
 
@@ -30,13 +45,9 @@ public:
     virtual void processMouseClick(int button, int action, int mods);
     virtual void processMouseMotion(double x, double y);
 
-    bool isMousePressed(MouseButton button) const {
-        return _mouseBtns[button];
-    }
-
-    bool isKeyPressed(int key) const {
-        return _keys[key];
-    }
+    bool isMousePressed(MouseButton button) const;
+    bool isKeyPressed(int key) const;
+    bool checkKey(int key, KeyState state) const;
 
 protected:
     std::string _title;
@@ -46,25 +57,22 @@ protected:
     int _width;
     int _height;
 
-    double _mouseX;
-    double _mouseY;
-
-    double _clickX;
-    double _clickY;
-
     double _mouseDx;
     double _mouseDy;
 
-    bool _keys[255];
-    bool _mouseBtns[3];
+    MouseState _mouse;
+    KeyboardState _keyboard;
 
 private:
+    void updateTime();
     void render();
     void updateMouse(double x, double y);
     void setCallbacks();
 
-    double _oldTimeSinceStart = 0;
-    double _secondCount = 0;
+    double _time = 0;
+
+    double _deltaTime = 0;
+    double _secondsTimer = 0;
 
     GLFWwindow* _window;
 };

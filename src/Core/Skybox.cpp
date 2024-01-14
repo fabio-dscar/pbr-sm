@@ -10,46 +10,26 @@
 
 using namespace pbr;
 
-Skybox::Skybox(RRID cubeProg, RRID cubeTex)
-    : _cubeProg(cubeProg), _geoId(-1), _cubeTex(cubeTex) {}
+Skybox::Skybox(const std::string& name, const sref<Texture>& cube,
+               const sref<Texture>& irr, const sref<Texture>& spec)
+    : _name(name), _cube(cube), _irradiance(irr), _specular(spec) {
 
-Skybox::Skybox(const std::string& name, const Texture& cube, const Texture& irr,
-               const Texture& spec)
-    : _name(name), _cubeTex(cube.id()), _irradianceTex(irr.id()), _ggxTex(spec.id()) {
-
-    _cubeProg = Resource.get<Program>("skybox")->id();
-    _geoId = Resource.get<Geometry>("unitCube")->rrid();
+    _prog = Resource.get<Program>("skybox");
+    _geometry = Resource.get<Geometry>("unitCube");
 }
 
 void Skybox::set() const {
-    RHI.bindTextures(8, 2, std::array{_irradianceTex, _ggxTex});
+    RHI.bindTextures(8, 2, std::array{_irradiance->id(), _specular->id()});
 }
 
 void Skybox::draw() const {
-    RHI.useProgram(_cubeProg);
+    _prog->use();
 
-    glActiveTexture(GL_TEXTURE5);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, _cubeTex);
-
-    // RHI.bindTexture(_cubeTex);
+    RHI.bindTextures(5, 1, std::array{_cube->id()});
 
     glCullFace(GL_FRONT);
-    RHI.drawGeometry(_geoId);
+    _geometry->draw();
     glCullFace(GL_BACK);
-
-    RHI.useProgram(0);
-}
-
-RRID Skybox::irradianceTex() const {
-    return _irradianceTex;
-}
-
-RRID Skybox::cubeTex() const {
-    return _cubeTex;
-}
-
-RRID Skybox::ggxTex() const {
-    return _ggxTex;
 }
 
 Skybox pbr::CreateSkybox(const ParameterMap& params) {
@@ -67,5 +47,5 @@ Skybox pbr::CreateSkybox(const ParameterMap& params) {
     auto spec = CreateNamedCubemap(fname + "_specular", fullPath / "specular.cube",
                                    {.min = Filter::LinearMipLinear});
 
-    return {fname, *cube, *irr, *spec};
+    return {fname, cube, irr, spec};
 }

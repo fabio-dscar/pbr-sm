@@ -28,7 +28,6 @@ PBRMaterial::PBRMaterial(const Color& diff, float metallic, float roughness)
 
 void PBRMaterial::init() {
     _program = Resource.get<Program>("pbr");
-    _prog = _program->id();
 
     RRID null = Resource.get<Texture>("null")->id();
     RRID white = Resource.get<Texture>("white")->id();

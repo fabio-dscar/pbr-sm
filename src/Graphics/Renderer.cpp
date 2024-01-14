@@ -43,8 +43,8 @@ void Renderer::uploadUniformBuffer(const Scene& scene, const Camera& camera) {
     auto rd = _uniformBuffer.getBind<RendererData>(RENDERER_BUFFER_IDX);
     rd->gamma = _gamma;
     rd->exposure = _exposure;
+    rd->envIntensity = _envIntensity;
     rd->tonemap = ToUnderlying(_toneMap);
-
     rd->A = _toneParams[0];
     rd->B = _toneParams[1];
     rd->C = _toneParams[2];
@@ -52,8 +52,6 @@ void Renderer::uploadUniformBuffer(const Scene& scene, const Camera& camera) {
     rd->E = _toneParams[4];
     rd->F = _toneParams[5];
     rd->W = _toneParams[6];
-
-    rd->envIntensity = _envIntensity;
 
     // Camera
     auto cd = _uniformBuffer.getBind<CameraData>(CAMERA_BUFFER_IDX);
@@ -107,6 +105,7 @@ void Renderer::render(const Scene& scene, const Camera& camera) {
 
     uploadUniformBuffer(scene, camera);
 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     drawShapes(scene);
 
     if (_drawSkybox)

@@ -3,17 +3,18 @@
 #include <RenderInterface.h>
 #include <ParameterMap.h>
 #include <PBRMaterial.h>
+#include <Shader.h>
 #include <Utils.h>
 
 using namespace pbr;
 using namespace util;
 
 void Material::use() const {
-    RHI.useProgram(_prog);
+    _program->use();
 }
 
 RRID Material::program() const {
-    return _prog;
+    return _program->id();
 }
 
 std::shared_ptr<Material> pbr::CreateMaterial(const ParameterMap& params) {

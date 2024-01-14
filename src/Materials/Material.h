@@ -4,7 +4,7 @@
 #include <PBR.h>
 
 namespace pbr {
-    
+
 class ParameterMap;
 class Program;
 
@@ -19,7 +19,6 @@ public:
     virtual void uploadData() const = 0;
 
 protected:
-    RRID _prog = -1;
     std::shared_ptr<Program> _program;
 };
 

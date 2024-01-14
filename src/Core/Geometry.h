@@ -30,13 +30,10 @@ public:
 
     void swap(Geometry& rhs) noexcept {
         using std::swap;
-        swap(_id, rhs._id);
         swap(_vertices, rhs._vertices);
         swap(_indices, rhs._indices);
+        swap(_varrays, rhs._varrays);
     }
-
-    RRID rrid() const;
-    void setRRID(RRID id);
 
     const std::vector<Vertex>& vertices() const;
     const std::vector<unsigned int>& indices() const;
@@ -53,16 +50,18 @@ public:
     BBox3 bbox() const;
     BSphere bSphere() const;
 
-    bool isUploaded() const { return _id != -1; }
+    void draw() const;
+    void upload();
 
 private:
+    bool isUploaded() const { return _varrays != nullptr; }
+
     void computeTangents();
     void removeRedundantVerts();
 
-    RRID _id = -1;
     std::vector<Vertex> _vertices;
     std::vector<unsigned int> _indices;
-    std::shared_ptr<VertexArrays> _varrays;
+    std::unique_ptr<VertexArrays> _varrays = nullptr;
 };
 
 inline void swap(Geometry& lhs, Geometry& rhs) noexcept {
