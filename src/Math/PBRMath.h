@@ -14,12 +14,12 @@
 namespace pbr {
 
 #if PBR_DOUBLE
-typedef double Float;
+using Float = double;
 
 static constexpr const Float FLOAT_EPSILON = 1e-10;
 static constexpr const Float ONE_MINUS_EPSILON = 1.0 - FLOAT_EPSILON;
 #else
-typedef float Float;
+using Float = float;
 
 static constexpr Float FLOAT_EPSILON = 1e-5f; // 1e-6
 static constexpr Float ONE_MINUS_EPSILON = 1.0f - FLOAT_EPSILON;

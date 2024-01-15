@@ -18,14 +18,14 @@ Matrix4x4 math::RotationAxis(float rads, const Vector3& a) {
 Matrix4x4 math::Orthographic(float l, float r, float b, float t, float n, float f) {
     Matrix4x4 mat;
 
-    mat.m11 = 2.f / (r - l);
-    mat.m22 = 2.f / (t - b);
-    mat.m33 = -2.f / (f - n);
+    mat(0, 0) = 2.f / (r - l);
+    mat(1, 1) = 2.f / (t - b);
+    mat(2, 2) = -2.f / (f - n);
 
-    mat.m14 = -(r + l) / (r - l);
-    mat.m24 = -(t + b) / (t - b);
-    mat.m34 = -(f + n) / (f - n);
-    mat.m44 = 1.0f;
+    mat(0, 3) = -(r + l) / (r - l);
+    mat(1, 3) = -(t + b) / (t - b);
+    mat(2, 3) = -(f + n) / (f - n);
+    mat(3, 3) = 1.0f;
 
     return mat;
 }
@@ -38,13 +38,13 @@ Matrix4x4 math::Perspective(float fov, float aspect, float near, float far) {
 
     Matrix4x4 persp;
 
-    persp.m11 = xScale;
-    persp.m22 = yScale;
-    persp.m33 = -(far + near) / (far - near);
-    persp.m44 = 0;
+    persp(0, 0) = xScale;
+    persp(1, 1) = yScale;
+    persp(2, 2) = -(far + near) / (far - near);
+    persp(3, 3) = 0;
 
-    persp.m34 = -2.0f * far * near / (far - near);
-    persp.m43 = -1;
+    persp(2, 3) = -2.0f * far * near / (far - near);
+    persp(3, 2) = -1;
 
     return persp;
 }
@@ -64,19 +64,55 @@ Matrix4x4 math::LookAt(const Vector3& eye, const Vector3& center, const Vector3&
     Vector3 tr = Vector3(dot(eye, u), dot(eye, v), dot(eye, n));
 
     Matrix4x4 mat;
-    mat.m11 = u.x;
-    mat.m12 = u.y;
-    mat.m13 = u.z;
-    mat.m21 = v.x;
-    mat.m22 = v.y;
-    mat.m23 = v.z;
-    mat.m31 = n.x;
-    mat.m32 = n.y;
-    mat.m33 = n.z;
+    mat(0, 0) = u.x;
+    mat(0, 1) = u.y;
+    mat(0, 2) = u.z;
+    mat(1, 0) = v.x;
+    mat(1, 1) = v.y;
+    mat(1, 2) = v.z;
+    mat(2, 0) = n.x;
+    mat(2, 1) = n.y;
+    mat(2, 2) = n.z;
 
-    mat.m14 = -tr.x;
-    mat.m24 = -tr.y;
-    mat.m34 = -tr.z;
+    mat(0, 3) = -tr.x;
+    mat(1, 3) = -tr.y;
+    mat(2, 3) = -tr.z;
 
     return mat;
+}
+
+void math::Decompose(const Matrix4x4& mat, Vector3& tr, Quat& rot, Vector3& scale) {
+    constexpr int MaxIterations = 100;
+    constexpr float Epsilon = 0.0001;
+
+    auto FrobeniusNorm = [](const Matrix3x3& mat) -> float {
+        float sum = 0;
+        for (int i = 0; i < 3; i++)
+            for (int j = 0; j < 3; j++)
+                sum += mat(i, j) * mat(i, j);
+        return std::sqrt(sum);
+    };
+
+    tr = {mat(0, 3), mat(1, 3), mat(2, 3)};
+
+    float norm, diffNorm;
+    int iterCount = 0;
+    Mat3 M{mat}, R{mat};
+    do {
+        Mat3 Rnext;
+        Mat3 Rit = Inverse(Transpose(R));
+
+        norm = std::sqrt(FrobeniusNorm(Inverse(R)) / FrobeniusNorm(R));
+
+        CHECK(norm != 0);
+
+        Rnext = 0.5 * (norm * R + (1.0 / norm) * Rit);
+        diffNorm = FrobeniusNorm(R - Rnext);
+        R = Rnext;
+    } while (++iterCount < MaxIterations && diffNorm > Epsilon);
+
+    rot = Quat{Mat4{R}};
+
+    Mat3 scaleMat = Inverse(R) * M;
+    scale = {scaleMat(0, 0), scaleMat(1, 1), scaleMat(2, 2)};
 }

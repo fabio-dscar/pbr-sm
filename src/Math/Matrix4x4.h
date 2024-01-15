@@ -13,17 +13,6 @@ class Quat;
 
 class PBR_SHARED Matrix4x4 {
 public:
-    union {
-        struct {
-            float m11, m21, m31, m41;
-            float m12, m22, m32, m42;
-            float m13, m23, m33, m43;
-            float m14, m24, m34, m44;
-        };
-
-        float m[4][4]; // Column major storage _m[col][row]
-    };
-
     Matrix4x4();
     explicit Matrix4x4(float scalar);
     Matrix4x4(float m11, float m12, float m13, float m14, float m21, float m22, float m23,
@@ -58,9 +47,10 @@ public:
     float trace() const;
     float det() const;
 
-    const float* data() const {
-        return &m[0][0];
-    }
+    const float* data() const { return &m[0][0]; }
+
+private:
+    float m[4][4];
 };
 
 PBR_SHARED std::istream& operator>>(std::istream& is, Matrix4x4& mat);
@@ -69,8 +59,8 @@ PBR_SHARED std::ostream& operator<<(std::ostream& os, const Matrix4x4& mat);
 PBR_SHARED Vector3 operator*(const Vector3& v, const Matrix4x4& mat);
 PBR_SHARED Matrix4x4 operator*(float scalar, const Matrix4x4& mat);
 
-PBR_SHARED Matrix4x4 transpose(const Matrix4x4& mat);
-PBR_SHARED Matrix4x4 inverse(const Matrix4x4& mat);
+PBR_SHARED Matrix4x4 Transpose(const Matrix4x4& mat);
+PBR_SHARED Matrix4x4 Inverse(const Matrix4x4& mat);
 
 } // namespace math
 } // namespace pbr

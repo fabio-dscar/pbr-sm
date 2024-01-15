@@ -11,16 +11,6 @@ class Matrix4x4;
 
 class PBR_SHARED Matrix3x3 {
 public:
-    union {
-        struct {
-            float m11, m21, m31;
-            float m12, m22, m32;
-            float m13, m23, m33;
-        };
-
-        float m[3][3]; // Column major storage _m[col][row]
-    };
-
     Matrix3x3();
     explicit Matrix3x3(float scalar);
     Matrix3x3(float m11, float m12, float m13, float m21, float m22, float m23, float m31,
@@ -51,9 +41,10 @@ public:
     float trace() const;
     float det() const;
 
-    const float* data() const {
-        return &m[0][0];
-    }
+    const float* data() const { return &m[0][0]; }
+
+private:
+    float m[3][3];
 };
 
 PBR_SHARED std::istream& operator>>(std::istream& is, Matrix3x3& mat);
@@ -62,8 +53,8 @@ PBR_SHARED std::ostream& operator<<(std::ostream& os, const Matrix3x3& mat);
 PBR_SHARED Vector3 operator*(const Vector3& v, const Matrix3x3& mat);
 PBR_SHARED Matrix3x3 operator*(float scalar, const Matrix3x3& mat);
 
-PBR_SHARED Matrix3x3 transpose(const Matrix3x3& mat);
-PBR_SHARED Matrix3x3 inverse(const Matrix3x3& mat);
+PBR_SHARED Matrix3x3 Transpose(const Matrix3x3& mat);
+PBR_SHARED Matrix3x3 Inverse(const Matrix3x3& mat);
 
 } // namespace math
 } // namespace pbr

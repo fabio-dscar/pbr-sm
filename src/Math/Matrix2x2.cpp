@@ -6,72 +6,74 @@
 using namespace pbr;
 using namespace pbr::math;
 
-Matrix2x2::Matrix2x2() : m11(1), m21(0), m12(0), m22(1) {}
+// clang-format off
+Matrix2x2::Matrix2x2() : m{{1, 0}, {0, 1}} {}
 
-Matrix2x2::Matrix2x2(float scalar) : m{{scalar, scalar}, {scalar, scalar}} {}
+Matrix2x2::Matrix2x2(float s) : m{{s, s}, {s, s}} {}
 
 Matrix2x2::Matrix2x2(float m11, float m12, float m21, float m22)
-    : m11(m11), m21(m21), m12(m12), m22(m22) {}
-
-Matrix2x2::Matrix2x2(const Vector2& col0, const Vector2& col1)
-    : m11(col0.x), m21(col0.y), m12(col1.x), m22(col1.y) {}
+    : m{{m11, m21}, {m12, m22}} {}
 
 Matrix2x2::Matrix2x2(const Matrix3x3& mat)
-    : m11(mat.m11), m21(mat.m21), m12(mat.m12), m22(mat.m22) {}
+    : m{{mat(0, 0), mat(1, 0)},{mat(0, 1), mat(1, 1)}} {}
+// clang-format on
 
 Matrix2x2 Matrix2x2::operator*(float scalar) const {
-    return {scalar * m11, scalar * m12, 
-            scalar * m21, scalar * m22};
+    return {scalar * m[0][0], scalar * m[0][1], scalar * m[1][0], scalar * m[1][1]};
 }
 
 Matrix2x2& Matrix2x2::operator*=(float scalar) {
-    m11 *= scalar;
-    m12 *= scalar;
-    m21 *= scalar;
-    m22 *= scalar;
+    m[0][0] *= scalar;
+    m[1][0] *= scalar;
+    m[0][1] *= scalar;
+    m[1][1] *= scalar;
     return *this;
 }
 
 Vector2 Matrix2x2::operator*(const Vector2& v) const {
-    return {m11 * v.x + m12 * v.y, m21 * v.x + m22 * v.y};
+    return {m[0][0] * v.x + m[1][0] * v.y, m[0][1] * v.x + m[1][1] * v.y};
 }
 
 Matrix2x2 Matrix2x2::operator*(const Matrix2x2& mat) const {
-    return {m11 * mat.m11 + m12 * mat.m21, m11 * mat.m12 + m12 * mat.m22,
-            m21 * mat.m11 + m22 * mat.m21, m21 * mat.m12 + m22 * mat.m22};
+    return {m[0][0] * mat.m[0][0] + m[1][0] * mat.m[0][1],
+            m[0][0] * mat.m[1][0] + m[1][0] * mat.m[1][1],
+            m[0][1] * mat.m[0][0] + m[1][1] * mat.m[0][1],
+            m[0][1] * mat.m[1][0] + m[1][1] * mat.m[1][1]};
 }
 
 Matrix2x2 Matrix2x2::operator+(const Matrix2x2& mat) const {
-    return {m11 + mat.m11, m12 + mat.m12, 
-            m21 + mat.m21, m22 + mat.m22};
+    return {m[0][0] + mat.m[0][0], m[1][0] + mat.m[1][0], m[0][1] + mat.m[0][1],
+            m[1][1] + mat.m[1][1]};
 }
 
 Matrix2x2& Matrix2x2::operator+=(const Matrix2x2& mat) {
-    m11 += mat.m11;
-    m12 += mat.m12;
-    m21 += mat.m21;
-    m22 += mat.m22;
+    m[0][0] += mat.m[0][0];
+    m[1][0] += mat.m[1][0];
+    m[0][1] += mat.m[0][1];
+    m[1][1] += mat.m[1][1];
     return *this;
 }
 
 Matrix2x2 Matrix2x2::operator-(const Matrix2x2& mat) const {
-    return {m11 - mat.m11, m12 - mat.m12, m21 - mat.m21, m22 - mat.m22};
+    return {m[0][0] - mat.m[0][0], m[1][0] - mat.m[1][0], m[0][1] - mat.m[0][1],
+            m[1][1] - mat.m[1][1]};
 }
 
 Matrix2x2& Matrix2x2::operator-=(const Matrix2x2& mat) {
-    m11 -= mat.m11;
-    m12 -= mat.m12;
-    m21 -= mat.m21;
-    m22 -= mat.m22;
+    m[0][0] -= mat.m[0][0];
+    m[1][0] -= mat.m[1][0];
+    m[0][1] -= mat.m[0][1];
+    m[1][1] -= mat.m[1][1];
     return *this;
 }
 
 Matrix2x2 Matrix2x2::operator-() const {
-    return {-m11, -m12, -m21, -m22};
+    return {-m[0][0], -m[1][0], -m[0][1], -m[1][1]};
 }
 
 bool Matrix2x2::operator==(const Matrix2x2& mat) const {
-    return m11 == mat.m11 && m12 == mat.m12 && m21 == mat.m21 && m22 == mat.m22;
+    return m[0][0] == mat.m[0][0] && m[1][0] == mat.m[1][0] && m[0][1] == mat.m[0][1] &&
+           m[1][1] == mat.m[1][1];
 }
 
 bool Matrix2x2::operator!=(const Matrix2x2& mat) const {
@@ -92,7 +94,7 @@ std::istream& math::operator>>(std::istream& is, Matrix2x2& mat) {
     is >> col1;
     is >> col2;
 
-    mat = Matrix2x2(col1, col2);
+    mat = {col1.x, col1.y, col2.x, col2.y};
 
     return is;
 }
@@ -104,44 +106,43 @@ std::ostream& math::operator<<(std::ostream& os, const Matrix2x2& mat) {
         return v;
     };
 
-    os << std::right << "| " << std::setw(2) << val(mat.m11) << "  " << std::left
-       << std::setw(2) << val(mat.m12) << " |\n";
-    os << std::right << "| " << std::setw(2) << val(mat.m21) << "  " << std::left
-       << std::setw(2) << val(mat.m22) << " |\n";
+    os << std::right << "| " << std::setw(2) << val(mat(0, 0)) << "  " << std::left
+       << std::setw(2) << val(mat(0, 1)) << " |\n";
+    os << std::right << "| " << std::setw(2) << val(mat(1, 0)) << "  " << std::left
+       << std::setw(2) << val(mat(1, 1)) << " |\n";
     return os;
 }
 
 float Matrix2x2::trace() const {
-    return m11 * m22;
+    return m[0][0] * m[1][1];
 }
 
 float Matrix2x2::det() const {
-    return m11 * m22 - m12 * m21;
+    return m[0][0] * m[1][1] - m[1][0] * m[0][1];
 }
 
-// Non-member functions
 Vector2 math::operator*(const Vector2& v, const Matrix2x2& mat) {
-    return {v.x * mat.m11 + v.y * mat.m21, v.x * mat.m12 + v.y * mat.m22};
+    return {v.x * mat(0, 0) + v.y * mat(1, 0), v.x * mat(0, 1) + v.y * mat(1, 1)};
 }
 
 Matrix2x2 math::operator*(float scalar, const Matrix2x2& mat) {
     return mat * scalar;
 }
 
-Matrix2x2 math::transpose(const Matrix2x2& mat) {
-    return {mat.m11, mat.m21, mat.m12, mat.m22};
+Matrix2x2 math::Transpose(const Matrix2x2& mat) {
+    return {mat(0, 0), mat(1, 0), mat(0, 1), mat(1, 1)};
 }
 
-Matrix2x2 math::inverse(const Matrix2x2& mat) {
+Matrix2x2 math::Inverse(const Matrix2x2& mat) {
     const float det = mat.det();
     if (det == 0)
         return Matrix2x2(0);
 
     const float invDet = 1.0f / det;
-    const float inv11 = invDet * mat.m22;
-    const float inv12 = invDet * -mat.m12;
-    const float inv21 = invDet * -mat.m21;
-    const float inv22 = invDet * mat.m11;
+    const float inv11 = invDet * mat(1, 1);
+    const float inv12 = invDet * -mat(0, 1);
+    const float inv21 = invDet * -mat(1, 0);
+    const float inv22 = invDet * mat(0, 0);
 
     return {inv11, inv12, inv21, inv22};
 }

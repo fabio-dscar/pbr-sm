@@ -37,6 +37,10 @@ protected:
     Vec3 _position;
 
     Mat4 _objToWorld;
+
+private:
+    void decomposeTransform();
+
 };
 
 } // namespace pbr

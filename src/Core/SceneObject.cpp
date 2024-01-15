@@ -10,8 +10,7 @@ SceneObject::SceneObject(const Vec3& position)
 SceneObject::SceneObject(const Mat4& objToWorld)
     : _orientation(), _objToWorld(objToWorld) {
 
-    _position = Vec3(_objToWorld.m14, _objToWorld.m24, _objToWorld.m34);
-    _scale = Vec3(_objToWorld.m11, _objToWorld.m22, _objToWorld.m33);
+    decomposeTransform();
 }
 
 const Vec3& SceneObject::position() const {
@@ -43,7 +42,7 @@ void SceneObject::setPosition(const Vec3& position) {
 }
 
 void SceneObject::setScale(float x, float y, float z) {
-    _scale = Vec3(x, y, z);
+    _scale = {x, y, z};
 }
 
 void SceneObject::setOrientation(const Quat& quat) {
@@ -52,6 +51,9 @@ void SceneObject::setOrientation(const Quat& quat) {
 
 void SceneObject::setObjToWorld(const Matrix4x4& mat) {
     _objToWorld = mat;
-    _position = Vec3(_objToWorld.m14, _objToWorld.m24, _objToWorld.m34);
-    _scale = Vec3(_objToWorld.m11, _objToWorld.m22, _objToWorld.m33);
+    decomposeTransform();
+}
+
+void SceneObject::decomposeTransform() {
+    Decompose(_objToWorld, _position, _orientation, _scale);
 }

@@ -13,28 +13,28 @@ Quat::Quat(const Matrix4x4& mat) {
         float s = std::sqrt(trace + 1.0f);
         w = s / 2.0f;
         s = 0.5f / s;
-        x = s * (m.m32 - m.m23);
-        y = s * (m.m13 - m.m31);
-        z = s * (m.m21 - m.m12);
+        x = s * (m(2, 1) - m(1, 2));
+        y = s * (m(0, 2) - m(2, 0));
+        z = s * (m(1, 0) - m(0, 1));
     } else {
         // Compute largest of x, y, or z, then remaining components
         const int nxt[3] = {1, 2, 0};
         float q[3];
         int i = 0;
-        if (m.m[1][1] > m.m[0][0])
+        if (m(1, 1) > m(0, 0))
             i = 1;
-        if (m.m[2][2] > m.m[i][i])
+        if (m(2, 2) > m(i, i))
             i = 2;
 
         int j = nxt[i];
         int k = nxt[j];
-        float s = std::sqrt(1.0f + (m.m[i][i] - (m.m[j][j] + m.m[k][k])));
+        float s = std::sqrt(1.0f + (m(i, i) - (m(j, j) + m(k, k))));
         q[i] = s * 0.5f;
         if (s != 0.f)
             s = 0.5f / s;
-        w = (m.m[j][k] - m.m[k][j]) * s;
-        q[j] = (m.m[j][i] + m.m[i][j]) * s;
-        q[k] = (m.m[k][i] + m.m[i][k]) * s;
+        w = (m(k, j) - m(j, k)) * s;
+        q[j] = (m(i, j) + m(j, i)) * s;
+        q[k] = (m(i, k) + m(k, i)) * s;
 
         x = q[0];
         y = q[1];
@@ -161,17 +161,17 @@ Matrix4x4 Quat::toMatrix() const {
     float wx = x * w, wy = y * w, wz = z * w;
 
     Matrix4x4 m;
-    m.m11 = 1.0f - 2.0f * (yy + zz);
-    m.m12 = 2.0f * (xy - wz);
-    m.m13 = 2.0f * (xz + wy);
+    m(0, 0) = 1.0f - 2.0f * (yy + zz);
+    m(0, 1) = 2.0f * (xy - wz);
+    m(0, 2) = 2.0f * (xz + wy);
 
-    m.m21 = 2.0f * (xy + wz);
-    m.m22 = 1.0f - 2.0f * (xx + zz);
-    m.m23 = 2.0f * (yz - wx);
+    m(1, 0) = 2.0f * (xy + wz);
+    m(1, 1) = 1.0f - 2.0f * (xx + zz);
+    m(1, 2) = 2.0f * (yz - wx);
 
-    m.m31 = 2.0f * (xz - wy);
-    m.m32 = 2.0f * (yz + wx);
-    m.m33 = 1.0f - 2.0f * (xx + yy);
+    m(2, 0) = 2.0f * (xz - wy);
+    m(2, 1) = 2.0f * (yz + wx);
+    m(2, 2) = 1.0f - 2.0f * (xx + yy);
 
     return m;
 }

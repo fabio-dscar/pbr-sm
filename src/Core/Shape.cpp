@@ -23,7 +23,7 @@ const sref<Material>& Shape::material() const {
 
 void Shape::updateMatrix() {
     SceneObject::updateMatrix();
-    _normalMatrix = transpose(inverse(Mat3(_objToWorld)));
+    _normalMatrix = Transpose(Inverse(Mat3(_objToWorld)));
 }
 
 const Mat3& Shape::normalMatrix() const {
