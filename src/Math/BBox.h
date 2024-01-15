@@ -60,7 +60,7 @@ public:
     bool contains(const Vec3& pos) const;
     bool isBounded() const;
 
-    bool intersectRay(const Ray& ray, float* t) const;
+    std::optional<float> intersectRay(const Ray& ray, float tMax) const;
 
 private:
     Vec3 _center{0, 0, 0};

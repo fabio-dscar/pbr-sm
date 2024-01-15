@@ -7,7 +7,6 @@ struct GLFWwindow;
 
 namespace pbr {
 
-// enum MouseButton { LEFT = 0, RIGHT = 1, MIDDLE = 2 };
 enum class MouseButton : int { Left = 0, Right = 1, Middle = 2 };
 enum class KeyState : int { Released = 0, Pressed = 1, Repeat = 2 };
 constexpr bool EnumHasConversion(MouseButton);
@@ -70,7 +69,6 @@ private:
     void setCallbacks();
 
     double _time = 0;
-
     double _deltaTime = 0;
     double _secondsTimer = 0;
 

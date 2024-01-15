@@ -3,7 +3,7 @@
 
 #include <PBR.h>
 
-#define Resource Resources::inst()
+#define Resource Resources::get()
 
 namespace pbr {
 
@@ -16,7 +16,7 @@ using map = std::unordered_map<KT, T>;
 
 class Resources {
 public:
-    static Resources& inst() {
+    static Resources& get() {
         static Resources _inst;
         return _inst;
     }

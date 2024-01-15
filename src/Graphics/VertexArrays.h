@@ -2,10 +2,9 @@
 #define __PBR_VERTEXARRAYS_H__
 
 #include <PBR.h>
+#include <Buffer.h>
 
 namespace pbr {
-
-class Buffer;
 
 enum class AttribType : int { Byte = 0, Short = 1, UInt = 2, Float = 3 };
 constexpr bool EnumHasConversion(AttribType);

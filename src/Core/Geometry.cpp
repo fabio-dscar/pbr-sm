@@ -1,16 +1,13 @@
 #include <Geometry.h>
-#include <Hash.h>
-#include <PBRMath.h>
-#include <cstdlib>
 
-#include <unordered_map>
-#include <filesystem>
+#include <Hash.h>
+#include <RenderInterface.h>
 
 #include <mikktspace.h>
 
+#include <unordered_map>
+#include <filesystem>
 #include <format>
-
-#include <RenderInterface.h>
 
 using namespace pbr;
 using namespace pbr::math;
@@ -132,7 +129,8 @@ void Geometry::computeTangents() {
                             .m_getPosition = getPosition,
                             .m_getNormal = getNormal,
                             .m_getTexCoord = getTexCoord,
-                            .m_setTSpaceBasic = setTSpace};
+                            .m_setTSpaceBasic = setTSpace,
+                            .m_setTSpace = nullptr};
 
     SMikkTSpaceContext ctx{.m_pInterface = &it, .m_pUserData = this};
 
@@ -229,8 +227,9 @@ std::unique_ptr<Geometry> pbr::genUnitCube() {
                           7, 2, 1, 2, 7, 5, 0, 2, 5, 5, 4, 0, 3, 7, 1, 7, 3, 6};
 
     for (unsigned i = 0; i < 8; i++) {
-        geo->addVertex({.position = Vec3(vertices[3 * i], vertices[3 * i + 1],
-                                         vertices[3 * i + 2])});
+        Vertex v;
+        v.position = {vertices[3 * i], vertices[3 * i + 1], vertices[3 * i + 2]};
+        geo->addVertex(v);
     }
 
     for (unsigned i = 0; i < 36; i++)

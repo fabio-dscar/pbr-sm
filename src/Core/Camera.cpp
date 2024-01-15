@@ -39,15 +39,15 @@ float Camera::far() const {
 }
 
 Vec3 Camera::right() const {
-    return Vec3(_objToWorld.m11, _objToWorld.m12, _objToWorld.m13);
+    return Vec3(_objToWorld(0, 0), _objToWorld(0, 1), _objToWorld(0, 2));
 }
 
 Vec3 Camera::front() const {
-    return Vec3(_objToWorld.m31, _objToWorld.m32, _objToWorld.m33);
+    return Vec3(_objToWorld(2, 0), _objToWorld(2, 1), _objToWorld(2, 2));
 }
 
 Vec3 Camera::up() const {
-    return Vec3(_objToWorld.m21, _objToWorld.m22, _objToWorld.m23);
+    return Vec3(_objToWorld(1, 0), _objToWorld(1, 1), _objToWorld(1, 2));
 }
 
 void Camera::lookAt(const Vec3& eye, const Vec3& at, const Vec3& up) {
@@ -55,10 +55,10 @@ void Camera::lookAt(const Vec3& eye, const Vec3& at, const Vec3& up) {
     _objToWorld = math::LookAt(eye, at, up);
 
     Mat4 matOrient = _objToWorld;
-    matOrient.m14 = 0;
-    matOrient.m24 = 0;
-    matOrient.m34 = 0;
-    matOrient.m44 = 1;
+    matOrient(0, 3) = 0;
+    matOrient(1, 3) = 0;
+    matOrient(2, 3) = 0;
+    matOrient(3, 3) = 1;
     _orientation = Quat(matOrient);
 }
 
@@ -108,17 +108,13 @@ void Camera::updateOrientation(float dpdx, float dydx) {
 }
 
 Ray Camera::traceRay(const Vec2& px) const {
-    // Create ray from pixel
-    Vec3 rayNDS =
-        Vec3((2.0f * px.x) / _width - 1.0f, 1.0f - (2.0f * px.y) / _height, 1.0f);
+    Vec2 rayNDS = 2.0 * Vec2{px.x / _width, -px.y / _height} + Vec2{-1.0f, 1.0f};
 
-    Vec4 rayClip = Vec4(rayNDS.x, rayNDS.y, -1.0, 1.0);
+    Vec4 rayClip = {rayNDS.x, rayNDS.y, -1.0, 1.0};
+    Vec4 rayEye = Inverse(_projMatrix) * rayClip;
+    rayEye = {rayEye.x, rayEye.y, -1.0, 0.0};
 
-    Vec4 rayEye = inverse(_projMatrix) * rayClip;
-    rayEye = Vec4(rayEye.x, rayEye.y, -1.0, 0.0);
-
-    Vec3 rayWorld = (inverse(_objToWorld) * rayEye);
-    rayWorld = normalize(rayWorld);
+    Vec3 rayWorld = normalize(Inverse(_objToWorld) * rayEye);
 
     return {_position, rayWorld};
 }

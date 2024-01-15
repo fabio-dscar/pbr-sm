@@ -104,19 +104,6 @@ void OpenGLApplication::init() {
     LOGI("OpenGL Version: {}", version);
     LOGI("GLSL Version {}", glslVer);
 
-    // Initialize OpenGL state
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-    glDepthMask(GL_TRUE);
-    glDepthRange(0.0, 1.0);
-    glClearDepth(1.0);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CCW);
-    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-    glEnable(GL_MULTISAMPLE);
-
     prepare();
 }
 
@@ -124,9 +111,6 @@ void OpenGLApplication::loop() {
     while (!glfwWindowShouldClose(_window)) {
         updateTime();
         render();
-
-        _mouseDx = 0;
-        _mouseDy = 0;
 
         glfwSwapBuffers(_window);
         glfwPollEvents();
@@ -167,20 +151,23 @@ void OpenGLApplication::updateTime() {
 void OpenGLApplication::render() {
     update(std::min(_deltaTime, 0.25));
     renderScene();
+
+    _mouseDx = 0;
+    _mouseDy = 0;
 }
 
 void OpenGLApplication::processMouseMotion(double x, double y) {
     updateMouse(x, y);
 }
 
-void OpenGLApplication::processKeys(int key, int scancode, int action, int mods) {
+void OpenGLApplication::processKeys(int key, int /*scancode*/, int action, int /*mods*/) {
     CHECK(key < MaxKeyNum);
 
     auto keyState = ActionToKeyState(action);
     _keyboard.keys[key] = keyState;
 }
 
-void OpenGLApplication::processMouseClick(int button, int action, int mods) {
+void OpenGLApplication::processMouseClick(int button, int action, int /*mods*/) {
     if (button > 2)
         return;
 
@@ -189,14 +176,11 @@ void OpenGLApplication::processMouseClick(int button, int action, int mods) {
 }
 
 void OpenGLApplication::updateMouse(double x, double y) {
-    double dx = -x + _mouse.x;
-    double dy = y - _mouse.y;
+    _mouseDx = -x + _mouse.x;
+    _mouseDy = y - _mouse.y;
 
     _mouse.x = x;
     _mouse.y = y;
-
-    _mouseDx = (_mouseDx + dx) / 2.0f;
-    _mouseDy = (_mouseDy + dy) / 2.0f;
 }
 
 bool OpenGLApplication::isMousePressed(MouseButton button) const {

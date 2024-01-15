@@ -40,7 +40,7 @@ void Renderer::setSkyboxDraw(bool state) {
 
 void Renderer::uploadUniformBuffer(const Scene& scene, const Camera& camera) {
     // Renderer
-    auto rd = _uniformBuffer.getBind<RendererData>(RENDERER_BUFFER_IDX);
+    auto rd = _uniformBuffer.getBind<RendererData>(RENDERER_BUFFER);
     rd->gamma = _gamma;
     rd->exposure = _exposure;
     rd->envIntensity = _envIntensity;
@@ -54,14 +54,14 @@ void Renderer::uploadUniformBuffer(const Scene& scene, const Camera& camera) {
     rd->W = _toneParams[6];
 
     // Camera
-    auto cd = _uniformBuffer.getBind<CameraData>(CAMERA_BUFFER_IDX);
+    auto cd = _uniformBuffer.getBind<CameraData>(CAMERA_BUFFER);
     cd->viewMatrix = camera.viewMatrix();
     cd->projMatrix = camera.projMatrix();
     cd->viewPos = camera.position();
     cd->viewProjMatrix = camera.viewProjMatrix();
 
     // Lights
-    auto ld = _uniformBuffer.getBind<LightData>(LIGHTS_BUFFER_IDX);
+    auto ld = _uniformBuffer.getBind<LightData>(LIGHTS_BUFFER);
     const auto& lights = scene.lights();
 
     auto numLights = Min(NumLights, lights.size());
@@ -84,19 +84,19 @@ void Renderer::prepare() {
 
     // Get aligned sizes for separate uniform buffers according to OGL implementation and
     // put them all in a single contiguous buffer
-    auto rdSize = AlignUniformBuffer(sizeof(RendererData));
-    auto cdSize = AlignUniformBuffer(sizeof(CameraData));
-    auto ldSize = AlignUniformBuffer(sizeof(LightData) * NumLights);
+    auto rdSize = RHI.alignUniformBuffer(sizeof(RendererData));
+    auto cdSize = RHI.alignUniformBuffer(sizeof(CameraData));
+    auto ldSize = RHI.alignUniformBuffer(sizeof(LightData) * NumLights);
 
     auto cdOffset = rdSize;
     auto ldOffset = cdOffset + cdSize;
 
-    auto uboSize = AlignUniformBuffer(rdSize + cdSize + ldSize);
+    auto uboSize = RHI.alignUniformBuffer(rdSize + cdSize + ldSize);
     _uniformBuffer.create(BufferType::Uniform, 3, uboSize, Write | Persistent | Coherent);
 
-    _uniformBuffer.registerBind(RENDERER_BUFFER_IDX, 0, rdSize);
-    _uniformBuffer.registerBind(CAMERA_BUFFER_IDX, cdOffset, cdSize);
-    _uniformBuffer.registerBind(LIGHTS_BUFFER_IDX, ldOffset, ldSize);
+    _uniformBuffer.registerBind(RENDERER_BUFFER, 0, rdSize);
+    _uniformBuffer.registerBind(CAMERA_BUFFER, cdOffset, cdSize);
+    _uniformBuffer.registerBind(LIGHTS_BUFFER, ldOffset, ldSize);
 }
 
 void Renderer::render(const Scene& scene, const Camera& camera) {

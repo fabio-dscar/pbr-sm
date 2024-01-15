@@ -4,6 +4,7 @@
 #include <PBR.h>
 #include <PBRMath.h>
 #include <BBox.h>
+#include <VertexArrays.h>
 
 using namespace pbr::math;
 
