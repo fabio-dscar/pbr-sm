@@ -25,16 +25,12 @@ struct KeyboardState {
 
 class OpenGLApplication {
 public:
-    OpenGLApplication(const std::string& title, int width, int height);
+    OpenGLApplication(const std::string& title, int width, int height, int msaaSamples);
     virtual ~OpenGLApplication() = default;
-
-    void init();
-    void loop();
 
     void setTitle(const std::string& title);
 
     virtual void cleanup() = 0;
-    virtual void prepare() = 0;
     virtual void renderScene() = 0;
     virtual void tickPerSecond() = 0;
     virtual void update(float dt) = 0;
@@ -48,6 +44,8 @@ public:
     bool isKeyPressed(int key) const;
     bool checkKey(int key, KeyState state) const;
 
+    void loop();
+
 protected:
     std::string _title;
 
@@ -55,6 +53,7 @@ protected:
 
     int _width;
     int _height;
+    int _msaaSamples;
 
     double _mouseDx;
     double _mouseDy;
@@ -63,6 +62,7 @@ protected:
     KeyboardState _keyboard;
 
 private:
+    void init();
     void updateTime();
     void render();
     void updateMouse(double x, double y);

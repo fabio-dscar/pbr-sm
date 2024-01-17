@@ -29,8 +29,10 @@ KeyState ActionToKeyState(int action) {
 
 } // namespace
 
-OpenGLApplication::OpenGLApplication(const std::string& title, int width, int height)
-    : _title(title), _width(width), _height(height) {}
+OpenGLApplication::OpenGLApplication(const std::string& title, int width, int height, int msaaSamples)
+    : _title(title), _width(width), _height(height), _msaaSamples(msaaSamples) {
+    init();
+}
 
 void OpenGLApplication::setCallbacks() {
     using OGLApp = OpenGLApplication;
@@ -64,12 +66,12 @@ void OpenGLApplication::init() {
         FATAL("Failed to initialize GLFW.");
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-    glfwWindowHint(GLFW_SAMPLES, 8);
+    glfwWindowHint(GLFW_SAMPLES, _msaaSamples);
 
     _window = glfwCreateWindow(_width, _height, _title.c_str(), NULL, NULL);
     if (!_window) {
@@ -103,8 +105,6 @@ void OpenGLApplication::init() {
     LOGI("OpenGL Renderer: {} ({})", renderer, vendor);
     LOGI("OpenGL Version: {}", version);
     LOGI("GLSL Version {}", glslVer);
-
-    prepare();
 }
 
 void OpenGLApplication::loop() {

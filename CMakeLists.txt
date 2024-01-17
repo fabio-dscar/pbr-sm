@@ -11,18 +11,19 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # ---------------------------------------------------------------------------------------
-# Third party libs
+#   Third party libs
 # ---------------------------------------------------------------------------------------
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext)
 
 # ---------------------------------------------------------------------------------------
-# OpenGL
+#   OpenGL
 # ---------------------------------------------------------------------------------------
 find_package(OpenGL REQUIRED)
 
 set(RT_PBR_SOURCES
     src/App/OpenGLApplication.cpp
     src/App/PBRApp.cpp
+    src/App/CliParser.cpp
     src/Core/Camera.cpp
     src/Core/Geometry.cpp
     src/Core/Mesh.cpp

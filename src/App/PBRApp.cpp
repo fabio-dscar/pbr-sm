@@ -31,10 +31,12 @@
 using namespace pbr;
 using namespace pbr::util;
 
-PBRApp::PBRApp(const std::string& title, int width, int height)
-    : OpenGLApplication(title, width, height) {}
+PBRApp::PBRApp(const std::string& title, const CliOptions& opts)
+    : OpenGLApplication(title, opts.width, opts.height, opts.msaaSamples) {
+    prepare(opts);
+}
 
-void PBRApp::prepare() {
+void PBRApp::prepare(const CliOptions& opts) {
     Print("Initializing renderer");
 
     RHI.initialize();
@@ -49,7 +51,7 @@ void PBRApp::prepare() {
     Print("Loading scene");
 
     SceneLoader loader{};
-    _scene = std::move(*loader.parse("test.xml"));
+    _scene = std::move(*loader.parse(opts.sceneFile));
     _skyboxes = loader.getSkyboxes();
     for (const auto& sky : _skyboxes)
         _skyboxOpts.append(sky.name() + '\0');

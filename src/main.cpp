@@ -2,14 +2,15 @@
 
 #include <Utils.h>
 
-int main() {
-    auto app = std::make_unique<pbr::PBRApp>("PBR Demo", 1920, 1080);
+using namespace pbr;
+
+int main(int argc, char* argv[]) {
     try {
-        app->init();
+        auto opts = ParseArgs(argc, argv);
+        auto app = std::make_unique<PBRApp>("PBR Demo", opts);
         app->loop();
     } catch (std::runtime_error& err) {
         pbr::util::PrintError("{}", err.what());
-        app->cleanup();
         return 1;
     }
 }

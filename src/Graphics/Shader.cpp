@@ -10,7 +10,7 @@ using namespace pbr::math;
 
 namespace {
 
-const std::string DefaultVer = "450 core\n\n";
+const std::string DefaultVer = "460 core\n\n";
 const fs::path ShaderFolder = "./glsl";
 
 } // namespace

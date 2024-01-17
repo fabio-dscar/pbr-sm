@@ -3,6 +3,7 @@
 
 #include <OpenGLApplication.h>
 
+#include <CliParser.h>
 #include <Scene.h>
 #include <Renderer.h>
 #include <Skybox.h>
@@ -15,20 +16,20 @@ class Skybox;
 
 class PBRApp : public OpenGLApplication {
 public:
-    PBRApp(const std::string& title, int width, int height);
+    PBRApp(const std::string& title, const CliOptions& opts);
+    ~PBRApp() { cleanup(); }
 
-    void prepare() override;
     void renderScene() override;
     void update(float dt) override;
     void cleanup() override;
 
     void tickPerSecond() override;
-
     void processMouseClick(int button, int action, int mods) override;
     void processKeys(int key, int scancode, int action, int mods) override;
     void reshape(int w, int h) override;
 
 private:
+    void prepare(const CliOptions& opts);
     void drawInterface();
     void restoreToneDefaults();
     void changeSkybox(int id);

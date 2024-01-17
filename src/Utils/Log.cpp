@@ -1,10 +1,7 @@
 #include <Log.h>
 
-// #include <thread.h>
-
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/details/fmt_helper.h>
 #include <spdlog/formatter.h>
 #include <spdlog/pattern_formatter.h>
 
@@ -12,37 +9,22 @@
 
 using namespace pbr;
 
-// class thread_name_flag : public spdlog::custom_flag_formatter {
-// public:
-//     void
-//     format(const spdlog::details::log_msg&, const std::tm&, spdlog::memory_buf_t& dest) override {
-//         auto name = GetThreadName();
-//         dest.append(name.data(), name.data() + name.size());
-//     }
-
-//     std::unique_ptr<custom_flag_formatter> clone() const override {
-//         return spdlog::details::make_unique<thread_name_flag>();
-//     }
-// };
-
 void pbr::InitLogger() {
     auto cliFormatter = std::make_unique<spdlog::pattern_formatter>();
-    // cliFormatter->add_flag<thread_name_flag>('W');
-    cliFormatter->set_pattern("[%T.%F][%^%l%$][%=20W] %v");
+    cliFormatter->set_pattern("[%T.%F][%^%l%$] %v");
 
     auto console = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
     console->set_level(spdlog::level::trace);
     console->set_formatter(std::move(cliFormatter));
 
     auto fileFormatter = std::make_unique<spdlog::pattern_formatter>();
-    // fileFormatter->add_flag<thread_name_flag>('W');
-    fileFormatter->set_pattern("[%D %T.%F][%^%l%$][%W] %v");
+    fileFormatter->set_pattern("[%D %T.%F][%^%l%$] %v");
 
     auto file = std::make_shared<spdlog::sinks::basic_file_sink_mt>("log.txt", true);
     file->set_level(spdlog::level::trace);
     file->set_formatter(std::move(fileFormatter));
 
-    auto sinks  = spdlog::sinks_init_list{console, file};
+    auto sinks = spdlog::sinks_init_list{console, file};
     auto logger = std::make_shared<spdlog::logger>("main", sinks);
     logger->set_level(spdlog::level::trace);
     logger->flush_on(spdlog::level::err);
@@ -63,7 +45,7 @@ void pbr::PrintStackTrace() {
     };
 
     backward::TraceResolver resolver;
-    backward::StackTrace    st;
+    backward::StackTrace st;
     st.load_here(8);
 
     std::vector<backward::ResolvedTrace> traces;
@@ -77,12 +59,12 @@ void pbr::PrintStackTrace() {
         traces[i].idx = traces.size() - 1 - i;
 
     backward::Printer printer;
-    printer.snippet              = true;
-    printer.color_mode           = backward::ColorMode::always;
-    printer.address              = true;
-    printer.object               = true;
+    printer.snippet = true;
+    printer.color_mode = backward::ColorMode::always;
+    printer.address = true;
+    printer.object = true;
     printer.inliner_context_size = 6;
-    printer.trace_context_size   = 6;
+    printer.trace_context_size = 6;
 
     std::ostringstream oss;
     printer.print(traces.begin(), traces.end(), oss);
