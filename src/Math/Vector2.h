@@ -9,7 +9,7 @@ namespace math {
 // Forward declaration
 class Vector3;
 
-class PBR_SHARED Vector2 {
+class Vector2 {
 public:
     float x = 0, y = 0;
 
@@ -51,20 +51,20 @@ public:
     bool isZero() const;
 };
 
-PBR_SHARED std::istream& operator>>(std::istream& is, Vector2& v);
-PBR_SHARED std::ostream& operator<<(std::ostream& os, const Vector2& v);
+std::istream& operator>>(std::istream& is, Vector2& v);
+std::ostream& operator<<(std::ostream& os, const Vector2& v);
 
-PBR_SHARED Vector2 operator*(float scalar, const Vector2& v);
+Vector2 operator*(float scalar, const Vector2& v);
 
-PBR_SHARED Vector2 abs(const Vector2& v);
-PBR_SHARED Vector2 pow(const Vector2& v, float exp);
-PBR_SHARED Vector2 normalize(const Vector2& v);
-PBR_SHARED Vector2 min(const Vector2& v1, const Vector2& v2);
-PBR_SHARED Vector2 max(const Vector2& v1, const Vector2& v2);
+Vector2 abs(const Vector2& v);
+Vector2 pow(const Vector2& v, float exp);
+Vector2 normalize(const Vector2& v);
+Vector2 min(const Vector2& v1, const Vector2& v2);
+Vector2 max(const Vector2& v1, const Vector2& v2);
 
-PBR_SHARED float distance(const Vector2& v1, const Vector2& v2);
-PBR_SHARED float dot(const Vector2& v1, const Vector2& v2);
-PBR_SHARED float absDot(const Vector2& v1, const Vector2& v2);
+float distance(const Vector2& v1, const Vector2& v2);
+float dot(const Vector2& v1, const Vector2& v2);
+float absDot(const Vector2& v1, const Vector2& v2);
 } // namespace math
 } // namespace pbr
 

@@ -28,7 +28,7 @@ struct LightData {
     float auxC;
 };
 
-class PBR_SHARED Light : public SceneObject {
+class Light : public SceneObject {
 public:
     Light() = default;
     Light(const Color& emission, float intensity);

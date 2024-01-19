@@ -33,7 +33,7 @@ struct RendererData {
 
 static constexpr unsigned int NumLights = 5;
 
-class PBR_SHARED Renderer {
+class Renderer {
 public:
     void prepare();
     void render(const Scene& scene, const Camera& camera);

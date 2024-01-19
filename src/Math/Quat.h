@@ -9,7 +9,7 @@ namespace math {
 
 class Matrix4x4;
 
-class PBR_SHARED Quat {
+class Quat {
 public:
     float x = 0, y = 0, z = 0, w = 1;
 
@@ -46,18 +46,18 @@ public:
     Matrix4x4 toMatrix() const;
 };
 
-PBR_SHARED std::istream& operator>>(std::istream& is, Quat& q);
-PBR_SHARED std::ostream& operator<<(std::ostream& os, const Quat& q);
+std::istream& operator>>(std::istream& is, Quat& q);
+std::ostream& operator<<(std::ostream& os, const Quat& q);
 
-PBR_SHARED Quat operator*(float scalar, const Quat& q);
+Quat operator*(float scalar, const Quat& q);
 
-PBR_SHARED float Dot(const Quat& q1, const Quat& q2);
-PBR_SHARED Quat Normalize(const Quat& q);
+float Dot(const Quat& q1, const Quat& q2);
+Quat Normalize(const Quat& q);
 
-PBR_SHARED Quat Slerp(float t, const Quat& q1, const Quat& q2);
-PBR_SHARED Vector3 Rotate(const Quat& q, const Vector3& v);
-PBR_SHARED Quat AxisAngle(const Vector3& axis, float angle);
-PBR_SHARED Quat RotationAlign(const Vector3& from, const Vector3& to);
+Quat Slerp(float t, const Quat& q1, const Quat& q2);
+Vector3 Rotate(const Quat& q, const Vector3& v);
+Quat AxisAngle(const Vector3& axis, float angle);
+Quat RotationAlign(const Vector3& from, const Vector3& to);
 
 } // namespace math
 } // namespace pbr

@@ -16,7 +16,7 @@ struct ObjFile {
     std::vector<unsigned int> indices{};
 };
 
-PBR_SHARED std::optional<ObjFile> LoadObjFile(const fs::path& filePath);
+std::optional<ObjFile> LoadObjFile(const fs::path& filePath);
 
 } // namespace pbr
 

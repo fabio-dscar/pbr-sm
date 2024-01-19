@@ -34,28 +34,6 @@
 #pragma warning(disable : 4305) // double const to float
 #endif
 
-#if defined(__GNUC__)
-#define PBR_GNUC
-#endif
-
-// Decide if we are importing or exporting from/to a dll
-// Or just static linking
-#if defined(PBR_BUILD_SHARED) && defined(PBR_DLL_IMPORT)
-#if defined(PBR_MSVC)
-#define PBR_SHARED __declspec(dllimport)
-#else
-#define PBR_SHARED
-#endif
-#elif defined(PBR_BUILD_SHARED) && defined(PBR_DLL_EXPORT)
-#if defined(PBR_MSVC)
-#define PBR_SHARED __declspec(dllexport)
-#elif defined(PBR_GNUC)
-#define PBR_SHARED __attribute__((visibility("default")))
-#endif
-#else
-#define PBR_SHARED
-#endif
-
 #if defined(DEBUG)
 #define THROW_ERROR(...)                                                                 \
     throw std::runtime_error(std::format("{} ({}): {}", std::string(__FILE__),           \

@@ -5,7 +5,7 @@
 
 namespace pbr {
 
-class PBR_SHARED PointLight : public Light {
+class PointLight : public Light {
 public:
     PointLight(const Color& emission, float intensity);
     PointLight(const Color& emission, float intensity, const Vec3& position);

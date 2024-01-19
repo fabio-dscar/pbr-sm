@@ -24,7 +24,7 @@ struct Vertex {
     }
 };
 
-class PBR_SHARED Geometry {
+class Geometry {
 public:
     Geometry() = default;
     Geometry(std::vector<Vertex>&& vertices, std::vector<unsigned int>&& indices);
@@ -69,10 +69,10 @@ inline void swap(Geometry& lhs, Geometry& rhs) noexcept {
     lhs.swap(rhs);
 }
 
-PBR_SHARED std::unique_ptr<Geometry> genUnitSphere(unsigned int widthSegments,
+std::unique_ptr<Geometry> genUnitSphere(unsigned int widthSegments,
                                                    unsigned int heightSegments);
-PBR_SHARED std::unique_ptr<Geometry> genUnitCube();
-PBR_SHARED std::unique_ptr<Geometry> genUnitQuad();
+std::unique_ptr<Geometry> genUnitCube();
+std::unique_ptr<Geometry> genUnitQuad();
 
 } // namespace pbr
 

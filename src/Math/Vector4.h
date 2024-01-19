@@ -8,7 +8,7 @@ namespace math {
 
 class Vector3;
 
-class PBR_SHARED Vector4 {
+class Vector4 {
 public:
     float x = 0, y = 0, z = 0 , w = 1;
 
@@ -48,17 +48,17 @@ public:
     bool isZero() const;
 };
 
-PBR_SHARED std::istream& operator>>(std::istream& is, Vector4& v);
-PBR_SHARED std::ostream& operator<<(std::ostream& os, const Vector4& v);
+std::istream& operator>>(std::istream& is, Vector4& v);
+std::ostream& operator<<(std::ostream& os, const Vector4& v);
 
-PBR_SHARED Vector4 operator*(float scalar, const Vector4& v);
+Vector4 operator*(float scalar, const Vector4& v);
 
-PBR_SHARED Vector4 abs(const Vector4& v);
-PBR_SHARED Vector4 normalize(const Vector4& v);
+Vector4 abs(const Vector4& v);
+Vector4 normalize(const Vector4& v);
 
-PBR_SHARED float distance(const Vector4& v1, const Vector4& v2);
-PBR_SHARED float dot(const Vector4& v1, const Vector4& v2);
-PBR_SHARED float absDot(const Vector4& v1, const Vector4& v2);
+float distance(const Vector4& v1, const Vector4& v2);
+float dot(const Vector4& v1, const Vector4& v2);
+float absDot(const Vector4& v1, const Vector4& v2);
 
 } // namespace math
 } // namespace pbr

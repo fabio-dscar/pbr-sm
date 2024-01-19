@@ -181,7 +181,7 @@ void PBRApp::drawInterface() {
     ImGui::End();
 
     ImGui::SetNextWindowPos({10, 144}, ImGuiCond_Once);
-    ImGui::SetNextWindowSize({477, 436}, ImGuiCond_Once);
+    ImGui::SetNextWindowSize({477, 416}, ImGuiCond_Once);
 
     ImGui::Begin("Tone Map");
 
@@ -223,12 +223,24 @@ void PBRApp::drawInterface() {
                        scale;
             },
             toneParams.data(), 100, 0, NULL, FLOAT_MAXIMUM, FLOAT_MAXIMUM,
-            ImVec2{320, 120});
+            ImVec2{320, 100});
 
         if (ImGui::Button("Restore defaults"))
             restoreToneDefaults();
     }
 
+    ImGui::End();
+
+    ImGui::SetNextWindowPos({10, 570}, ImGuiCond_Once);
+    ImGui::SetNextWindowSize({477, 130}, ImGuiCond_Once);
+
+    ImGui::Begin("Keys and movement");
+    ImGui::TextWrapped(
+        "Press mouse right button while moving the mouse to orient the camera.");
+    ImGui::TextWrapped("Mouse middle button - Pick object.");
+    ImGui::TextWrapped("WASD - Camera movement.");
+    ImGui::TextWrapped("H - Toggle GUI visibility.");
+    ImGui::TextWrapped("P - Take a snapshot.");
     ImGui::End();
 
     // Selected object window

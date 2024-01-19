@@ -240,7 +240,7 @@ std::unique_ptr<Geometry> pbr::genUnitCube() {
     return geo;
 }
 
-PBR_SHARED std::unique_ptr<Geometry> pbr::genUnitQuad() {
+std::unique_ptr<Geometry> pbr::genUnitQuad() {
     const Vec3 normal{0, 1, 0};
     const Vec4 tangent{1, 0, 0, 1};
 

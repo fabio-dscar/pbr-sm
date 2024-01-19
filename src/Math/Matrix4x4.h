@@ -11,7 +11,7 @@ class Vector4;
 class Matrix3x3;
 class Quat;
 
-class PBR_SHARED Matrix4x4 {
+class Matrix4x4 {
 public:
     Matrix4x4();
     explicit Matrix4x4(float scalar);
@@ -53,14 +53,14 @@ private:
     float m[4][4];
 };
 
-PBR_SHARED std::istream& operator>>(std::istream& is, Matrix4x4& mat);
-PBR_SHARED std::ostream& operator<<(std::ostream& os, const Matrix4x4& mat);
+std::istream& operator>>(std::istream& is, Matrix4x4& mat);
+std::ostream& operator<<(std::ostream& os, const Matrix4x4& mat);
 
-PBR_SHARED Vector3 operator*(const Vector3& v, const Matrix4x4& mat);
-PBR_SHARED Matrix4x4 operator*(float scalar, const Matrix4x4& mat);
+Vector3 operator*(const Vector3& v, const Matrix4x4& mat);
+Matrix4x4 operator*(float scalar, const Matrix4x4& mat);
 
-PBR_SHARED Matrix4x4 Transpose(const Matrix4x4& mat);
-PBR_SHARED Matrix4x4 Inverse(const Matrix4x4& mat);
+Matrix4x4 Transpose(const Matrix4x4& mat);
+Matrix4x4 Inverse(const Matrix4x4& mat);
 
 } // namespace math
 } // namespace pbr

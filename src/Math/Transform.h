@@ -76,11 +76,11 @@ inline Matrix4x4 Transform(const Vector3& tr, const Vector3& s, const Matrix4x4&
     return Translation(tr) * rot * Scale(s);
 }
 
-PBR_SHARED Matrix4x4 RotationAxis(float rads, const Vector3& axis);
-PBR_SHARED Matrix4x4 Orthographic(float l, float r, float b, float t, float n, float f);
-PBR_SHARED Matrix4x4 Perspective(float fov, float aspect, float n, float f);
-PBR_SHARED Matrix4x4 LookAt(const Vector3& eye, const Vector3& center, const Vector3& up);
-PBR_SHARED void Decompose(const Matrix4x4& mat, Vector3& tr, Quat& rot, Vector3& scale);
+Matrix4x4 RotationAxis(float rads, const Vector3& axis);
+Matrix4x4 Orthographic(float l, float r, float b, float t, float n, float f);
+Matrix4x4 Perspective(float fov, float aspect, float n, float f);
+Matrix4x4 LookAt(const Vector3& eye, const Vector3& center, const Vector3& up);
+void Decompose(const Matrix4x4& mat, Vector3& tr, Quat& rot, Vector3& scale);
 
 } // namespace math
 } // namespace pbr

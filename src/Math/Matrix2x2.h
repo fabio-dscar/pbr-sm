@@ -9,7 +9,7 @@ namespace math {
 class Vector2;
 class Matrix3x3;
 
-class PBR_SHARED Matrix2x2 {
+class Matrix2x2 {
 public:
     Matrix2x2();
     explicit Matrix2x2(float scalar);
@@ -45,14 +45,14 @@ private:
     float m[2][2];
 };
 
-PBR_SHARED std::istream& operator>>(std::istream& is, Matrix2x2& mat);
-PBR_SHARED std::ostream& operator<<(std::ostream& os, const Matrix2x2& mat);
+std::istream& operator>>(std::istream& is, Matrix2x2& mat);
+std::ostream& operator<<(std::ostream& os, const Matrix2x2& mat);
 
-PBR_SHARED Vector2 operator*(const Vector2& v, const Matrix2x2& mat);
-PBR_SHARED Matrix2x2 operator*(float scalar, const Matrix2x2& mat);
+Vector2 operator*(const Vector2& v, const Matrix2x2& mat);
+Matrix2x2 operator*(float scalar, const Matrix2x2& mat);
 
-PBR_SHARED Matrix2x2 Transpose(const Matrix2x2& mat);
-PBR_SHARED Matrix2x2 Inverse(const Matrix2x2& mat);
+Matrix2x2 Transpose(const Matrix2x2& mat);
+Matrix2x2 Inverse(const Matrix2x2& mat);
 
 } // namespace math
 } // namespace pbr

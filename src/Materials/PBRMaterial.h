@@ -29,7 +29,7 @@ enum PBRUniform : int {
     ENV_BRDF_MAP = 17
 };
 
-class PBR_SHARED PBRMaterial : public Material {
+class PBRMaterial : public Material {
 public:
     PBRMaterial();
     PBRMaterial(const Color& diff, float metallic, float roughness);

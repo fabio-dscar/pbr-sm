@@ -6,7 +6,7 @@
 namespace pbr {
 namespace math {
 
-class PBR_SHARED Ray {
+class Ray {
 public:
     Ray(const Vec3& origin, const Vec3& dir) : _origin(origin), _dir(dir) {}
 

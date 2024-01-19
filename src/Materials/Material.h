@@ -8,7 +8,7 @@ namespace pbr {
 class ParameterMap;
 class Program;
 
-class PBR_SHARED Material {
+class Material {
 public:
     virtual ~Material() = default;
 

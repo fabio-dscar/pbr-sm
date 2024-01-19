@@ -13,7 +13,7 @@ namespace pbr {
 
 enum class ShaderType : unsigned int;
 
-class PBR_SHARED ShaderSource {
+class ShaderSource {
 public:
     ShaderSource(const std::string& name, ShaderType type, const std::string& src);
 
@@ -35,7 +35,7 @@ private:
     ShaderType type;
 };
 
-class PBR_SHARED Program {
+class Program {
 public:
     explicit Program(const std::string& name) : name(name) {}
     ~Program();

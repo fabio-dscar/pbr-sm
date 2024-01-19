@@ -11,6 +11,7 @@
 
 namespace pbr {
 
+class Material;
 class PBRMaterial;
 class Skybox;
 

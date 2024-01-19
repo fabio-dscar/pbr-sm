@@ -10,7 +10,7 @@ namespace pbr {
 
 static const float Gamma = 2.2f;
 
-class PBR_SHARED RGBSpectrum {
+class RGBSpectrum {
 public:
     float r = 0, g = 0, b = 0;
 
@@ -51,14 +51,14 @@ public:
 };
 
 // Standard input/ouput
-PBR_SHARED std::istream& operator>>(std::istream& is, RGBSpectrum& spectrum);
-PBR_SHARED std::ostream& operator<<(std::ostream& os, const RGBSpectrum& spectrum);
+std::istream& operator>>(std::istream& is, RGBSpectrum& spectrum);
+std::ostream& operator<<(std::ostream& os, const RGBSpectrum& spectrum);
 
-PBR_SHARED RGBSpectrum operator*(float scalar, const RGBSpectrum& rgb);
+RGBSpectrum operator*(float scalar, const RGBSpectrum& rgb);
 
-PBR_SHARED RGBSpectrum clamp(const RGBSpectrum& rgb, float low, float high);
-PBR_SHARED RGBSpectrum exp(const RGBSpectrum& rgb);
-PBR_SHARED RGBSpectrum lerp(const RGBSpectrum& rgb1, const RGBSpectrum& rgb2, float t);
+RGBSpectrum clamp(const RGBSpectrum& rgb, float low, float high);
+RGBSpectrum exp(const RGBSpectrum& rgb);
+RGBSpectrum lerp(const RGBSpectrum& rgb1, const RGBSpectrum& rgb2, float t);
 
 typedef RGBSpectrum Color;
 

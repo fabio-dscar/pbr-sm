@@ -5,7 +5,7 @@
 
 namespace pbr {
 
-class PBR_SHARED DirectionalLight : public Light {
+class DirectionalLight : public Light {
 public:
     DirectionalLight(const Color& emission, float intensity);
     DirectionalLight(const Color& emission, float intensity, const Vec3& dir);
