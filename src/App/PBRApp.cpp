@@ -28,8 +28,25 @@
 #include <chrono>
 #include <format>
 
+#include <TubeLight.h>
+#include <SphereLight.h>
+#include <DirectionalLight.h>
+#include <SpotLight.h>
+
 using namespace pbr;
 using namespace pbr::util;
+
+namespace {
+
+const std::unordered_map<LightType, std::string> LightTypeToString{
+    {LightType::Directional, "Directional"},
+    {LightType::Point,       "Point"      },
+    {LightType::Spot,        "Spotlight"  },
+    {LightType::Sphere,      "Sphere"     },
+    {LightType::Tube,        "Tube"       }
+};
+
+}
 
 PBRApp::PBRApp(const std::string& title, const CliOptions& opts)
     : OpenGLApplication(title, opts.width, opts.height, opts.msaaSamples) {
@@ -56,12 +73,18 @@ void PBRApp::prepare(const CliOptions& opts) {
     for (const auto& sky : _skyboxes)
         _skyboxOpts.append(sky.name() + '\0');
 
-    if (_scene.cameras().size() > 0)
-        _camera = _scene.cameras().back();
-
     Print("Finished loading assets");
 
-    changeSkybox(_skybox);
+    if (_scene.cameras().size() > 0)
+        _camera = _scene.cameras().back().get();
+
+    if (_skyboxes.size() > 0)
+        changeSkybox(_skybox);
+
+    const auto& lights = _scene.lights();
+    if (lights.size() > 0)
+        changeLight(lights[0].get());
+
     reshape(_width, _height);
 }
 
@@ -141,12 +164,12 @@ void PBRApp::processKeys(int key, int scancode, int action, int mods) {
 void PBRApp::updateMaterial(Material* mat) {
     _selMat = reinterpret_cast<PBRMaterial*>(mat);
 
-    _guiMat.diffuse = _selMat->diffuse();
-    _guiMat.metallic = _selMat->metallic();
-    _guiMat.roughness = _selMat->roughness();
-    _guiMat.f0 = _selMat->reflectivity();
-    _guiMat.clearCoat = _selMat->clearCoat();
-    _guiMat.clearCoatRough = _selMat->clearCoatRough();
+    _matParams.diffuse = _selMat->diffuse();
+    _matParams.metallic = _selMat->metallic();
+    _matParams.roughness = _selMat->roughness();
+    _matParams.f0 = _selMat->reflectivity();
+    _matParams.clearCoat = _selMat->clearCoat();
+    _matParams.clearCoatRough = _selMat->clearCoatRough();
 }
 
 void PBRApp::pickObject(int x, int y) {
@@ -166,6 +189,103 @@ void PBRApp::changeToneMap(ToneMap toneMap) {
     _renderer.setToneMap(toneMap);
 }
 
+void PBRApp::changeLight(Light* light) {
+    _selLight = light;
+
+    _lightParams.on = light->isOn();
+    _lightParams.emission = light->emission();
+    _lightParams.intensity = light->intensity();
+    _lightParams.position = light->position();
+
+    switch (light->type()) {
+    case LightType::Tube:
+        _lightParams.radius = static_cast<TubeLight*>(_selLight)->radius();
+        break;
+    case LightType::Sphere:
+        _lightParams.radius = static_cast<SphereLight*>(_selLight)->radius();
+        break;
+    case LightType::Spot:
+        {
+            SpotLight* spot = static_cast<SpotLight*>(_selLight);
+            _lightParams.direction = spot->direction();
+            _lightParams.cutOff = spot->cutOff();
+            _lightParams.outerCutOff = spot->outerCutOff();
+        }
+        break;
+    case LightType::Directional:
+        _lightParams.direction = static_cast<DirectionalLight*>(_selLight)->direction();
+        break;
+    default:
+        break;
+    };
+}
+
+void PBRApp::renderLightsInterface() {
+    ImGui::SetNextWindowPos({497, 10}, ImGuiCond_Once);
+    ImGui::SetNextWindowSize({417, 171}, ImGuiCond_Once);
+    ImGui::Begin("Lights");
+
+    std::stringstream ss;
+    const auto& lights = _scene.lights();
+    for (std::size_t l = 0; l < lights.size(); ++l)
+        ss << "Light" << l << '\0'; // std::format("Light{}\0", l);
+    if (ImGui::Combo("Light", &_lightIdx, ss.str().c_str()))
+        changeLight(lights[_lightIdx].get());
+
+    if (_selLight) {
+        const auto type = _selLight->type();
+        ImGui::Text("Light::%s", LightTypeToString.at(_selLight->type()).c_str());
+
+        if (ImGui::Checkbox("On", &_lightParams.on))
+            _selLight->toggle();
+
+        if (ImGui::SliderFloat("Intensity", &_lightParams.intensity, 0.0f, 50.0f))
+            _selLight->setIntensity(_lightParams.intensity);
+
+        if (ImGui::ColorEdit3("Emission",
+                              reinterpret_cast<float*>(&_lightParams.emission)))
+            _selLight->setEmission(_lightParams.emission);
+
+        if (type != LightType::Directional) {
+            if (ImGui::DragFloat3(
+                    "position", reinterpret_cast<float*>(&_lightParams.position), 0.35f))
+                _selLight->setPosition(_lightParams.position);
+        }
+    }
+
+    ImGui::End();
+}
+
+void PBRApp::renderMaterialsInterface() {
+    RRID whiteTex = Resource.get<Texture>("white")->id();
+
+    ImGui::Begin("Selected Object");
+
+    if (_selMat->diffuseTex() == whiteTex)
+        if (ImGui::ColorEdit3("Diffuse", (float*)&_matParams.diffuse))
+            _selMat->setDiffuse(_matParams.diffuse);
+
+    if (ImGui::SliderFloat("Reflectivity", &_matParams.f0, 0.0f, 1.0f))
+        _selMat->setReflectivity(_matParams.f0);
+
+    if (_selMat->metallicTex() == whiteTex)
+        if (ImGui::SliderFloat("Metallic", &_matParams.metallic, 0.0f, 1.0f))
+            _selMat->setMetallic(_matParams.metallic);
+
+    if (_selMat->roughTex() == whiteTex)
+        if (ImGui::SliderFloat("Roughness", &_matParams.roughness, 0.0f, 1.0f))
+            _selMat->setRoughness(_matParams.roughness);
+
+    if (ImGui::SliderFloat("Clear Coat Roughness", &_matParams.clearCoatRough, 0.0f,
+                           1.0f))
+        _selMat->setClearCoatRoughness(_matParams.clearCoatRough);
+
+    if (ImGui::SliderFloat("Clear Coat", &_matParams.clearCoat, 0.0f, 1.0f))
+        _selMat->setClearCoat(_matParams.clearCoat);
+
+    ImGui::End();
+}
+
 void PBRApp::drawInterface() {
     GuiBeginFrame(_mouse.x, _mouse.y, _mouse.buttons);
 
@@ -176,8 +296,9 @@ void PBRApp::drawInterface() {
     ImGui::Checkbox("Draw Skybox", &_showSky);
     ImGui::SliderFloat("Env Intensity", &_envIntensity, 0.0f, 1.0f);
 
-    if (ImGui::Combo("Current Environment", &_skybox, _skyboxOpts.c_str()))
-        changeSkybox(_skybox);
+    if (_skyboxes.size() > 0)
+        if (ImGui::Combo("Current Environment", &_skybox, _skyboxOpts.c_str()))
+            changeSkybox(_skybox);
     ImGui::End();
 
     ImGui::SetNextWindowPos({10, 144}, ImGuiCond_Once);
@@ -244,44 +365,19 @@ void PBRApp::drawInterface() {
     ImGui::End();
 
     // Selected object window
-    if (_selMat != nullptr) {
-        RRID whiteTex = Resource.get<Texture>("white")->id();
+    if (_selMat != nullptr)
+        renderMaterialsInterface();
 
-        ImGui::Begin("Selected Object");
-
-        if (_selMat->diffuseTex() == whiteTex)
-            if (ImGui::ColorEdit3("Diffuse", (float*)&_guiMat.diffuse))
-                _selMat->setDiffuse(_guiMat.diffuse);
-
-        if (ImGui::SliderFloat("Reflectivity", &_guiMat.f0, 0.0f, 1.0f))
-            _selMat->setReflectivity(_guiMat.f0);
-
-        if (_selMat->metallicTex() == whiteTex)
-            if (ImGui::SliderFloat("Metallic", &_guiMat.metallic, 0.0f, 1.0f))
-                _selMat->setMetallic(_guiMat.metallic);
-
-        if (_selMat->roughTex() == whiteTex)
-            if (ImGui::SliderFloat("Roughness", &_guiMat.roughness, 0.0f, 1.0f))
-                _selMat->setRoughness(_guiMat.roughness);
-
-        if (ImGui::SliderFloat("Clear Coat Roughness", &_guiMat.clearCoatRough, 0.0f,
-                               1.0f))
-            _selMat->setClearCoatRoughness(_guiMat.clearCoatRough);
-
-        if (ImGui::SliderFloat("Clear Coat", &_guiMat.clearCoat, 0.0f, 1.0f))
-            _selMat->setClearCoat(_guiMat.clearCoat);
-
-        ImGui::End();
-    }
+    // Lights window
+    if (_scene.lights().size() > 0)
+        renderLightsInterface();
 
     ImGui::Render();
 }
 
 void PBRApp::changeSkybox(int id) {
-    if (_skyboxes.size() > 0) {
-        _skyboxes[id].set();
-        _scene.setEnvironment(_skyboxes[id]);
-    }
+    _skyboxes[id].set();
+    _scene.setEnvironment(_skyboxes[id]);
 }
 
 void PBRApp::takeSnapshot() {

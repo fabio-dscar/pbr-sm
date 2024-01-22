@@ -10,6 +10,10 @@
 
 using namespace pbr;
 
+namespace {
+constexpr unsigned int NumLights = 5;
+}
+
 void Renderer::setGamma(float gamma) {
     _gamma = gamma;
 }

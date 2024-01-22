@@ -13,6 +13,10 @@ public:
     SphereLight(const Color& emission, float intensity, const Mat4& toWorld,
                 float radius);
 
+    float radius() const { return _radius; }
+    void setRadius(float radius) { _radius = radius; }
+
+    LightType type() const override { return LightType::Sphere; }
     void toData(LightData& data) const override;
 
 private:

@@ -36,7 +36,7 @@ void RenderInterface::initialize() {
     CreateNamedTexture("white", Image{fmt, {1, 1, 1}});
     CreateNamedTexture("planar", Image{fmt, {0.5, 0.5, 1}}); // [0 0 1] normal
 
-    CreateNamedTexture("brdf", "PBR/brdf.img", 
+    CreateNamedTexture("brdf", "pbr/brdf.img", 
                        {.s = Wrap::ClampEdge, .t = Wrap::ClampEdge});
 
     // Create common meshes

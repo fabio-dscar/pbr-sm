@@ -38,6 +38,9 @@ private:
     void pickObject(int x, int y);
     void updateMaterial(Material* mat);
     void changeToneMap(ToneMap toneMap);
+    void changeLight(Light* light);
+    void renderMaterialsInterface();
+    void renderLightsInterface();
 
     struct MaterialGuiParams {
         Color diffuse;
@@ -55,13 +58,28 @@ private:
         std::array<float, 7> toneParams;
     };
 
+    struct LightGuiParams {
+        Color emission;
+        Vec3 position;
+        Vec3 direction;
+        float intensity;
+        float radius;
+        float cutOff;
+        float outerCutOff;
+        bool on;
+    };
+
     Scene _scene;
     Renderer _renderer;
 
-    sref<Camera> _camera = nullptr;
+    Camera* _camera = nullptr;
     PBRMaterial* _selMat = nullptr;
-    MaterialGuiParams _guiMat;
+    Light* _selLight = nullptr;
+    MaterialGuiParams _matParams;
     RendererGuiParams _rendererParams;
+    LightGuiParams _lightParams;
+    std::string _lightOpts;
+    int _lightIdx = 0;
 
     std::vector<Skybox> _skyboxes;
     std::string _skyboxOpts;

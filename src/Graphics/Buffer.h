@@ -8,7 +8,7 @@
 namespace pbr {
 
 enum class BufferType : unsigned int { Array = 0, Element = 1, Uniform = 2 };
-constexpr bool EnumHasConversion(BufferType);
+consteval bool EnumHasConversion(BufferType);
 
 enum class BufferFlag : unsigned int {
     None = 0,
@@ -20,8 +20,8 @@ enum class BufferFlag : unsigned int {
     ClientStorage = GL_CLIENT_STORAGE_BIT
 };
 
-constexpr bool EnumHasConversion(BufferFlag);
-constexpr bool EnableBitmaskOperators(BufferFlag);
+consteval bool EnumHasConversion(BufferFlag);
+consteval bool EnableBitmaskOperators(BufferFlag);
 
 inline bool HasFlag(BufferFlag lhs, BufferFlag rhs) {
     return (lhs & rhs) != BufferFlag::None;
@@ -46,6 +46,7 @@ public:
 
     template<typename T>
     T* get(std::size_t offset = 0) const {
+        DCHECK(ptr);
         return reinterpret_cast<T*>(ptr + offset);
     }
 
@@ -74,8 +75,6 @@ struct BufferRangeLock {
 
 class SyncedBuffer : public Buffer {
 public:
-    SyncedBuffer() = default;
-
     void waitRange(std::size_t start, std::size_t size);
     void lockRange(std::size_t start, std::size_t size);
 

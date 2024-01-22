@@ -13,6 +13,7 @@ public:
 
     Vec3 direction() const;
 
+    LightType type() const override { return LightType::Directional; }
     void toData(LightData& data) const override;
 };
 

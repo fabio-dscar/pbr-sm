@@ -20,18 +20,6 @@ Light::Light(const Color& emission, float intensity, const Vec3& position)
 Light::Light(const Color& emission, float intensity, const Mat4& lightToWorld)
     : SceneObject(lightToWorld), _emission(emission), _intensity(intensity) {}
 
-bool Light::isOn() const {
-    return _on;
-}
-
-float Light::intensity() const {
-    return _intensity;
-}
-
-Color Light::emission() const {
-    return _emission;
-}
-
 std::unique_ptr<Light> pbr::CreateLight(const ParameterMap& params) {
     auto type = params.lookup("type", "point"s);
 

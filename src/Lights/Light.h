@@ -36,10 +36,16 @@ public:
     Light(const Color& emission, float intensity, const Mat4& lightToWorld);
     virtual ~Light() = default;
 
-    bool isOn() const;
-    float intensity() const;
-    Color emission() const;
+    void toggle() { _on = !_on; }
+    bool isOn() const { return _on; }
 
+    float intensity() const { return _intensity; }
+    void setIntensity(float intensity) { _intensity = intensity; }
+
+    Color emission() const { return _emission; }
+    void setEmission(const Color& emission) { _emission = emission; }
+
+    virtual LightType type() const = 0;
     virtual void toData(LightData& data) const = 0;
 
 protected:

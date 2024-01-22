@@ -16,8 +16,15 @@ public:
 
     float cutOff() const;
     float outerCutOff() const;
+
+    void setCutoffs(float cutoff, float outerCutoff) {
+        _cutoff = cutoff;
+        _outerCutoff = std::max(outerCutoff, cutoff);
+    }
+
     Vec3 direction() const;
 
+    LightType type() const override { return LightType::Spot; }
     void toData(LightData& data) const override;
 
 private:

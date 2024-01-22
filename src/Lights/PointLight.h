@@ -11,6 +11,7 @@ public:
     PointLight(const Color& emission, float intensity, const Vec3& position);
     PointLight(const Color& emission, float intensity, const Mat4& toWorld);
 
+    LightType type() const override { return LightType::Point; }
     void toData(LightData& data) const override;
 };
 

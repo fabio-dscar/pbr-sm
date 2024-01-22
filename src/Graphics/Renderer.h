@@ -31,8 +31,6 @@ struct RendererData {
     float A, B, C, D, E, F, W;
 };
 
-static constexpr unsigned int NumLights = 5;
-
 class Renderer {
 public:
     void prepare();
