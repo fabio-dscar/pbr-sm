@@ -6,6 +6,7 @@ using namespace pbr;
 
 int main(int argc, char* argv[]) {
     try {
+        InitLogger();
         auto opts = ParseArgs(argc, argv);
         auto app = std::make_unique<PBRApp>("PBR Demo", opts);
         app->loop();

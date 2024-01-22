@@ -9,8 +9,8 @@ namespace pbr {
 
 enum class MouseButton : int { Left = 0, Right = 1, Middle = 2 };
 enum class KeyState : int { Released = 0, Pressed = 1, Repeat = 2 };
-constexpr bool EnumHasConversion(MouseButton);
-constexpr bool EnumHasConversion(KeyState);
+consteval bool EnumHasConversion(MouseButton);
+consteval bool EnumHasConversion(KeyState);
 
 struct MouseState {
     double x = 0.0;

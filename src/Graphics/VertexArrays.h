@@ -7,7 +7,7 @@
 namespace pbr {
 
 enum class AttribType : int { Byte = 0, Short = 1, UInt = 2, Float = 3 };
-constexpr bool EnumHasConversion(AttribType);
+consteval bool EnumHasConversion(AttribType);
 
 struct BufferLayoutEntry {
     unsigned int index = 0;

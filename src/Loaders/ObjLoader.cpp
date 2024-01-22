@@ -10,8 +10,10 @@ using namespace pbr::math;
 using namespace std::filesystem;
 
 std::optional<ObjFile> pbr::LoadObjFile(const fs::path& filePath) {
-    if (!std::filesystem::exists(filePath))
+    if (!std::filesystem::exists(filePath)) {
+        LOG_ERROR("Path {} does not exist.", filePath.string());
         return std::nullopt;
+    }
 
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;

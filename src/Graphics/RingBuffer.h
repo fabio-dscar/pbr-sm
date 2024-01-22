@@ -7,17 +7,15 @@ namespace pbr {
 
 struct BufferBind {
     unsigned int bindIdx = 0;
-    std::size_t  offset  = 0;
-    std::size_t  size    = 0;
+    std::size_t offset = 0;
+    std::size_t size = 0;
 };
 
 // Fence synchronized ring buffer with _num_ slots
 class RingBuffer : private SyncedBuffer {
 public:
-    RingBuffer() = default;
-
-    void create(
-        BufferType type, unsigned int num, std::size_t size, BufferFlag flags = BufferFlag::None);
+    void create(BufferType type, unsigned int numSlots, std::size_t size,
+                BufferFlag flags = BufferFlag::None);
 
     template<typename T>
     T* get() const {
@@ -41,9 +39,9 @@ public:
     void rebind() const;
 
 private:
-    std::size_t  baseSize = 0;
+    std::size_t baseSize = 0;
     unsigned int numSlots = 0;
-    unsigned int currIdx  = 0;
+    unsigned int currIdx = 0;
 
     std::vector<BufferBind> binds;
 };

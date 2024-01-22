@@ -47,7 +47,7 @@ std::unique_ptr<Shape> pbr::CreateMesh(const ParameterMap& params) {
         auto fullPath = parentDir / *fileName;
         auto objFile = LoadObjFile(fullPath);
         if (!objFile.has_value())
-            return nullptr;
+            FATAL("Unable to load mesh {}.", fullPath.string());
 
         geo = std::make_unique<Geometry>(std::move((*objFile).vertices),
                                          std::move((*objFile).indices));
@@ -61,10 +61,8 @@ std::unique_ptr<Shape> pbr::CreateMesh(const ParameterMap& params) {
         FATAL("Unknown mesh type.");
     }
 
-    if (!geo) {
-        LOG_ERROR("Couldn't load mesh's geometry.");
-        return nullptr;
-    }
+    if (!geo)
+        FATAL("Couldn't load mesh's geometry.");
 
     std::shared_ptr<Material> mat = std::make_shared<PBRMaterial>();
     auto mapref = params.lookup<ParameterMap*>("material", nullptr);

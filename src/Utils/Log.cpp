@@ -11,10 +11,10 @@ using namespace pbr;
 
 void pbr::InitLogger() {
     auto cliFormatter = std::make_unique<spdlog::pattern_formatter>();
-    cliFormatter->set_pattern("[%T.%F][%^%l%$] %v");
+    cliFormatter->set_pattern("[%^%l%$] %v");
 
     auto console = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-    console->set_level(spdlog::level::trace);
+    console->set_level(spdlog::level::info);
     console->set_formatter(std::move(cliFormatter));
 
     auto fileFormatter = std::make_unique<spdlog::pattern_formatter>();
