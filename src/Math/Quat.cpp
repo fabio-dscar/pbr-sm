@@ -222,7 +222,7 @@ Vector3 math::Rotate(const Quat& q, const Vector3& v) {
     Vector3 u(q.x, q.y, q.z);
     float s = q.w;
 
-    return 2.0f * dot(u, v) * u + (s * s - dot(u, u)) * v + 2.0f * s * cross(u, v);
+    return 2.0f * Dot(u, v) * u + (s * s - Dot(u, u)) * v + 2.0f * s * Cross(u, v);
 }
 
 Quat math::AxisAngle(const Vector3& axis, float angle) {
@@ -233,7 +233,7 @@ Quat math::AxisAngle(const Vector3& axis, float angle) {
 }
 
 Quat math::RotationAlign(const Vector3& from, const Vector3& to) {
-    auto cosTheta = dot(from, to);
+    auto cosTheta = Dot(from, to);
 
     // Handle from = -to
     if (cosTheta < -0.999999f) {
@@ -242,10 +242,10 @@ Quat math::RotationAlign(const Vector3& from, const Vector3& to) {
 
         // Find non colinear vector and compute a perpendicular axis
         Vector3 aux = std::abs(from.x) > std::abs(from.y) ? yAxis : xAxis;
-        Vector3 perp = cross(from, aux);
+        Vector3 perp = Cross(from, aux);
         return Normalize(AxisAngle(perp, math::PI));
     }
 
-    auto axis = cross(from, to);
+    auto axis = Cross(from, to);
     return Normalize(Quat{axis.x, axis.y, axis.z, 1.0f + cosTheta});
 }

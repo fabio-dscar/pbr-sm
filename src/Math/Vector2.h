@@ -56,15 +56,15 @@ std::ostream& operator<<(std::ostream& os, const Vector2& v);
 
 Vector2 operator*(float scalar, const Vector2& v);
 
-Vector2 abs(const Vector2& v);
-Vector2 pow(const Vector2& v, float exp);
-Vector2 normalize(const Vector2& v);
-Vector2 min(const Vector2& v1, const Vector2& v2);
-Vector2 max(const Vector2& v1, const Vector2& v2);
+Vector2 Abs(const Vector2& v);
+Vector2 Pow(const Vector2& v, float exp);
+Vector2 Normalize(const Vector2& v);
+Vector2 Min(const Vector2& v1, const Vector2& v2);
+Vector2 Max(const Vector2& v1, const Vector2& v2);
 
-float distance(const Vector2& v1, const Vector2& v2);
-float dot(const Vector2& v1, const Vector2& v2);
-float absDot(const Vector2& v1, const Vector2& v2);
+float Distance(const Vector2& v1, const Vector2& v2);
+float Dot(const Vector2& v1, const Vector2& v2);
+float AbsDot(const Vector2& v1, const Vector2& v2);
 } // namespace math
 } // namespace pbr
 

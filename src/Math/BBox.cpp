@@ -26,7 +26,7 @@ const Vec3& BBox3::operator[](uint32 i) const {
 }
 
 Vec3 BBox3::sizes() const {
-    return abs(_max - _min);
+    return Abs(_max - _min);
 }
 
 Vec3 BBox3::center() const {
@@ -45,7 +45,7 @@ Float BBox3::area() const {
 
 BSphere BBox3::sphere() const {
     const Vec3 pos = center();
-    const Float radius = distance(_max, pos);
+    const Float radius = Distance(_max, pos);
 
     return {pos, radius + FLOAT_EPSILON};
 }
@@ -65,18 +65,18 @@ void BBox3::expand(float size) {
 }
 
 void BBox3::expand(const Vec3& pt) {
-    _min = math::min(_min, pt);
-    _max = math::max(_max, pt);
+    _min = math::Min(_min, pt);
+    _max = math::Max(_max, pt);
 }
 
 void BBox3::expand(const BBox3& box) {
-    _min = math::min(_min, box[0]);
-    _max = math::max(_max, box[1]);
+    _min = math::Min(_min, box[0]);
+    _max = math::Max(_max, box[1]);
 }
 
 void BBox3::intersect(const BBox3& box) {
-    _min = math::max(_min, box[0]);
-    _max = math::min(_max, box[1]);
+    _min = math::Max(_min, box[0]);
+    _max = math::Min(_max, box[1]);
 }
 
 std::optional<float> BBox3::intersectRay(const Ray& ray, float tMax) const {
@@ -105,15 +105,15 @@ std::optional<float> BBox3::intersectRay(const Ray& ray, float tMax) const {
 }
 
 BBox3 math::Expand(const BBox3& box, const Vec3& pt) {
-    return {min(box.min(), pt), max(box.max(), pt)};
+    return {Min(box.min(), pt), Max(box.max(), pt)};
 }
 
 BBox3 math::Expand(const BBox3& box1, const BBox3& box2) {
-    return {min(box1.min(), box2.min()), max(box1.max(), box2.max())};
+    return {Min(box1.min(), box2.min()), Max(box1.max(), box2.max())};
 }
 
 BBox3 math::Intersection(const BBox3& box1, const BBox3& box2) {
-    return {max(box1.min(), box2.min()), min(box1.max(), box2.max())};
+    return {Max(box1.min(), box2.min()), Min(box1.max(), box2.max())};
 }
 
 bool math::Overlaps(const BBox3& box1, const BBox3& box2) {
@@ -150,7 +150,7 @@ Float BSphere::area() const {
 }
 
 bool BSphere::contains(const Vec3& pos) const {
-    Float d = distance(pos, _center);
+    Float d = Distance(pos, _center);
     return d < _radius;
 }
 
@@ -163,7 +163,7 @@ std::optional<float> BSphere::intersectRay(const Ray& ray, float tMax) const {
     const Vec3 cdir = ray.origin() - _center;
 
     // Solve quadratic
-    float B = dot(cdir, ray.direction());
+    float B = Dot(cdir, ray.direction());
     float C = cdir.lengthSqr() - _radius * _radius;
     float detSq = B * B - C;
     if (detSq >= 0.0) {

@@ -53,12 +53,12 @@ std::ostream& operator<<(std::ostream& os, const Vector4& v);
 
 Vector4 operator*(float scalar, const Vector4& v);
 
-Vector4 abs(const Vector4& v);
-Vector4 normalize(const Vector4& v);
+Vector4 Abs(const Vector4& v);
+Vector4 Normalize(const Vector4& v);
 
-float distance(const Vector4& v1, const Vector4& v2);
-float dot(const Vector4& v1, const Vector4& v2);
-float absDot(const Vector4& v1, const Vector4& v2);
+float Distance(const Vector4& v1, const Vector4& v2);
+float Dot(const Vector4& v1, const Vector4& v2);
+float AbsDot(const Vector4& v1, const Vector4& v2);
 
 } // namespace math
 } // namespace pbr

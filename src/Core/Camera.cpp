@@ -13,7 +13,7 @@ Camera::Camera(int32 width, int32 height, const Vec3& eye, const Vec3& at, const
 
     lookAt(eye, at, up);
 
-    Vector3 viewDir = normalize(at - eye);
+    Vector3 viewDir = Normalize(at - eye);
     _pitch = std::asin(-viewDir.y);
     _yaw = std::atan2(viewDir.x, -viewDir.z);
 }
@@ -63,7 +63,7 @@ void Camera::lookAt(const Vec3& eye, const Vec3& at, const Vec3& up) {
 }
 
 void Camera::lookAt(const Vec3& at) {
-    _objToWorld = math::LookAt(position(), at, normalize(Vec3(0.01, 1.0, 0.0)));
+    _objToWorld = math::LookAt(position(), at, Normalize(Vec3(0.01, 1.0, 0.0)));
 }
 
 const Mat4& Camera::viewMatrix() const {
@@ -114,7 +114,7 @@ Ray Camera::traceRay(const Vec2& px) const {
     Vec4 rayEye = Inverse(_projMatrix) * rayClip;
     rayEye = {rayEye.x, rayEye.y, -1.0, 0.0};
 
-    Vec3 rayWorld = normalize(Inverse(_objToWorld) * rayEye);
+    Vec3 rayWorld = Normalize(Inverse(_objToWorld) * rayEye);
 
     return {_position, rayWorld};
 }

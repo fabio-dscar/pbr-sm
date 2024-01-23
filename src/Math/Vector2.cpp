@@ -127,38 +127,38 @@ Vector2 math::operator*(float scalar, const Vector2& v) {
     return v * scalar;
 }
 
-Vector2 math::abs(const Vector2& v) {
+Vector2 math::Abs(const Vector2& v) {
     return {std::abs(v.x), std::abs(v.y)};
 }
 
-Vector2 math::normalize(const Vector2& v) {
+Vector2 math::Normalize(const Vector2& v) {
     float lenSqr = v.lengthSqr();
     if (lenSqr > 0)
         return v / std::sqrt(lenSqr);
     return {0};
 }
 
-Vector2 math::min(const Vector2& v1, const Vector2& v2) {
+Vector2 math::Min(const Vector2& v1, const Vector2& v2) {
     return {std::min(v1.x, v2.x), std::min(v1.y, v2.y)};
 }
 
-Vector2 math::max(const Vector2& v1, const Vector2& v2) {
+Vector2 math::Max(const Vector2& v1, const Vector2& v2) {
     return {std::max(v1.x, v2.x), std::max(v1.y, v2.y)};
 }
 
-float math::dot(const Vector2& v1, const Vector2& v2) {
+float math::Dot(const Vector2& v1, const Vector2& v2) {
     return v1.x * v2.x + v1.y * v2.y;
 }
 
-float math::absDot(const Vector2& v1, const Vector2& v2) {
-    return std::abs(math::dot(v1, v2));
+float math::AbsDot(const Vector2& v1, const Vector2& v2) {
+    return std::abs(math::Dot(v1, v2));
 }
 
-float math::distance(const Vector2& v1, const Vector2& v2) {
+float math::Distance(const Vector2& v1, const Vector2& v2) {
     Vector2 v = v1 - v2;
     return v.length();
 }
 
-Vector2 math::pow(const Vector2& v, float exp) {
+Vector2 math::Pow(const Vector2& v, float exp) {
     return {std::pow(v.x, exp), std::pow(v.y, exp)};
 }

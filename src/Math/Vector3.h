@@ -56,18 +56,18 @@ std::ostream& operator<<(std::ostream& os, const Vector3& v);
 
 Vector3 operator*(float scalar, const Vector3& v);
 
-Vector3 abs(const Vector3& v);
-Vector3 cross(const Vector3& v1, const Vector3& v2);
-Vector3 pow(const Vector3& v, float exp);
-Vector3 normalize(const Vector3& v);
-Vector3 min(const Vector3& v1, const Vector3& v2);
-Vector3 max(const Vector3& v1, const Vector3& v2);
+Vector3 Abs(const Vector3& v);
+Vector3 Cross(const Vector3& v1, const Vector3& v2);
+Vector3 Pow(const Vector3& v, float exp);
+Vector3 Normalize(const Vector3& v);
+Vector3 Min(const Vector3& v1, const Vector3& v2);
+Vector3 Max(const Vector3& v1, const Vector3& v2);
 
-float distance(const Vector3& v1, const Vector3& v2);
-float dot(const Vector3& v1, const Vector3& v2);
-float absDot(const Vector3& v1, const Vector3& v2);
+float Distance(const Vector3& v1, const Vector3& v2);
+float Dot(const Vector3& v1, const Vector3& v2);
+float AbsDot(const Vector3& v1, const Vector3& v2);
 
-void basisFromVector(const Vector3& v1, Vector3* v2, Vector3* v3);
+void BasisFromVector(const Vector3& v1, Vector3* v2, Vector3* v3);
 
 } // namespace math
 } // namespace pbr

@@ -139,7 +139,7 @@ void PBRApp::update(float dt) {
     }
 
     if (!moveDir.isZero()) {
-        _camera->setPosition(_camera->position() + normalize(moveDir) * dt * 6.0f);
+        _camera->setPosition(_camera->position() + Normalize(moveDir) * dt * 6.0f);
         _camera->updateViewMatrix();
     }
 

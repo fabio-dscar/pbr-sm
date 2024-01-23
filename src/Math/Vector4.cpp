@@ -135,26 +135,26 @@ Vector4 math::operator*(float scalar, const Vector4& v) {
     return v * scalar;
 }
 
-Vector4 math::abs(const Vector4& v) {
+Vector4 math::Abs(const Vector4& v) {
     return {std::abs(v.x), std::abs(v.y), std::abs(v.z), std::abs(v.w)};
 }
 
-Vector4 math::normalize(const Vector4& v) {
+Vector4 math::Normalize(const Vector4& v) {
     float lenSqr = v.lengthSqr();
     if (lenSqr > 0)
         return v / std::sqrt(lenSqr);
     return {0};
 }
 
-float math::dot(const Vector4& v1, const Vector4& v2) {
+float math::Dot(const Vector4& v1, const Vector4& v2) {
     return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w;
 }
 
-float math::absDot(const Vector4& v1, const Vector4& v2) {
-    return std::abs(math::dot(v1, v2));
+float math::Absdot(const Vector4& v1, const Vector4& v2) {
+    return std::abs(math::Dot(v1, v2));
 }
 
-float math::distance(const Vector4& v1, const Vector4& v2) {
+float math::Distance(const Vector4& v1, const Vector4& v2) {
     Vector4 v = v1 - v2;
     return v.length();
 }

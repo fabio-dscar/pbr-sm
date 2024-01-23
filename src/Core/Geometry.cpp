@@ -159,7 +159,7 @@ std::unique_ptr<Geometry> pbr::genUnitSphere(unsigned int widthSegments,
             vert.position.z = std::sin(u * 2.0f * PI) * std::sin(v * PI);
 
             // Normal
-            vert.normal = normalize(vert.position);
+            vert.normal = Normalize(vert.position);
 
             // Texture Coords
             vert.uv = {u, 1 - v};

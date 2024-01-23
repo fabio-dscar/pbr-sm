@@ -58,10 +58,10 @@ Matrix4x4 math::LookAt(const Vector3& eye, const Vector3& center, const Vector3&
 
     n.normalize();
 
-    Vector3 u = normalize(cross(up, n));
-    Vector3 v = cross(n, u);
+    Vector3 u = Normalize(Cross(up, n));
+    Vector3 v = Cross(n, u);
 
-    Vector3 tr = Vector3(dot(eye, u), dot(eye, v), dot(eye, n));
+    Vector3 tr = Vector3(Dot(eye, u), Dot(eye, v), Dot(eye, n));
 
     Matrix4x4 mat;
     mat(0, 0) = u.x;

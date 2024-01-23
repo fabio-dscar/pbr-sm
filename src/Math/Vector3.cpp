@@ -167,48 +167,48 @@ Vector3 math::operator*(float scalar, const Vector3& v) {
     return v * scalar;
 }
 
-Vector3 math::abs(const Vector3& v) {
+Vector3 math::Abs(const Vector3& v) {
     return {std::abs(v.x), std::abs(v.y), std::abs(v.z)};
 }
 
-Vector3 math::normalize(const Vector3& v) {
+Vector3 math::Normalize(const Vector3& v) {
     float lenSqr = v.lengthSqr();
     if (lenSqr > 0)
         return v / std::sqrt(lenSqr);
     return {0};
 }
 
-Vector3 math::min(const Vector3& v1, const Vector3& v2) {
+Vector3 math::Min(const Vector3& v1, const Vector3& v2) {
     return {std::min(v1.x, v2.x), std::min(v1.y, v2.y), std::min(v1.z, v2.z)};
 }
 
-Vector3 math::max(const Vector3& v1, const Vector3& v2) {
+Vector3 math::Max(const Vector3& v1, const Vector3& v2) {
     return {std::max(v1.x, v2.x), std::max(v1.y, v2.y), std::max(v1.z, v2.z)};
 }
 
-float math::dot(const Vector3& v1, const Vector3& v2) {
+float math::Dot(const Vector3& v1, const Vector3& v2) {
     return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
-float math::absDot(const Vector3& v1, const Vector3& v2) {
-    return std::abs(math::dot(v1, v2));
+float math::AbsDot(const Vector3& v1, const Vector3& v2) {
+    return std::abs(math::Dot(v1, v2));
 }
 
-Vector3 math::cross(const Vector3& v1, const Vector3& v2) {
+Vector3 math::Cross(const Vector3& v1, const Vector3& v2) {
     return {(v1.y * v2.z) - (v1.z * v2.y), (v1.z * v2.x) - (v1.x * v2.z),
             (v1.x * v2.y) - (v1.y * v2.x)};
 }
 
-float math::distance(const Vector3& v1, const Vector3& v2) {
+float math::Distance(const Vector3& v1, const Vector3& v2) {
     Vector3 v = v1 - v2;
     return v.length();
 }
 
-Vector3 math::pow(const Vector3& v, float exp) {
+Vector3 math::Pow(const Vector3& v, float exp) {
     return {std::pow(v.x, exp), std::pow(v.y, exp), std::pow(v.z, exp)};
 }
 
-void math::basisFromVector(const Vector3& v1, Vector3* v2, Vector3* v3) {
+void math::BasisFromVector(const Vector3& v1, Vector3* v2, Vector3* v3) {
     // Reference: [Duff et. al, 2017] - "Building an Orthonormal Basis, Revisited"
     const float sign = std::copysign(1.0f, v1.z);
     const float a = -1.0f / (sign + v1.z);

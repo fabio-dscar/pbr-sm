@@ -17,7 +17,7 @@ DirectionalLight::DirectionalLight(const Color& emission, float intensity,
                                    const Vec3& dir)
     : Light(emission, intensity) {
 
-    auto lightDir = normalize(dir);
+    auto lightDir = Normalize(dir);
     setOrientation(RotationAlign(DefaultDir, lightDir));
 }
 
@@ -28,7 +28,7 @@ DirectionalLight::DirectionalLight(const Color& emission, float intensity,
 }
 
 Vec3 DirectionalLight::direction() const {
-    return normalize(Rotate(_orientation, DefaultDir));
+    return Normalize(Rotate(_orientation, DefaultDir));
 }
 
 void DirectionalLight::toData(LightData& data) const {
