@@ -1,5 +1,5 @@
-#ifndef __PBR_PERSPECTIVE_H__
-#define __PBR_PERSPECTIVE_H__
+#ifndef PBR_PERSPECTIVE_H
+#define PBR_PERSPECTIVE_H
 
 #include <Camera.h>
 

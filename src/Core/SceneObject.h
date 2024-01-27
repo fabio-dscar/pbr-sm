@@ -1,5 +1,5 @@
-#ifndef __PBR_SCENEOBJ_H__
-#define __PBR_SCENEOBJ_H__
+#ifndef PBR_SCENEOBJ_H
+#define PBR_SCENEOBJ_H
 
 #include <PBR.h>
 #include <PBRMath.h>

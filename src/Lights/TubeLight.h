@@ -1,5 +1,5 @@
-#ifndef __PBR_TUBELIGHT_H__
-#define __PBR_TUBELIGHT_H__
+#ifndef PBR_TUBELIGHT_H
+#define PBR_TUBELIGHT_H
 
 #include <Light.h>
 
@@ -25,4 +25,4 @@ private:
 
 } // namespace pbr
 
-#endif // __TUBELIGHT_H__
+#endif

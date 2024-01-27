@@ -1,5 +1,5 @@
-#ifndef __PBR_CAMERA_H__
-#define __PBR_CAMERA_H__
+#ifndef PBR_CAMERA_H
+#define PBR_CAMERA_H
 
 #include <SceneObject.h>
 #include <Ray.h>

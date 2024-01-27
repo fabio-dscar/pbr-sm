@@ -1,5 +1,5 @@
-#ifndef __PBR_HASH_H__
-#define __PBR_HASH_H__
+#ifndef PBR_HASH_H
+#define PBR_HASH_H
 
 #include <PBRMath.h>
 

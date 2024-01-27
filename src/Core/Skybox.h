@@ -1,5 +1,5 @@
-#ifndef __PBR_SKYBOX_H__
-#define __PBR_SKYBOX_H__
+#ifndef PBR_SKYBOX_H
+#define PBR_SKYBOX_H
 
 #include <PBR.h>
 

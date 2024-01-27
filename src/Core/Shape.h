@@ -1,5 +1,5 @@
-#ifndef __PBR_SHAPE_H__
-#define __PBR_SHAPE_H__
+#ifndef PBR_SHAPE_H
+#define PBR_SHAPE_H
 
 #include <BBox.h>
 #include <SceneObject.h>

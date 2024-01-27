@@ -1,5 +1,5 @@
-#ifndef __PBR_GEOMETRY_H__
-#define __PBR_GEOMETRY_H__
+#ifndef PBR_GEOMETRY_H
+#define PBR_GEOMETRY_H
 
 #include <PBR.h>
 #include <PBRMath.h>

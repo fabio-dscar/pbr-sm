@@ -1,5 +1,5 @@
-#ifndef __PBR_TRANSFORM_H__
-#define __PBR_TRANSFORM_H__
+#ifndef PBR_TRANSFORM_H
+#define PBR_TRANSFORM_H
 
 #include <PBR.h>
 #include <PBRMath.h>

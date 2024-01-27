@@ -1,5 +1,5 @@
-#ifndef __PBR_GUI_H__
-#define __PBR_GUI_H__
+#ifndef PBR_GUI_H
+#define PBR_GUI_H
 
 #include <OpenGLApplication.h>
 #include <span>

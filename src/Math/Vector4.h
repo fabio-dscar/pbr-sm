@@ -1,5 +1,5 @@
-#ifndef __PBR_VECTOR4_H__
-#define __PBR_VECTOR4_H__
+#ifndef PBR_VECTOR4_H
+#define PBR_VECTOR4_H
 
 #include <PBR.h>
 
@@ -10,7 +10,7 @@ class Vector3;
 
 class Vector4 {
 public:
-    float x = 0, y = 0, z = 0 , w = 1;
+    float x = 0, y = 0, z = 0, w = 1;
 
     Vector4() = default;
     Vector4(float s) : x(s), y(s), z(s), w(1) {}

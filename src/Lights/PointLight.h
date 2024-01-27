@@ -1,5 +1,5 @@
-#ifndef __PBR_POINTLIGHT_H__
-#define __PBR_POINTLIGHT_H__
+#ifndef PBR_POINTLIGHT_H
+#define PBR_POINTLIGHT_H
 
 #include <Light.h>
 

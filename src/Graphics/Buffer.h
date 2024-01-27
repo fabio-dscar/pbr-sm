@@ -1,5 +1,5 @@
-#ifndef __PBR_BUFFER_H__
-#define __PBR_BUFFER_H__
+#ifndef PBR_BUFFER_H
+#define PBR_BUFFER_H
 
 #include <glad/glad.h>
 #include <PBR.h>

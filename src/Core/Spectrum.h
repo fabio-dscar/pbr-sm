@@ -1,5 +1,5 @@
-#ifndef __PBR_SPECTRUM_H__
-#define __PBR_SPECTRUM_H__
+#ifndef PBR_SPECTRUM_H
+#define PBR_SPECTRUM_H
 
 #include <PBR.h>
 #include <PBRMath.h>

@@ -1,5 +1,5 @@
-#ifndef __PBR_TEXTURE_H__
-#define __PBR_TEXTURE_H__
+#ifndef PBR_TEXTURE_H
+#define PBR_TEXTURE_H
 
 #include <PBR.h>
 #include <Image.h>
@@ -78,4 +78,4 @@ inline int MaxMipLevel(int width, int height = 0, int depth = 0) {
 
 } // namespace pbr
 
-#endif // __PBR_TEXTURE_H__
+#endif

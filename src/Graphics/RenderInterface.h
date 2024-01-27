@@ -1,5 +1,5 @@
-#ifndef __PBR_RI_H__
-#define __PBR_RI_H__
+#ifndef PBR_RI_H
+#define PBR_RI_H
 
 #include <glad/glad.h>
 

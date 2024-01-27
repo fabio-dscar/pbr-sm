@@ -1,5 +1,5 @@
-#ifndef __PBR_RAY_H__
-#define __PBR_RAY_H__
+#ifndef PBR_RAY_H
+#define PBR_RAY_H
 
 #include <PBRMath.h>
 

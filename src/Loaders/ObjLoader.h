@@ -1,5 +1,5 @@
-#ifndef __PBR_OBJLOADER_H__
-#define __PBR_OBJLOADER_H__
+#ifndef PBR_OBJLOADER_H
+#define PBR_OBJLOADER_H
 
 #include <PBR.h>
 #include <Geometry.h>

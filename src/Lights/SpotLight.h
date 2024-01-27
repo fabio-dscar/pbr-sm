@@ -1,5 +1,5 @@
-#ifndef __PBR_SPOTLIGHT_H__
-#define __PBR_SPOTLIGHT_H__
+#ifndef PBR_SPOTLIGHT_H
+#define PBR_SPOTLIGHT_H
 
 #include <Light.h>
 

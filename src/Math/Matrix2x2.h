@@ -1,5 +1,5 @@
-#ifndef __PBR_MATRIX2X2_H__
-#define __PBR_MATRIX2X2_H__
+#ifndef PBR_MATRIX2X2_H
+#define PBR_MATRIX2X2_H
 
 #include <PBR.h>
 

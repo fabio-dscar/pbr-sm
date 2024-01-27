@@ -1,5 +1,5 @@
-#ifndef __PBR_RENDERER_H__
-#define __PBR_RENDERER_H__
+#ifndef PBR_RENDERER_H
+#define PBR_RENDERER_H
 
 #include <PBR.h>
 #include <Spectrum.h>

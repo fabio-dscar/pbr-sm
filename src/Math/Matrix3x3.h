@@ -1,5 +1,5 @@
-#ifndef __PBR_MATRIX3X3_H__
-#define __PBR_MATRIX3X3_H__
+#ifndef PBR_MATRIX3X3_H
+#define PBR_MATRIX3X3_H
 
 #include <PBR.h>
 

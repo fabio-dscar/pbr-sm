@@ -1,5 +1,5 @@
-#ifndef __PBR_SHADER_H__
-#define __PBR_SHADER_H__
+#ifndef PBR_SHADER_H
+#define PBR_SHADER_H
 
 #include <PBR.h>
 #include <PBRMath.h>

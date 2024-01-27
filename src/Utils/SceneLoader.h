@@ -1,5 +1,5 @@
-#ifndef __PBR_LOADER_H__
-#define __PBR_LOADER_H__
+#ifndef PBR_LOADER_H
+#define PBR_LOADER_H
 
 #include <PBR.h>
 #include <PBRMath.h>
@@ -75,4 +75,4 @@ private:
 
 } // namespace pbr
 
-#endif // __LOADER_H__
+#endif

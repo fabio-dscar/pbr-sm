@@ -1,5 +1,5 @@
-#ifndef __PBR_PBRMATERIAL_H__
-#define __PBR_PBRMATERIAL_H__
+#ifndef PBR_PBRMATERIAL_H
+#define PBR_PBRMATERIAL_H
 
 #include <Material.h>
 #include <PBR.h>

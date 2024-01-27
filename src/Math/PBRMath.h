@@ -1,5 +1,5 @@
-#ifndef __PBR_MATH_H__
-#define __PBR_MATH_H__
+#ifndef PBR_MATH_H
+#define PBR_MATH_H
 
 #include <PBR.h>
 #include <Vector2.h>

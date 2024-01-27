@@ -1,5 +1,5 @@
-#ifndef __PBR_LIGHT_H__
-#define __PBR_LIGHT_H__
+#ifndef PBR_LIGHT_H
+#define PBR_LIGHT_H
 
 #include <SceneObject.h>
 #include <Spectrum.h>

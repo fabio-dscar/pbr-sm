@@ -1,5 +1,5 @@
-#ifndef __PBR_VECTOR2_H__
-#define __PBR_VECTOR2_H__
+#ifndef PBR_VECTOR2_H
+#define PBR_VECTOR2_H
 
 #include <PBR.h>
 
@@ -65,6 +65,7 @@ Vector2 Max(const Vector2& v1, const Vector2& v2);
 float Distance(const Vector2& v1, const Vector2& v2);
 float Dot(const Vector2& v1, const Vector2& v2);
 float AbsDot(const Vector2& v1, const Vector2& v2);
+
 } // namespace math
 } // namespace pbr
 

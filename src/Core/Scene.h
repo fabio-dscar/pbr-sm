@@ -1,5 +1,5 @@
-#ifndef __PBR_SCENE_H__
-#define __PBR_SCENE_H__
+#ifndef PBR_SCENE_H
+#define PBR_SCENE_H
 
 #include <PBR.h>
 #include <BBox.h>

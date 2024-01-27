@@ -1,5 +1,5 @@
-#ifndef __PBR_XMLDOC_H__
-#define __PBR_XMLDOC_H__
+#ifndef PBR_XMLDOC_H
+#define PBR_XMLDOC_H
 
 #include <pugixml/pugixml.hpp>
 #include <PBR.h>

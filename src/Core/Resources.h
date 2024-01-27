@@ -1,5 +1,5 @@
-#ifndef __PBR_RESOURCES_H__
-#define __PBR_RESOURCES_H__
+#ifndef PBR_RESOURCES_H
+#define PBR_RESOURCES_H
 
 #include <PBR.h>
 

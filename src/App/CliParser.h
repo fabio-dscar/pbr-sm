@@ -1,5 +1,5 @@
-#ifndef __PBR_CLIPARSER_H__
-#define __PBR_CLIPARSER_H__
+#ifndef PBR_CLIPARSER_H
+#define PBR_CLIPARSER_H
 
 #include <string>
 
@@ -17,4 +17,4 @@ CliOptions ParseArgs(int argc, char* argv[]);
 
 } // namespace pbr
 
-#endif // __PBR_CLIPARSER_H__
+#endif

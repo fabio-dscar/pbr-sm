@@ -1,5 +1,5 @@
-#ifndef __PBR_IMAGE_H__
-#define __PBR_IMAGE_H__
+#ifndef PBR_IMAGE_H
+#define PBR_IMAGE_H
 
 #include <PBR.h>
 #include <variant>
@@ -149,4 +149,4 @@ std::unique_ptr<std::byte[]> ExtractChannel(const ImageView imgView, int c, int 
 
 } // namespace pbr
 
-#endif // __PBR_IMAGE_H__
+#endif

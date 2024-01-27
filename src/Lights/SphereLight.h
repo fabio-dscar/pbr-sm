@@ -1,5 +1,5 @@
-#ifndef __PBR_SPHERELIGHT_H__
-#define __PBR_SPHERELIGHT_H__
+#ifndef PBR_SPHERELIGHT_H
+#define PBR_SPHERELIGHT_H
 
 #include <Light.h>
 

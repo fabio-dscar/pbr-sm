@@ -1,5 +1,5 @@
-#ifndef __PBR_MESH_H__
-#define __PBR_MESH_H__
+#ifndef PBR_MESH_H
+#define PBR_MESH_H
 
 #include <Shape.h>
 

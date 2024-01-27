@@ -1,5 +1,5 @@
-#ifndef __PBR_DIRLIGHT_H__
-#define __PBR_DIRLIGHT_H__
+#ifndef PBR_DIRLIGHT_H
+#define PBR_DIRLIGHT_H
 
 #include <Light.h>
 

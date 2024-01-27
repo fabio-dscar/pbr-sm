@@ -1,5 +1,5 @@
-#ifndef __PBR_UTIL_H__
-#define __PBR_UTIL_H__
+#ifndef PBR_UTIL_H
+#define PBR_UTIL_H
 
 #include <PBR.h>
 

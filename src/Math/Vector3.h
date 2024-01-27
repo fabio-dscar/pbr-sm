@@ -1,5 +1,5 @@
-#ifndef __PBR_VECTOR3_H__
-#define __PBR_VECTOR3_H__
+#ifndef PBR_VECTOR3_H
+#define PBR_VECTOR3_H
 
 #include <PBR.h>
 

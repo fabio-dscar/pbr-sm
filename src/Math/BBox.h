@@ -1,5 +1,5 @@
-#ifndef __PBR_BBOX_H__
-#define __PBR_BBOX_H__
+#ifndef PBR_BBOX_H
+#define PBR_BBOX_H
 
 #include <PBRMath.h>
 

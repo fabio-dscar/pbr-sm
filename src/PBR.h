@@ -1,5 +1,5 @@
-#ifndef __PBR_PBR_H__
-#define __PBR_PBR_H__
+#ifndef PBR_PBR_H
+#define PBR_PBR_H
 
 #if defined(_WIN32) || defined(_WIN64)
 #define PBR_WINDOWS

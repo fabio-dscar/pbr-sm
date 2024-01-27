@@ -1,5 +1,5 @@
-#ifndef __PBR_OGLAPP_H__
-#define __PBR_OGLAPP_H__
+#ifndef PBR_OGLAPP_H
+#define PBR_OGLAPP_H
 
 #include <PBR.h>
 

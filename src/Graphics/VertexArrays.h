@@ -1,5 +1,5 @@
-#ifndef __PBR_VERTEXARRAYS_H__
-#define __PBR_VERTEXARRAYS_H__
+#ifndef PBR_VERTEXARRAYS_H
+#define PBR_VERTEXARRAYS_H
 
 #include <PBR.h>
 #include <Buffer.h>
@@ -61,4 +61,4 @@ public:
 
 } // namespace pbr
 
-#endif // __PBR_VERTEXARRAYS_H__
+#endif

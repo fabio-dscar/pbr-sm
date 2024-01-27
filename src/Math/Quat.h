@@ -1,5 +1,5 @@
-#ifndef __PBR_QUAT_H__
-#define __PBR_QUAT_H__
+#ifndef PBR_QUAT_H
+#define PBR_QUAT_H
 
 #include <PBR.h>
 #include <Vector3.h>

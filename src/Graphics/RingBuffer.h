@@ -1,5 +1,5 @@
-#ifndef __PBR_RINGBUFFER_H__
-#define __PBR_RINGBUFFER_H__
+#ifndef PBR_RINGBUFFER_H
+#define PBR_RINGBUFFER_H
 
 #include <Buffer.h>
 

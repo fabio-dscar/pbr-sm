@@ -1,5 +1,5 @@
-#ifndef __PBR_PBRAPP_H__
-#define __PBR_PBRAPP_H__
+#ifndef PBR_PBRAPP_H
+#define PBR_PBRAPP_H
 
 #include <OpenGLApplication.h>
 
