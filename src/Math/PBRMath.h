@@ -70,6 +70,10 @@ inline constexpr Float Radians(Float degrees) {
     return (PI / 180.0) * degrees;
 }
 
+inline constexpr Float Degrees(Float radians) {
+    return (180.0 / PI) * radians;
+}
+
 inline constexpr Float Lerp(Float t, Float v1, Float v2) {
     return (1 - t) * v1 + t * v2;
 }

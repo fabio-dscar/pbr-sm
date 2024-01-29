@@ -51,6 +51,7 @@ public:
 
     void setClearCoat(float clearCoat);
     void setClearCoatRoughness(float roughness);
+    void setClearCoatNormal(RRID clearCoatNormal);
 
     void setOcclusion(RRID occlusionTex);
     void setEmissive(RRID emissiveTex);

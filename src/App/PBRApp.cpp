@@ -1,37 +1,29 @@
 #include <PBRApp.h>
 
-#include <GLFW/glfw3.h>
 #include <PBRMath.h>
-
 #include <Resources.h>
 #include <RenderInterface.h>
-
 #include <Shape.h>
 #include <Texture.h>
 #include <Skybox.h>
-
 #include <Camera.h>
 #include <Perspective.h>
-
 #include <Transform.h>
-
 #include <PBRMaterial.h>
-
 #include <GUI.h>
-#include <imgui.h>
-
 #include <Utils.h>
 #include <Ray.h>
-
 #include <SceneLoader.h>
-
-#include <chrono>
-#include <format>
-
 #include <TubeLight.h>
 #include <SphereLight.h>
 #include <DirectionalLight.h>
 #include <SpotLight.h>
+
+#include <GLFW/glfw3.h>
+#include <imgui.h>
+
+#include <chrono>
+#include <format>
 
 using namespace pbr;
 using namespace pbr::util;
@@ -84,6 +76,8 @@ void PBRApp::prepare(const CliOptions& opts) {
     const auto& lights = _scene.lights();
     if (lights.size() > 0)
         changeLight(lights[0].get());
+    for (std::size_t l = 0; l < lights.size(); ++l)
+        _lightOpts.append(std::format("Light{}\0", l));
 
     reshape(_width, _height);
 }
@@ -159,6 +153,15 @@ void PBRApp::processKeys(int key, int scancode, int action, int mods) {
         _showGUI = !_showGUI;
     else if (checkKey('P', KeyState::Pressed))
         takeSnapshot();
+
+    if (checkKey('1', KeyState::Pressed))
+        changeSkybox(0);
+    else if (checkKey('2', KeyState::Pressed))
+        changeSkybox(1);
+    else if (checkKey('3', KeyState::Pressed))
+        changeSkybox(2);
+    else if (checkKey('4', KeyState::Pressed))
+        changeSkybox(3);
 }
 
 void PBRApp::updateMaterial(Material* mat) {
@@ -225,11 +228,8 @@ void PBRApp::renderLightsInterface() {
     ImGui::SetNextWindowSize({417, 171}, ImGuiCond_Once);
     ImGui::Begin("Lights");
 
-    std::stringstream ss;
     const auto& lights = _scene.lights();
-    for (std::size_t l = 0; l < lights.size(); ++l)
-        ss << "Light" << l << '\0'; // std::format("Light{}\0", l);
-    if (ImGui::Combo("Light", &_lightIdx, ss.str().c_str()))
+    if (ImGui::Combo("Light", &_lightIdx, _lightOpts.c_str()))
         changeLight(lights[_lightIdx].get());
 
     if (_selLight) {

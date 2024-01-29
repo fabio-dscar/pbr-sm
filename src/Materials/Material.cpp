@@ -49,8 +49,10 @@ std::shared_ptr<Material> pbr::CreateMaterial(const ParameterMap& params) {
     if (auto tex = params.lookup<std::string>("emissive"))
         mat->setEmissive(LoadTexture(parent / tex.value()));
 
+    mat->setClearCoat(params.lookup<float>("clearcoat", 0.0f));
+
     if (auto tex = params.lookup<std::string>("clearnormal"))
-        mat->setEmissive(LoadTexture(parent / tex.value()));
+        mat->setClearCoatNormal(LoadTexture(parent / tex.value()));
 
     return mat;
 }

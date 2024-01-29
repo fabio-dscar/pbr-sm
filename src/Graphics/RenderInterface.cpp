@@ -165,12 +165,9 @@ void RenderInterface::checkOpenGLError(const std::string& error) {
 bool RenderInterface::isOpenGLError() {
     bool isError = false;
     GLenum errCode;
-    // const GLubyte* errString;
     while ((errCode = glGetError()) != GL_NO_ERROR) {
         isError = true;
-        // errString = gluErrorString(errCode);
-        // std::cerr << "OpenGL ERROR [" << errString << "]." << std::endl;
-        std::cerr << "OpenGL ERROR [" << errCode << "]." << std::endl;
+        std::cerr << "OpenGL ERROR [" << errCode << "].\n";
     }
     return isError;
 }

@@ -150,7 +150,7 @@ float math::Dot(const Vector4& v1, const Vector4& v2) {
     return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w;
 }
 
-float math::Absdot(const Vector4& v1, const Vector4& v2) {
+float math::AbsDot(const Vector4& v1, const Vector4& v2) {
     return std::abs(math::Dot(v1, v2));
 }
 

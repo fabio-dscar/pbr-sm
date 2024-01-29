@@ -20,8 +20,7 @@ PBRMaterial::PBRMaterial()
 }
 
 PBRMaterial::PBRMaterial(const Color& diff, float metallic, float roughness)
-    : Material(), _diffuse(diff), _f0(0.5f), _metallic(metallic),
-      _roughness(roughness) {
+    : Material(), _diffuse(diff), _f0(0.5f), _metallic(metallic), _roughness(roughness) {
 
     init();
 }
@@ -118,6 +117,10 @@ float PBRMaterial::clearCoat() const {
 
 float PBRMaterial::clearCoatRough() const {
     return _clearCoatRough;
+}
+
+void PBRMaterial::setClearCoatNormal(RRID clearCoatNormal) {
+    _maps[Index(CLEARCOAT_NORMAL_MAP)] = clearCoatNormal;
 }
 
 Color PBRMaterial::diffuse() const {

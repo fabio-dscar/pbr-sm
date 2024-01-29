@@ -57,10 +57,10 @@ layout(location = 17) uniform sampler2D brdfTex;
 out vec4 outColor;
 
 struct ShadingContext {
-    vec3 V, N, R, L, H;
+    vec3 V, N, R, L, H, Rcc;
     vec3 kd, F0, Li, Le;
     vec3 clearCoatNormal;
-    float NdotV, NdotL;
+    float NdotV, NdotL, NdotVcc;
     float a, ao, att, specNorm, metal, rough, dist;
 };
 
@@ -179,8 +179,8 @@ vec3 EnvironmentLighting(in ShadingContext sc) {
     // ---------------------------------------------------------------------
     //    Clearcoat
     // ---------------------------------------------------------------------
-    float Fcc = fresnSchlick(sc.NdotV, ClearCoatF0, 1.0) * clearCoat;
-    vec3 iblClearCoat = EvalSpecularIBL(sc.R, sc.NdotV, vec3(ClearCoatF0), clearCoatRough);
+    float Fcc = fresnSchlick(sc.NdotVcc, ClearCoatF0, 1.0) * clearCoat;
+    vec3 iblClearCoat = EvalSpecularIBL(sc.Rcc, sc.NdotVcc, vec3(ClearCoatF0), clearCoatRough);
 
     // Attenuate base layer
     iblDiffuse *= 1.0 - Fcc;
@@ -211,16 +211,18 @@ vec3 ShadingLight(in ShadingContext sc) {
     //    Clearcoat
     // ---------------------------------------------------------------------
     float HdotL = clamp(dot(sc.H, sc.L), 0.0, 1.0);
+    float NdotHcc = clamp(dot(sc.clearCoatNormal, sc.H), 0.0, 1.0);
+    float NdotLcc = max(dot(sc.clearCoatNormal, sc.L), 0.0);
 
     float remapClearRough = clamp(clearCoatRough, 0.089, 1.0);
     float clearCoatA = remapClearRough * remapClearRough;
 
-    float Dcc = distGGX(NdotH, clearCoatA);
+    float Dcc = distGGX(NdotHcc, clearCoatA);
     float Vcc = visKelemen(HdotL);
     float Fcc = fresnSchlick(HdotV, ClearCoatF0, 1.0) * clearCoat;
     float clearCoatLayer = Dcc * Vcc * Fcc;
 
-    return (baseLayer * (1.0 - Fcc) + clearCoatLayer) * Li * sc.NdotL;
+    return (baseLayer * (1.0 - Fcc) * sc.NdotL + clearCoatLayer * NdotLcc) * Li;
 #else
     return baseLayer * Li * sc.NdotL;
 #endif
@@ -253,6 +255,11 @@ void main(void) {
     GetMaterial(sc);
 
     sc.NdotV = clamp(dot(sc.N, sc.V), 0.0, 1.0);
+
+#ifdef HAS_CLEARCOAT
+    sc.Rcc = reflect(-sc.V, sc.clearCoatNormal);
+    sc.NdotVcc = clamp(dot(sc.clearCoatNormal, sc.V), 0.0, 1.0);
+#endif
 
     vec3 Lenv = EnvironmentLighting(sc) * envIntensity;
 
