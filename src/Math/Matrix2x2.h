@@ -33,8 +33,8 @@ public:
     bool operator==(const Matrix2x2& mat) const;
     bool operator!=(const Matrix2x2& mat) const;
 
-    float operator()(uint32 i, uint32 j) const;
-    float& operator()(uint32 i, uint32 j);
+    float operator()(unsigned int i, unsigned int j) const;
+    float& operator()(unsigned int i, unsigned int j);
 
     float trace() const;
     float det() const;

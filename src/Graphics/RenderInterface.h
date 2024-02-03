@@ -21,6 +21,10 @@ class VertexArrays;
 class Geometry;
 class Image;
 
+enum class CullMode : int { Front = 0, Back  = 1};
+
+consteval bool EnableConversion(CullMode);
+
 class RenderInterface {
 public:
     static RenderInterface& get() {
@@ -30,14 +34,17 @@ public:
 
     void initialize();
 
-    void bindTextures(uint32 first, uint32 size, std::span<const uint32> texs);
+    void setCullFace(CullMode mode);
 
-    void setFloat(int32 loc, float val);
-    void setVector3(int32 loc, const Vec3& vec);
-    void setVector4(int32 loc, const Vec4& vec);
-    void setMatrix3(int32 loc, const Mat3& mat);
-    void setMatrix4(int32 loc, const Mat4& mat);
-    void setSampler(int32 loc, uint32 id);
+    void bindTextures(unsigned int first, unsigned int size,
+                      std::span<const unsigned int> texs);
+
+    void setFloat(int loc, float val);
+    void setVector3(int loc, const Vec3& vec);
+    void setVector4(int loc, const Vec4& vec);
+    void setMatrix3(int loc, const Mat3& mat);
+    void setMatrix4(int loc, const Mat4& mat);
+    void setSampler(int loc, unsigned int id);
 
     bool isOpenGLError();
     void checkOpenGLError(const std::string& error);

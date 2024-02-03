@@ -161,11 +161,11 @@ bool Matrix4x4::operator!=(const Matrix4x4& mat) const {
     return !(*this == mat);
 }
 
-float Matrix4x4::operator()(uint32 i, uint32 j) const {
+float Matrix4x4::operator()(unsigned int i, unsigned int j) const {
     return m[j][i];
 }
 
-float& Matrix4x4::operator()(uint32 i, uint32 j) {
+float& Matrix4x4::operator()(unsigned int i, unsigned int j) {
     return m[j][i];
 }
 

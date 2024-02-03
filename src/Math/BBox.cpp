@@ -18,7 +18,7 @@ bool BBox3::contains(const Vec3& pos) const {
            (pos.z <= _max.z && pos.z >= _min.z);
 }
 
-const Vec3& BBox3::operator[](uint32 i) const {
+const Vec3& BBox3::operator[](unsigned int i) const {
     if (i == 0)
         return _min;
 

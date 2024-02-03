@@ -19,7 +19,7 @@ enum BufferIndices : int {
 };
 
 enum class ToneMap : int { Parametric = 0, Aces = 1, BoostedAces = 2, FastAces = 3 };
-constexpr bool EnumHasConversion(ToneMap);
+constexpr bool EnableConversion(ToneMap);
 
 struct RendererData {
     float gamma;

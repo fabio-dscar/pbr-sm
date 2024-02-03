@@ -15,7 +15,7 @@ enum class LightType : int {
     Tube = 5
 };
 
-consteval bool EnumHasConversion(LightType);
+consteval bool EnableConversion(LightType);
 
 // Light data for shader blocks
 // CARE: data is properly aligned to std140, do not change

@@ -63,7 +63,7 @@ constexpr auto operator&(const T lhs, const T rhs) {
 }
 
 template<typename T>
-    requires(std::is_enum_v<T> and requires(T e) { EnumHasConversion(e); })
+    requires(std::is_enum_v<T> and requires(T e) { EnableConversion(e); })
 constexpr auto ToUnderlying(const T enumVal) {
     using underlying = std::underlying_type_t<T>;
     return static_cast<underlying>(enumVal);

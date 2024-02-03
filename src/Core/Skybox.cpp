@@ -27,9 +27,9 @@ void Skybox::draw() const {
 
     RHI.bindTextures(5, 1, std::array{_cube->id()});
 
-    glCullFace(GL_FRONT);
+    RHI.setCullFace(CullMode::Front);
     _geometry->draw();
-    glCullFace(GL_BACK);
+    RHI.setCullFace(CullMode::Back);
 }
 
 Skybox pbr::CreateSkybox(const ParameterMap& params) {

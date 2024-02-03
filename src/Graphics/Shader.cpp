@@ -79,7 +79,7 @@ void ShaderSource::include(const std::string& include) {
     source.insert(end + 1, include);
 }
 
-uint32 ShaderSource::id() const {
+unsigned int ShaderSource::id() const {
     return handle;
 }
 

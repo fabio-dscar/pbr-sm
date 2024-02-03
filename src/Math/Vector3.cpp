@@ -72,7 +72,7 @@ bool Vector3::operator!=(const Vector3& v) const {
     return !(*this == v);
 }
 
-float Vector3::operator[](uint32 idx) const {
+float Vector3::operator[](unsigned int idx) const {
     if (idx == 0)
         return x;
 
@@ -82,7 +82,7 @@ float Vector3::operator[](uint32 idx) const {
     return z;
 }
 
-float& Vector3::operator[](uint32 idx) {
+float& Vector3::operator[](unsigned int idx) {
     if (idx == 0)
         return x;
 

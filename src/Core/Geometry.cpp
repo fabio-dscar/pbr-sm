@@ -26,7 +26,7 @@ struct hash<Vertex> {
 
 } // namespace std
 
-Geometry::Geometry(std::vector<Vertex>&& vertices, std::vector<uint32>&& indices) {
+Geometry::Geometry(std::vector<Vertex>&& vertices, std::vector<unsigned int>&& indices) {
     _vertices = std::move(vertices);
     _indices = std::move(indices);
 
@@ -49,17 +49,18 @@ void Geometry::addVertex(const Vertex& vertex) {
     _vertices.push_back(vertex);
 }
 
-void Geometry::addIndex(uint32 idx) {
+void Geometry::addIndex(unsigned int idx) {
     _indices.push_back(idx);
 }
 
-const Vertex& Geometry::getVertex(uint32 faceIdx, uint32 vertIdx) const {
-    uint32 idx = _indices[faceIdx * 3 + vertIdx];
+const Vertex& Geometry::getVertex(unsigned int faceIdx, unsigned int vertIdx) const {
+    unsigned int idx = _indices[faceIdx * 3 + vertIdx];
     return _vertices[idx];
 }
 
-void Geometry::addTangent(uint32 faceIdx, uint32 vertIdx, const Vec3& tan, float sign) {
-    uint32 idx = _indices[faceIdx * 3 + vertIdx];
+void Geometry::addTangent(unsigned int faceIdx, unsigned int vertIdx, const Vec3& tan,
+                          float sign) {
+    unsigned int idx = _indices[faceIdx * 3 + vertIdx];
     _vertices[idx].tangent = {tan.x, tan.y, tan.z, sign};
 }
 
@@ -67,7 +68,7 @@ const std::vector<Vertex>& Geometry::vertices() const {
     return _vertices;
 }
 
-const std::vector<uint32>& Geometry::indices() const {
+const std::vector<unsigned int>& Geometry::indices() const {
     return _indices;
 }
 

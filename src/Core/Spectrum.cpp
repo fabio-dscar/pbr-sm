@@ -74,7 +74,7 @@ RGBSpectrum& RGBSpectrum::operator/=(const RGBSpectrum& rgb) {
     return *this;
 }
 
-float RGBSpectrum::operator[](uint32 idx) const {
+float RGBSpectrum::operator[](unsigned int idx) const {
     if (idx == 0)
         return r;
 
@@ -84,7 +84,7 @@ float RGBSpectrum::operator[](uint32 idx) const {
     return b;
 }
 
-float& RGBSpectrum::operator[](uint32 idx) {
+float& RGBSpectrum::operator[](unsigned int idx) {
     if (idx == 0)
         return r;
 

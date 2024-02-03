@@ -7,7 +7,7 @@
 
 using namespace pbr;
 
-Camera::Camera(int32 width, int32 height, const Vec3& eye, const Vec3& at, const Vec3& up,
+Camera::Camera(int width, int height, const Vec3& eye, const Vec3& at, const Vec3& up,
                float n, float f)
     : _width(width), _height(height), _far(f), _near(n) {
 
@@ -18,11 +18,11 @@ Camera::Camera(int32 width, int32 height, const Vec3& eye, const Vec3& at, const
     _yaw = std::atan2(viewDir.x, -viewDir.z);
 }
 
-int32 Camera::width() const {
+int Camera::width() const {
     return _width;
 }
 
-int32 Camera::height() const {
+int Camera::height() const {
     return _height;
 }
 

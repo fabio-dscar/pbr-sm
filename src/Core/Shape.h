@@ -10,14 +10,13 @@ namespace pbr {
 namespace math {
 
 class Ray;
-struct RayHitInfo;
 
 } // namespace math
 
 class Material;
 class Geometry;
 
-enum ShapeUniform : uint32 { MODEL_MATRIX = 20, NORMAL_MATRIX = 21 };
+enum ShapeUniform : unsigned int { MODEL_MATRIX = 20, NORMAL_MATRIX = 21 };
 
 class Shape : public SceneObject {
 public:

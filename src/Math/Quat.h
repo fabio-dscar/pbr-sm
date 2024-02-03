@@ -33,8 +33,8 @@ public:
     Quat operator/(float scalar) const;
     Quat& operator/=(float scalar);
 
-    float operator[](uint32 idx) const;
-    float& operator[](uint32 idx);
+    float operator[](unsigned int idx) const;
+    float& operator[](unsigned int idx);
 
     Quat conj() const;
 

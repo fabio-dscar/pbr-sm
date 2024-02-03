@@ -80,11 +80,11 @@ bool Matrix2x2::operator!=(const Matrix2x2& mat) const {
     return !(*this == mat);
 }
 
-float Matrix2x2::operator()(uint32 i, uint32 j) const {
+float Matrix2x2::operator()(unsigned int i, unsigned int j) const {
     return m[j][i];
 }
 
-float& Matrix2x2::operator()(uint32 i, uint32 j) {
+float& Matrix2x2::operator()(unsigned int i, unsigned int j) {
     return m[j][i];
 }
 

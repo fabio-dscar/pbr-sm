@@ -35,8 +35,8 @@ public:
     bool operator==(const Vector2& v) const;
     bool operator!=(const Vector2& v) const;
 
-    float operator[](uint32 idx) const;
-    float& operator[](uint32 idx);
+    float operator[](unsigned int idx) const;
+    float& operator[](unsigned int idx);
 
     float lengthSqr() const;
     float length() const;

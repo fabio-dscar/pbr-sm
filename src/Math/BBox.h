@@ -17,7 +17,7 @@ public:
 
     const Vec3& min() const;
     const Vec3& max() const;
-    const Vec3& operator[](uint32 i) const;
+    const Vec3& operator[](unsigned int i) const;
 
     Vec3 sizes() const;
     Vec3 center() const;

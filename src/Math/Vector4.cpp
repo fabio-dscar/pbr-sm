@@ -66,7 +66,7 @@ bool Vector4::operator!=(const Vector4& v) const {
     return !(*this == v);
 }
 
-float Vector4::operator[](uint32 idx) const {
+float Vector4::operator[](unsigned int idx) const {
     if (idx == 0)
         return x;
 
@@ -79,7 +79,7 @@ float Vector4::operator[](uint32 idx) const {
     return w;
 }
 
-float& Vector4::operator[](uint32 idx) {
+float& Vector4::operator[](unsigned int idx) {
     if (idx == 0)
         return x;
 

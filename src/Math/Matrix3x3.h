@@ -35,8 +35,8 @@ public:
     bool operator==(const Matrix3x3& mat) const;
     bool operator!=(const Matrix3x3& mat) const;
 
-    float operator()(uint32 i, uint32 j) const;
-    float& operator()(uint32 i, uint32 j);
+    float operator()(unsigned int i, unsigned int j) const;
+    float& operator()(unsigned int i, unsigned int j);
 
     float trace() const;
     float det() const;

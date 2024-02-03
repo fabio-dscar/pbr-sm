@@ -37,8 +37,8 @@ public:
     RGBSpectrum operator/(const RGBSpectrum& scalar) const;
     RGBSpectrum& operator/=(const RGBSpectrum& scalar);
 
-    float operator[](uint32 idx) const;
-    float& operator[](uint32 idx);
+    float operator[](unsigned int idx) const;
+    float& operator[](unsigned int idx);
 
     float max() const;
     float min() const;

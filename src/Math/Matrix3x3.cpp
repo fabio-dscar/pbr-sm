@@ -110,11 +110,11 @@ bool Matrix3x3::operator!=(const Matrix3x3& mat) const {
     return !(*this == mat);
 }
 
-float Matrix3x3::operator()(uint32 i, uint32 j) const {
+float Matrix3x3::operator()(unsigned int i, unsigned int j) const {
     return m[j][i];
 }
 
-float& Matrix3x3::operator()(uint32 i, uint32 j) {
+float& Matrix3x3::operator()(unsigned int i, unsigned int j) {
     return m[j][i];
 }
 

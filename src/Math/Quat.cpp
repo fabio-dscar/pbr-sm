@@ -111,7 +111,7 @@ Quat& Quat::operator/=(float scalar) {
     return *this;
 }
 
-float Quat::operator[](uint32 idx) const {
+float Quat::operator[](unsigned int idx) const {
     if (idx == 0)
         return w;
 
@@ -124,7 +124,7 @@ float Quat::operator[](uint32 idx) const {
     return z;
 }
 
-float& Quat::operator[](uint32 idx) {
+float& Quat::operator[](unsigned int idx) {
     if (idx == 0)
         return w;
 

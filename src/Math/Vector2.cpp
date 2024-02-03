@@ -58,14 +58,14 @@ bool Vector2::operator!=(const Vector2& v) const {
     return !(*this == v);
 }
 
-float Vector2::operator[](uint32 idx) const {
+float Vector2::operator[](unsigned int idx) const {
     if (idx == 0)
         return x;
 
     return y;
 }
 
-float& Vector2::operator[](uint32 idx) {
+float& Vector2::operator[](unsigned int idx) {
     if (idx == 0)
         return x;
 

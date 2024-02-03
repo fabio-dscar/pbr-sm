@@ -24,6 +24,8 @@ void BindNamedTexture(const std::string& name, unsigned int texUnit) {
     glBindTextures(texUnit, 1, &handle);
 }
 
+const std::array OglCullMode{GL_FRONT, GL_BACK};
+
 } // namespace
 
 // clang-format off
@@ -95,32 +97,36 @@ void RenderInterface::initMainShaders() {
     Resource.add<Program>("skybox", std::move(skyProg));
 }
 
-void RenderInterface::bindTextures(uint32 first, uint32 size,
-                                   std::span<const uint32> texs) {
+void RenderInterface::setCullFace(CullMode mode) {
+    glCullFace(OglCullMode[ToUnderlying(mode)]);
+}
+
+void RenderInterface::bindTextures(unsigned int first, unsigned int size,
+                                   std::span<const unsigned int> texs) {
     glBindTextures(first, size, texs.data());
 }
 
-void RenderInterface::setFloat(int32 loc, float val) {
+void RenderInterface::setFloat(int loc, float val) {
     glUniform1f(loc, val);
 }
 
-void RenderInterface::setVector3(int32 loc, const Vec3& vec) {
-    glUniform3fv(loc, 1, (const GLfloat*)&vec);
+void RenderInterface::setVector3(int loc, const Vec3& vec) {
+    glUniform3fv(loc, 1, reinterpret_cast<const GLfloat*>(&vec));
 }
 
-void RenderInterface::setVector4(int32 loc, const Vec4& vec) {
-    glUniform4fv(loc, 1, (const GLfloat*)&vec);
+void RenderInterface::setVector4(int loc, const Vec4& vec) {
+    glUniform4fv(loc, 1, reinterpret_cast<const GLfloat*>(&vec));
 }
 
-void RenderInterface::setMatrix3(int32 loc, const Mat3& mat) {
-    glUniformMatrix3fv(loc, 1, GL_FALSE, (const GLfloat*)&mat);
+void RenderInterface::setMatrix3(int loc, const Mat3& mat) {
+    glUniformMatrix3fv(loc, 1, GL_FALSE, reinterpret_cast<const GLfloat*>(&mat));
 }
 
-void RenderInterface::setMatrix4(int32 loc, const Mat4& mat) {
-    glUniformMatrix4fv(loc, 1, GL_FALSE, (const GLfloat*)&mat);
+void RenderInterface::setMatrix4(int loc, const Mat4& mat) {
+    glUniformMatrix4fv(loc, 1, GL_FALSE, reinterpret_cast<const GLfloat*>(&mat));
 }
 
-void RenderInterface::setSampler(int32 loc, uint32 id) {
+void RenderInterface::setSampler(int loc, unsigned int id) {
     glUniform1i(loc, id);
 }
 
@@ -196,7 +202,10 @@ std::shared_ptr<Texture> pbr::CreateNamedCubemap(const std::string& name,
 }
 
 Image pbr::ReadMainFramebuffer(int x, int y, int width, int height) {
-    Image img{{PixelFormat::U8, width, height, 3}, 1};
+    Image img{
+        {PixelFormat::U8, width, height, 3},
+        1
+    };
     glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, img.data());
     return img;
 }
