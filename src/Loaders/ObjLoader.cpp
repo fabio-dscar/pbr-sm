@@ -10,8 +10,10 @@ using namespace pbr::math;
 using namespace std::filesystem;
 
 std::optional<ObjFile> pbr::LoadObjFile(const fs::path& filePath) {
+    auto filePathStr = filePath.string();
+
     if (!std::filesystem::exists(filePath)) {
-        LOG_ERROR("Path {} does not exist.", filePath.string());
+        LOG_ERROR("Path {} does not exist.", filePathStr);
         return std::nullopt;
     }
 
@@ -20,13 +22,13 @@ std::optional<ObjFile> pbr::LoadObjFile(const fs::path& filePath) {
     std::vector<tinyobj::material_t> materials;
     std::string err;
 
-    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, filePath.c_str())) {
-        LOG_ERROR("Failed to load obj file {}: {}", filePath.string(), err);
+    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, filePathStr.c_str())) {
+        LOG_ERROR("Failed to load obj file {}: {}", filePathStr, err);
         return std::nullopt;
     }
 
     ObjFile objFile;
-    objFile.objName = filePath.filename();
+    objFile.objName = filePath.filename().string();
 
     auto& vertices = objFile.vertices;
     auto& indices = objFile.indices;

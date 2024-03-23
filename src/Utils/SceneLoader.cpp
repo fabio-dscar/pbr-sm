@@ -54,7 +54,7 @@ void CheckMandatoryAttrs(const XMLElement& xmlEl, std::span<const std::string> a
 
 std::unique_ptr<Scene> SceneLoader::parse(const fs::path& filePath) {
     XMLDoc doc;
-    auto root = doc.open(filePath);
+    auto root = doc.open(filePath.string());
     if (!root) {
         LOG_ERROR("Error loading scene XML file");
         return nullptr;

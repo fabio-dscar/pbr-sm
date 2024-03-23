@@ -40,7 +40,7 @@ Skybox pbr::CreateSkybox(const ParameterMap& params) {
 
     auto folder = optFolder.value();
     auto fullPath = parentDir / folder;
-    std::string fname = fullPath.filename();
+    std::string fname = fullPath.filename().string();
 
     auto cube = CreateNamedCubemap(fname + "_cube", fullPath / "cube.cube");
     auto irr = CreateNamedCubemap(fname + "_irradiance", fullPath / "irradiance.cube");

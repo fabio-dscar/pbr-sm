@@ -1,5 +1,16 @@
 # Real Time PBR Shading Model
 
+## Cloning and Submodules
+Requires initialization of submodules on clone, using `--recurse-submodules`
+```
+git clone --recurse-submodules <repo>
+```
+
+Or after cloning
+```
+git submodule update --init
+```
+
 ## Building
 
 Requires a C++ compiler that is C++20 standard compliant and CMake. Example from within the repository's root:

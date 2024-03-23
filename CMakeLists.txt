@@ -105,8 +105,11 @@ add_custom_command(
                                      ${CMAKE_SOURCE_DIR}/data/Shaders ${CMAKE_BINARY_DIR}/glsl
 )
 
-set(DEBUG_FLAGS -Wall -Wextra -Wpedantic)
-set(RELEASE_FLAGS -O3 -march=native)
+if(NOT MSVC)
+    set(DEBUG_FLAGS -Wall -Wextra -Wpedantic)
+    set(RELEASE_FLAGS -O3 -march=native)
+endif()
+
 target_compile_options(
     pbr-sm PRIVATE "$<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:${RELEASE_FLAGS}>"
                    "$<$<CONFIG:Debug>:${DEBUG_FLAGS}>"

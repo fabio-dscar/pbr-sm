@@ -30,22 +30,22 @@ Vec3 BBox3::sizes() const {
 }
 
 Vec3 BBox3::center() const {
-    return (Float)0.5 * (_max + _min);
+    return 0.5f * (_max + _min);
 }
 
-Float BBox3::volume() const {
+float BBox3::volume() const {
     Vec3 len = sizes();
     return len.x * len.y * len.z;
 }
 
-Float BBox3::area() const {
+float BBox3::area() const {
     Vec3 len = sizes();
     return 2.0 * (len.x * len.y + len.x * len.z + len.y * len.z);
 }
 
 BSphere BBox3::sphere() const {
     const Vec3 pos = center();
-    const Float radius = Distance(_max, pos);
+    const float radius = Distance(_max, pos);
 
     return {pos, radius + FLOAT_EPSILON};
 }
@@ -141,16 +141,16 @@ const Vec3& BSphere::center() const {
     return _center;
 }
 
-Float BSphere::radius() const {
+float BSphere::radius() const {
     return _radius;
 }
 
-Float BSphere::area() const {
+float BSphere::area() const {
     return 4 * PI * _radius * _radius;
 }
 
 bool BSphere::contains(const Vec3& pos) const {
-    Float d = Distance(pos, _center);
+    float d = Distance(pos, _center);
     return d < _radius;
 }
 

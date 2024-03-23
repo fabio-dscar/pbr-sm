@@ -21,21 +21,20 @@
 using namespace pbr;
 
 namespace {
+
 // clang-format off
-std::unique_ptr<Image> LoadPNGImage(const fs::path& filePath) {
+std::unique_ptr<Image> LoadPNGImage(const std::string& filePath) {
     std::vector<unsigned char> png;
     std::vector<unsigned char> image;
 
     unsigned error = lodepng::load_file(png, filePath);
     if (error)
-        FATAL("Error loading png file {}. {}", filePath.string(),
-              lodepng_error_text(error));
+        FATAL("Error loading png file {}. {}", filePath, lodepng_error_text(error));
 
     auto pngInfo = lodepng::getPNGHeaderInfo(png);
 
     if (pngInfo.color.bitdepth == 16)
-        FATAL("Error loading png file {}. 16 bit depth not supported.",
-              filePath.string());
+        FATAL("Error loading png file {}. 16 bit depth not supported.", filePath);
 
     lodepng::State state;
     state.info_raw = pngInfo.color;
@@ -43,8 +42,7 @@ std::unique_ptr<Image> LoadPNGImage(const fs::path& filePath) {
     unsigned width, height;
     error = lodepng::decode(image, width, height, state, png);
     if (error)
-        FATAL("Error decoding png file {}. {}", filePath.string(),
-              lodepng_error_text(error));
+        FATAL("Error decoding png file {}. {}", filePath, lodepng_error_text(error));
 
     int numChannels = 0;
     switch (state.info_png.color.colortype) {
@@ -67,7 +65,7 @@ std::unique_ptr<Image> LoadPNGImage(const fs::path& filePath) {
 
 const std::array LodeNumChanToType = {LCT_GREY, LCT_GREY_ALPHA, LCT_RGB, LCT_RGBA};
 
-void SavePNGImage(const fs::path& filePath, const Image& image) {
+void SavePNGImage(const std::string& filePath, const Image& image) {
     lodepng::State state;
     lodepng_state_init(&state);
 
@@ -79,15 +77,13 @@ void SavePNGImage(const fs::path& filePath, const Image& image) {
     auto imgData = reinterpret_cast<const unsigned char*>(image.data());
     unsigned error = lodepng::encode(png, imgData, fmt.width, fmt.height, state);
     if (error)
-        FATAL("Error encoding png file {}. {}", filePath.string(),
-              lodepng_error_text(error));
+        FATAL("Error encoding png file {}. {}", filePath, lodepng_error_text(error));
 
     lodepng_state_cleanup(&state);
 
     error = lodepng::save_file(png, filePath);
     if (error)
-        FATAL("Error saving png file {}. {}", filePath.string(),
-              lodepng_error_text(error));
+        FATAL("Error saving png file {}. {}", filePath, lodepng_error_text(error));
 }
 
 struct ImgHeader {
@@ -102,7 +98,7 @@ struct ImgHeader {
     std::uint32_t levels;
 };
 
-std::unique_ptr<Image> LoadImgFormatImage(const fs::path& filePath) {
+std::unique_ptr<Image> LoadImgFormatImage(const std::string& filePath) {
     std::ifstream file(filePath, std::ios::in | std::ios::binary);
     if (file.fail()) {
         perror(filePath.c_str());
@@ -123,7 +119,7 @@ std::unique_ptr<Image> LoadImgFormatImage(const fs::path& filePath) {
     return std::make_unique<Image>(fmt, ptr.get(), header.levels);
 }
 
-void SaveImgFormatImage(const fs::path& filePath, const Image& image) {
+void SaveImgFormatImage(const std::string& filePath, const Image& image) {
     const auto imgFmt = image.format();
 
     ImgHeader header;
@@ -187,10 +183,8 @@ std::unique_ptr<CubeImage> LoadCubeFormatCube(const fs::path& filePath) {
 
 std::optional<std::string> util::ReadTextFile(const fs::path& filePath) {
     std::ifstream file(filePath, std::ios_base::in | std::ios_base::ate);
-    if (file.fail()) {
-        perror(filePath.c_str());
-        return {};
-    }
+    if (file.fail()) 
+        return std::nullopt;
 
     std::string contents;
     contents.reserve(static_cast<std::size_t>(file.tellg()));
@@ -205,9 +199,9 @@ std::optional<std::string> util::ReadTextFile(const fs::path& filePath) {
 std::unique_ptr<Image> util::LoadImage(const fs::path& filePath) {
     auto ext = filePath.extension().string();
     if (ext == ".png")
-        return LoadPNGImage(filePath);
+        return LoadPNGImage(filePath.string());
     else if (ext == ".img") {
-        return LoadImgFormatImage(filePath);
+        return LoadImgFormatImage(filePath.string());
     }
 
     FATAL("Unsupported format {}", ext);
@@ -216,9 +210,9 @@ std::unique_ptr<Image> util::LoadImage(const fs::path& filePath) {
 void util::SaveImage(const fs::path& filePath, const Image& image) {
     auto ext = filePath.extension().string();
     if (ext == ".png")
-        SavePNGImage(filePath, image);
+        SavePNGImage(filePath.string(), image);
     else if (ext == ".img")
-        SaveImgFormatImage(filePath, image);
+        SaveImgFormatImage(filePath.string(), image);
     else
         FATAL("Unsupported format.");
 }

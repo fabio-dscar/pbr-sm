@@ -13,34 +13,25 @@
 
 namespace pbr {
 
-#if PBR_DOUBLE
-using Float = double;
+static constexpr float FLOAT_EPSILON = 1e-5f;
+static constexpr float ONE_MINUS_EPSILON = 1.0f - FLOAT_EPSILON;
 
-static constexpr const Float FLOAT_EPSILON = 1e-10;
-static constexpr const Float ONE_MINUS_EPSILON = 1.0 - FLOAT_EPSILON;
-#else
-using Float = float;
-
-static constexpr Float FLOAT_EPSILON = 1e-5f; // 1e-6
-static constexpr Float ONE_MINUS_EPSILON = 1.0f - FLOAT_EPSILON;
-#endif
-
-static constexpr Float FLOAT_INFINITY = std::numeric_limits<Float>::infinity();
-static constexpr Float FLOAT_LOWEST = std::numeric_limits<Float>::lowest();
-static constexpr Float FLOAT_MAXIMUM = std::numeric_limits<Float>::max();
+static constexpr float FLOAT_INFINITY = std::numeric_limits<float>::infinity();
+static constexpr float FLOAT_LOWEST = std::numeric_limits<float>::lowest();
+static constexpr float FLOAT_MAXIMUM = std::numeric_limits<float>::max();
 
 namespace math {
 
-static constexpr Float PI = 3.14159265358979323846;
-static constexpr Float INVPI = 0.31830988618379067154;
-static constexpr Float INV2PI = 0.15915494309189533577;
-static constexpr Float INV4PI = 0.07957747154594766788;
-static constexpr Float PIOVER2 = 1.57079632679489661923;
-static constexpr Float PIOVER4 = 0.78539816339744830961;
-static constexpr Float SQRTINVPI = 0.56418958354775628694;
-static constexpr Float SQRT2 = 1.41421356237309504880;
-static constexpr Float INVSQRT2 = 0.7071067811865475244;
-static constexpr Float INVLOG2 = 1.44269504088896338700;
+static constexpr float PI = 3.14159265358979323846;
+static constexpr float INVPI = 0.31830988618379067154;
+static constexpr float INV2PI = 0.15915494309189533577;
+static constexpr float INV4PI = 0.07957747154594766788;
+static constexpr float PIOVER2 = 1.57079632679489661923;
+static constexpr float PIOVER4 = 0.78539816339744830961;
+static constexpr float SQRTINVPI = 0.56418958354775628694;
+static constexpr float SQRT2 = 1.41421356237309504880;
+static constexpr float INVSQRT2 = 0.7071067811865475244;
+static constexpr float INVLOG2 = 1.44269504088896338700;
 
 template<typename T, typename U, typename R = std::common_type_t<T, U>>
 inline constexpr R Max(T x, U y) {
@@ -62,19 +53,19 @@ inline constexpr T Clamp(T val, T low, T high) {
     return Clamp<T, T, T>(val, low, high);
 }
 
-inline constexpr Float SafeAcos(Float x) {
+inline float SafeAcos(float x) {
     return std::acos(Clamp(x, -1.0, 1.0));
 }
 
-inline constexpr Float Radians(Float degrees) {
+inline constexpr float Radians(float degrees) {
     return (PI / 180.0) * degrees;
 }
 
-inline constexpr Float Degrees(Float radians) {
+inline constexpr float Degrees(float radians) {
     return (180.0 / PI) * radians;
 }
 
-inline constexpr Float Lerp(Float t, Float v1, Float v2) {
+inline constexpr float Lerp(float t, float v1, float v2) {
     return (1 - t) * v1 + t * v2;
 }
 

@@ -193,7 +193,7 @@ ShaderSource pbr::LoadShaderFile(ShaderType type, const fs::path& filePath) {
     if (!source.has_value())
         FATAL("Couldn't load shader file {}", filePath.string());
 
-    return {filePath.filename(), type, source.value()};
+    return {filePath.filename().string(), type, source.value()};
 }
 
 std::string pbr::BuildDefinesBlock(std::span<std::string> defines) {
